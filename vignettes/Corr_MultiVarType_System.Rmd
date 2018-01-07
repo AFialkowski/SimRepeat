@@ -554,7 +554,7 @@ data2 <- merge(merge(merge(data2.a, data2.b, by = c("Subject", "Time")),
   data2.c, by = c("Subject", "Time")), data2.d, by = c("Subject", "Time"))
 ```
 
-Errors $E_1, E_2,$ and $E_3$ modeled as having Gaussian distributions:   
+Errors $E_1, E_2,$ and $E_3$ modeled as having Gaussian distributions [@LmerTest]:   
 
 ```{r}
 library("lmerTest")

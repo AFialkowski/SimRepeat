@@ -383,7 +383,7 @@ betas.tint &lt;- list(c(0.25, 0.5))</code></pre>
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.424 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.409 minutes</code></pre>
 <pre class="r"><code>knitr::kable(Sys1$constants[[1]], booktabs = TRUE, 
   caption = &quot;PMT constants for Y_1&quot;)</code></pre>
 <table>
@@ -1531,7 +1531,7 @@ diag(corr.u[[1]][[1]]) &lt;- diag(corr.u[[2]][[2]]) &lt;-
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.414 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.406 minutes</code></pre>
 </div>
 <div id="step-4-describe-results-1" class="section level3 unnumbered">
 <h3>Step 4: Describe results</h3>
@@ -1867,7 +1867,7 @@ data2.a$Time &lt;- data2.b$Time &lt;- data2.c$Time &lt;- data2.d$Time &lt;-
   c(rep(1, n), rep(2, n), rep(3, n))
 data2 &lt;- merge(merge(merge(data2.a, data2.b, by = c(&quot;Subject&quot;, &quot;Time&quot;)), 
   data2.c, by = c(&quot;Subject&quot;, &quot;Time&quot;)), data2.d, by = c(&quot;Subject&quot;, &quot;Time&quot;))</code></pre>
-<p>Errors <span class="math inline">\(E_1, E_2,\)</span> and <span class="math inline">\(E_3\)</span> modeled as having Gaussian distributions:</p>
+<p>Errors <span class="math inline">\(E_1, E_2,\)</span> and <span class="math inline">\(E_3\)</span> modeled as having Gaussian distributions <span class="citation">(Kuznetsova, Brockhoff, and Christensen 2017)</span>:</p>
 <pre class="r"><code>library(&quot;lmerTest&quot;)
 fm2 &lt;- lmer(Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 + 
   ord1_1:cont1 + pois1_1:cont1 + ord1_1:pois1_1:cont1 + ord1_1:mix1 + 
@@ -2179,7 +2179,7 @@ betas.tint &lt;- list(c(0.25, 0.5), NULL, c(0.25, 0.5))</code></pre>
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
   betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u, seed, 
   use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.222 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.215 minutes</code></pre>
 </div>
 <div id="step-4-describe-results-2" class="section level3 unnumbered">
 <h3>Step 4: Describe results</h3>
@@ -2868,6 +2868,9 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 </div>
 <div id="ref-Higham">
 <p>Higham, N. 2002. “Computing the Nearest Correlation Matrix - a Problem from Finance.” <em>IMA Journal of Numerical Analysis</em> 22 (3): 329–43. <a href="https://doi.org/10.1093/imanum/22.3.329" class="uri">https://doi.org/10.1093/imanum/22.3.329</a>.</p>
+</div>
+<div id="ref-LmerTest">
+<p>Kuznetsova, Alexandra, Per B. Brockhoff, and Rune H. B. Christensen. 2017. “lmerTest Package: Tests in Linear Mixed Effects Models.” <em>Journal of Statistical Software</em> 82 (13): 1–26. <a href="https://doi.org/10.18637/jss.v082.i13" class="uri">https://doi.org/10.18637/jss.v082.i13</a>.</p>
 </div>
 <div id="ref-Stats">
 <p>R Core Team. 2017. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
