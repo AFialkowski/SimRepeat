@@ -30,7 +30,39 @@ Example 1: System of three equations for 5 independent variables with no random 
 
 ### Description of Variables
 
-![](man/figures/README1.pdf)
+1.  **Ordinal variable:** X\_ord(1) has 3 categories (i.e., drug treatment) and is the same in each equation
+2.  **Continuous variables:**
+
+<!-- -->
+
+1.  X\_cont(1) is a time-varying covariate (subject-level term) with an AR(1, p = 0.5) correlation structure
+
+<!-- -->
+
+1.  X\_cont(11) has a Chisq(df = 2) distribution
+2.  X\_cont(21) has a Chisq(df = 4) distribution
+3.  X\_cont(31) has a Chisq(df = 8) distribution
+
+<!-- -->
+
+1.  X\_mix(1) is a normal mixture time-varying covariate (subject-level term), components have an AR(1, p = 0.4) correlation structure across Y
+
+<!-- -->
+
+1.  **Poisson variable:** X\_pois(1) is a zero-inflated Poisson variable with mean = 15, the probability of a structural zero set at 0.10, and is the same in each equation
+2.  **Negative Binomial variable:** X\_nb(1) is a regular NB time-varying covariate (subject-level term) with an AR(1, p = 0.3) correlation structure and increasing mean and variance
+
+<!-- -->
+
+1.  X\_nb(11) has a size of 10 and mean of 3
+2.  X\_nb(21) has a size of 10 and mean of 4
+3.  X\_nb(31) has a size of 10 and mean of 5
+
+<!-- -->
+
+1.  **Error terms** have a Beta(4, 1.5) distribution with an AR(1, p = 0.4) correlation structure. These require a sixth cumulant correction of 0.03.
+
+There is an interaction between X\_ord(1) and X\_pois(1) for each Y. Since they are both group-level covariates, the interaction is also a group-level covariate that will interact with the subject-level covariates X\_cont(1), X\_mix(1) and X\_nb(1). However, only X\_ord(1) and X\_pois(1) interact with time in this example. Normally their interaction would also interact with time. A description of this HLM model may be found in the package vignettes.
 
 ``` r
 library("SimRepeat")
@@ -195,7 +227,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.208 minutes
+#> Total Simulation time: 0.21 minutes
 ```
 
 ``` r
@@ -552,7 +584,13 @@ All of the slope coefficients are estimated well except for the intercept. This 
 Example 2: System from Example 1 with random intercept, random slope for time, and random effect for the continuous mixture variables
 -------------------------------------------------------------------------------------------------------------------------------------
 
-![](man/figures/README2.pdf)
+### Description of Variables
+
+1.  **Random intercept:** U\_0 has a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75
+2.  **Random slope for time:** U\_1 has a t(df = 10) distribution
+3.  **Correlation** between random effects is 0.4
+
+In this example, the random intercept and time slope have continuous non-mixture distributions for all Y. However, the functions `corrsys` and `corrsys2` permit a combination of none, non-mixture, and mixture distributions across the Y (i.e., if `rand.int = c("non_mix", "mix", "none")` then the random intercept for Y\_1 has a non-mixture, and the random intercept for Y\_2 has a mixture distribution; there is no random intercept for Y\_3). In addition, the distributions themselves can vary across outcomes. This is also true for random effects assigned to independent variables as specified in `rand.var`.
 
 ### Step 1: Set up parameter inputs
 
@@ -610,7 +648,7 @@ Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.175 minutes
+#> Total Simulation time: 0.18 minutes
 ```
 
 ### Step 4: Describe results
