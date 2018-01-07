@@ -30,59 +30,7 @@ Example 1: System of three equations for 5 independent variables with no random 
 
 ### Description of Variables
 
-1.  **Ordinal variable:** *X*<sub>*o**r**d*(1)</sub> has 3 categories (i.e., drug treatment) and is the same in each equation
-2.  **Continuous variables:**
-
-<!-- -->
-
-1.  *X*<sub>*c**o**n**t*</sub> is a time-varying covariate (subject-level term) with an AR(1, p = 0.5) correlation structure
-
-<!-- -->
-
-1.  *X*<sub>*c**o**n**t*(11)</sub> has a Chisq(df = 2) distribution
-2.  *X*<sub>*c**o**n**t*(21)</sub> has a Chisq(df = 4) distribution
-3.  *X*<sub>*c**o**n**t*(31)</sub> has a Chisq(df = 8) distribution
-
-<!-- -->
-
-1.  *X*<sub>*m**i**x*</sub> is a normal mixture time-varying covariate (subject-level term), components have an AR(1, p = 0.4) correlation structure across Y
-
-<!-- -->
-
-1.  **Poisson variable:** *X*<sub>*p**o**i**s*(1)</sub> is a zero-inflated Poisson variable with *λ* = 15, the probability of a structural zero set at 0.10, and is the same in each equation
-2.  **Negative Binomial variable:** *X*<sub>*n**b*(1)</sub> is a regular NB time-varying covariate (subject-level term) with an AR(1, p = 0.3) correlation structure and increasing mean and variance
-
-<!-- -->
-
-1.  *X*<sub>*n**b*(11)</sub> has a size of 10 and mean of 3
-2.  *X*<sub>*n**b*(21)</sub> has a size of 10 and mean of 4
-3.  *X*<sub>*n**b*(31)</sub> has a size of 10 and mean of 5
-
-<!-- -->
-
-1.  **Error terms** have a Beta(4, 1.5) distribution with an AR(1, p = 0.4) correlation structure. These require a sixth cumulant correction of 0.03.
-
-There is an interaction between X\_ord(1) and X\_pois(1) for each Y. Since they are both group-level covariates, the interaction is also a group-level covariate that will interact with the subject-level covariates. However, only X\_ord(1) and X\_pois(1) interact with time. The ordering in the equations below reflects the ordering in the simulation process.
-
-$$
-\\begin{aligned}   
-Y\_1 &= \\beta\_0 + \\beta\_1 \* X\_{ord(1)} + \\beta\_2 \* X\_{cont(11)} + \\beta\_3 \* X\_{mix(11)} + \\beta\_4 \* X\_{pois(1)} + \\beta\_5 \* X\_{nb(11)} + \\beta\_{int} \* X\_{ord(1)} \* X\_{pois(1)} \\\\ 
-&+ \\beta\_{subj1} \* X\_{ord(1)} \* X\_{cont(11)} + \\beta\_{subj2} \* X\_{pois(1)} \* X\_{cont(11)} + \\beta\_{subj3} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{cont(11)} \\\\
-&+ \\beta\_{subj4} \* X\_{ord(1)} \* X\_{mix(11)} + \\beta\_{subj5} \* X\_{pois(1)} \* X\_{mix(11)} + \\beta\_{subj6} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{mix(11)} \\\\
-&+ \\beta\_{subj7} \* X\_{ord(1)} \* X\_{nb(11)} + \\beta\_{subj8} \* X\_{pois(1)} \* X\_{nb(11)} + \\beta\_{subj9} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{nb(11)} \\\\
-&+ \\beta\_{tint1} \* X\_{ord(1)} \* Time\_1 + \\beta\_{tint2} \* X\_{pois(1)} \* Time\_1 + \\beta\_{t} \* Time\_1 + E\_1 \\\\
-Y\_2 &= \\beta\_0 + \\beta\_1 \* X\_{ord(1)} + \\beta\_2 \* X\_{cont(21)} + \\beta\_3 \* X\_{mix(21)} + \\beta\_4 \* X\_{pois(1)} + \\beta\_5 \* X\_{nb(21)} + \\beta\_{int} \* X\_{ord(1)} \* X\_{pois(1)} \\\\ 
-&+ \\beta\_{subj1} \* X\_{ord(1)} \* X\_{cont(21)} + \\beta\_{subj2} \* X\_{pois(1)} \* X\_{cont(21)} + \\beta\_{subj3} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{cont(21)} \\\\
-&+ \\beta\_{subj4} \* X\_{ord(1)} \* X\_{mix(21)} + \\beta\_{subj5} \* X\_{pois(1)} \* X\_{mix(21)} + \\beta\_{subj6} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{mix(21)} \\\\
-&+ \\beta\_{subj7} \* X\_{ord(1)} \* X\_{nb(21)} + \\beta\_{subj8} \* X\_{pois(1)} \* X\_{nb(21)} + \\beta\_{subj9} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{nb(21)} \\\\
-&+ \\beta\_{tint1} \* X\_{ord(1)} \* Time\_2 + \\beta\_{tint2} \* X\_{pois(1)} \* Time\_2 + \\beta\_{t} \* Time\_2 + E\_2 \\\\
-Y\_3 &= \\beta\_0 + \\beta\_1 \* X\_{ord(1)} + \\beta\_2 \* X\_{cont(31)} + \\beta\_3 \* X\_{mix(31)} + \\beta\_4 \* X\_{pois(1)} + \\beta\_5 \* X\_{nb(31)} + \\beta\_{int} \* X\_{ord(1)} \* X\_{pois(1)} \\\\ 
-&+ \\beta\_{subj1} \* X\_{ord(1)} \* X\_{cont(31)} + \\beta\_{subj2} \* X\_{pois(1)} \* X\_{cont(31)} + \\beta\_{subj3} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{cont(31)} \\\\
-&+ \\beta\_{subj4} \* X\_{ord(1)} \* X\_{mix(31)} + \\beta\_{subj5} \* X\_{pois(1)} \* X\_{mix(31)} + \\beta\_{subj6} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{mix(31)} \\\\
-&+ \\beta\_{subj7} \* X\_{ord(1)} \* X\_{nb(31)} + \\beta\_{subj8} \* X\_{pois(1)} \* X\_{nb(31)} + \\beta\_{subj9} \* X\_{ord(1)} \* X\_{pois(1)} \* X\_{nb(31)} \\\\
-&+ \\beta\_{tint1} \* X\_{ord(1)} \* Time\_3 + \\beta\_{tint2} \* X\_{pois(1)} \* Time\_3 + \\beta\_{t} \* Time\_3 + E\_3 
-\\end{aligned}
-$$
+![](man/figures/README1.pdf)
 
 ``` r
 library("SimRepeat")
@@ -247,7 +195,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.21 minutes
+#> Total Simulation time: 0.208 minutes
 ```
 
 ``` r
@@ -383,7 +331,7 @@ knitr::kable(Sum1$mix_sum_x, digits = 3, booktabs = TRUE,
 ``` r
 Nplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 3], ylower = -10, 
   yupper = 10, 
-  title = "PDF of X_mix(11): Mixture of N(-2, 1) and N(2, 1) Distributions",
+  title = "PDF of X_mix(11): Mixture of Normal Distributions",
   fx = function(x) mix_pis[[1]][[1]][1] * dnorm(x, mix_mus[[1]][[1]][1], 
     mix_sigmas[[1]][[1]][1]) + mix_pis[[1]][[1]][2] * 
     dnorm(x, mix_mus[[1]][[1]][2], mix_sigmas[[1]][[1]][2]), 
@@ -393,7 +341,7 @@ Nplot
 
 ![](man/figures/README-unnamed-chunk-16-1.png)
 
-Summary of Ordinal Variable: (for *Y*<sub>1</sub>)
+Summary of Ordinal Variable: (for Y\_1)
 
 ``` r
 knitr::kable(Sum1$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
@@ -427,7 +375,7 @@ Pplot
 
 ![](man/figures/README-unnamed-chunk-18-1.png)
 
-Summary of Negative Binomial Variables *X*<sub>*n**b*(11)</sub>, *X*<sub>*n**b*(21)</sub>, and *X*<sub>*n**b*(31)</sub>:
+Summary of Negative Binomial Variables X\_nb(11), X\_nb(21), and X\_nb(31):
 
 ``` r
 knitr::kable(Sum1$nb_sum_x, digits = 3, row.names = FALSE,
@@ -466,7 +414,7 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 
 ### Linear model
 
-A linear model will be fit to the data using `glm` in order to see if the slope coefficients can be recovered (R Core Team 2017). First, the data is reshaped into long format using `reshape2::melt` (Wickham 2007). Note that since *X*<sub>*o**r**d*(1)</sub> and *X*<sub>*p**o**i**s*(1)</sub> are the same for each outcome, they will be used as factors (`id.vars`) and are only needed once.
+A linear model will be fit to the data using `glm` in order to see if the slope coefficients can be recovered (R Core Team 2017). First, the data is reshaped into long format using `reshape2::melt` (Wickham 2007). Note that since X\_ord(1) and X\_pois(1) are the same for each outcome, they will be used as factors (`id.vars`) and are only needed once.
 
 ``` r
 data1 <- as.data.frame(cbind(factor(1:n), Sys1$Y, Sys1$X_all[[1]][, 1:5],
@@ -487,7 +435,7 @@ data1 <- merge(merge(merge(data1.a, data1.b, by = c("Subject", "Time")),
   data1.c, by = c("Subject", "Time")), data1.d, by = c("Subject", "Time"))
 ```
 
-Errors *E*<sub>1</sub>, *E*<sub>2</sub>, and *E*<sub>3</sub> modeled as having Normal distributions:
+Errors E\_1, E\_2, and E\_3 modeled as having Normal distributions:
 
 ``` r
 fm1 <- glm(Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 + 
@@ -560,7 +508,7 @@ summary(fm1)
 #> Number of Fisher Scoring iterations: 2
 ```
 
-Each effect in the model was found to be statistically significant at the *α* = 0.001 level. Now, compare betas used in simulation to those returned by `glm`:
+Each effect in the model was found to be statistically significant at the alpha = 0.001 level. Now, compare betas used in simulation to those returned by `glm`:
 
 ``` r
 fm1.coef <- fm1$coefficients[c("(Intercept)", "ord1_1", "cont1", "mix1", 
@@ -604,21 +552,7 @@ All of the slope coefficients are estimated well except for the intercept. This 
 Example 2: System from Example 1 with random intercept, random slope for time, and random effect for the continuous mixture variables
 -------------------------------------------------------------------------------------------------------------------------------------
 
-$$
-\\begin{aligned}
-Y\_1 &= Y\_1 + U\_0 + U\_1 \* Time\_1\\\\ 
-Y\_2 &= Y\_2 + U\_0 + U\_1 \* Time\_2\\\\ 
-Y\_3 &= Y\_3 + U\_0 + U\_1 \* Time\_3
-\\end{aligned}
-$$
-
-### Description of Variables
-
-1.  **Random intercept:** *U*<sub>0</sub> has a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75
-2.  **Random slope for time:** *U*<sub>1</sub> has a t(df = 10) distribution
-3.  **Correlation** between random effects is 0.4
-
-In this example, the random intercept and time slope have continuous non-mixture distributions for all *Y*. However, the functions `corrsys` and `corrsys2` permit a combination of none, non-mixture, and mixture distributions across the *Y* (i.e., if `rand.int = c("non_mix", "mix", "none")` then the random intercept for *Y*<sub>1</sub> has a non-mixture, and the random intercept for *Y*<sub>2</sub> has a mixture distribution; there is no random intercept for *Y*<sub>3</sub>). In addition, the distributions themselves can vary across outcomes. This is also true for random effects assigned to independent variables as specified in `rand.var`.
+![](man/figures/README2.pdf)
 
 ### Step 1: Set up parameter inputs
 
@@ -676,7 +610,7 @@ Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.197 minutes
+#> Total Simulation time: 0.175 minutes
 ```
 
 ### Step 4: Describe results
@@ -771,7 +705,7 @@ data2 <- merge(merge(merge(data2.a, data2.b, by = c("Subject", "Time")),
   data2.c, by = c("Subject", "Time")), data2.d, by = c("Subject", "Time"))
 ```
 
-Errors *E*<sub>1</sub>, *E*<sub>2</sub>, and *E*<sub>3</sub> modeled as having Gaussian distributions (Kuznetsova, Brockhoff, and Christensen 2017):
+Errors E\_1, E\_2, and E\_3 modeled as having Gaussian distributions (Kuznetsova, Brockhoff, and Christensen 2017):
 
 ``` r
 library("lmerTest")
@@ -848,9 +782,9 @@ summary(fm2)
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-Each effect in the model was again found to be statistically significant at the *α* = 0.001 level.
+Each effect in the model was again found to be statistically significant at the alpha = 0.001 level.
 
-The variance of the random intercept and time slope were slightly overestimated, and their correlation was underestimated.
+The variance and correlation of the random intercept and time slope were well estimated.
 
 Now, compare betas used in simulation to those returned by `lmer`:
 
@@ -891,7 +825,7 @@ knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
 | Simulated |            0.9|                      1|        1.100|           1.2|                   1.3|         0.250|            0.5|
 | Estimated |            0.9|                      1|        1.103|           1.2|                   1.3|         0.256|            0.5|
 
-All of the slope coefficients are estimated well except for the intercept and the ordinal variable. This could result from the non-normal error terms.
+All of the slope coefficients are estimated well except for the intercept. This could result from the non-normal error terms.
 
 References
 ----------
