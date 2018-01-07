@@ -1,0 +1,505 @@
+---
+title: "Theory and Equations for Correlated Systems of Continuous Variables"
+author: "Allison C Fialkowski"
+date: "`r Sys.Date()`"
+output: 
+  bookdown::html_document2: 
+    fig_caption: yes
+bibliography: Bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Theory and Equations for Correlated Systems of Continuous Variables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  text-align: center;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height = 4, cache = FALSE)
+```
+
+```{r, include=FALSE}
+library("bookdown")
+```
+
+Repeated measures may be thought of as a system of $M$ equations.  The dependent variables $Y_{p}$, for $p = 1,\ ...,\ M$, may represent the same variable collected at $M$ time points or under $M$ different conditions (i.e. different treatment drugs).  The $K$ independent variables $X_{pi}$, for $p = 1,\ ...,\ M$ and $i = 1,\ ...,\ K$, may be non-varying covariates (*static*, i.e. gender or height), time-varying covariates (i.e. age or blood sugar), or a combination of the two.  Although @Fleish's third and @Head2002's fifth-order polynomial transformation methods (power method transformations, PMT's) allow the simulation of correlated non-normal variables for a single equation or system of independent equations, they have certain limitations when producing a system of correlated equations.  For example, there is no way to control the distributions of and correlations between the error terms.  @HeadBeas derived a general, computationally-efficient procedure for simulating correlated non-normal systems of statistical equations that permits control of correlated non-normal: a) error (*stochastic disturbance*) terms, b) independent variables, and c) dependent and independent variables.  Such a procedure is important in order to investigate the properties of analytical models and test statistics that rely on certain distributional assumptions.  For example, sufficient sample size, multivariate normality, independent errors, homogeneous variances, and balanced data.       
+
+@HeadBeas's technique allows the user to specify the distributions of the independent variables $X_{(pj)}$, for $p = 1, ..., M$ equations, and stochastic disturbance (error) terms $E$.  The user also controls the correlations between: 1) independent variables $X_{(pj)}$ for a given outcome $Y_p$, 2) an outcome $Y_p$ and its $X_{(pj)}$ terms, and 3) stochastic disturbance (error) terms $E$.  The technique calculates the beta (slope) coefficients based on correlations between independent variables $X_{(pj)}$ for a given outcome $Y_p$, the correlations between that outcome $Y_p$ and the $X_{(pj)}$ terms, and the variances.  @HeadBeas also derived equations to calculate the expected correlations based on these betas between: 1) $X_{(pj)}$ terms and outcome $Y_q$, 2) outcomes $Y_p$ and $Y_q$, and 3) outcome $Y_p$ and error term $E_q$, for $p$ not equal to $q$.  All continuous variables are generated from intermediate random normal variables using @Head2002's fifth-order power transformation method (PMT).  The intermediate correlations required to generate the target correlations after variable transformations are calculated using @Head2002's equation.            
+                 
+# Description of the model {-}     
+
+Define a system of $M$ equations as follows:     
+
+\begin{equation}
+\begin{split}
+Y_{1} &= \beta_{10} + \beta_{11}X_{11} + ... + \beta_{1i}X_{1i} + ... + \beta_{1j}X_{1j} + ... + \beta_{1K}X_{1K} + \sigma_{1}E_{1} \\
+ &... \\
+Y_{p} &= \beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + \sigma_{p}E_{p} \\
+ &... \\
+Y_{q} &= \beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qK}X_{qK} + \sigma_{q}E_{q} \\
+ &... \\
+Y_{M} &= \beta_{M0} + \beta_{M1}X_{M1} + ... + \beta_{Mi}X_{Mi} + ... + \beta_{Mj}X_{Mj} + ... + \beta_{MK}X_{MK} + \sigma_{M}E_{M},
+\end{split}
+(\#eq:System1)
+\end{equation}
+
+for $1 \leq p < q \leq M$ and $1 \leq i < j \leq K$.  Each dependent variable $Y$, independent variable $X$, and error term $E$ has length $n$ (the sample size).  Assume the error terms have expected values of $0$ and variances of $1$.  They can have any combination of skew ($\gamma_{1}$), standardized kurtosis ($\gamma_{2}$), and standardized fifth ($\gamma_{3}$) and sixth ($\gamma_{4}$) cumulants permitted under the desired PMT's constraints.  The $\sigma$ values are real positive scalars that may vary across equations.        
+
+Alternatively, the last terms may be rexpressed where the error terms are random variables with standard deviations described by the $\sigma$ values (i.e., using $E_p$ instead of $\sigma_{p}E_{p}$).  This notation follows the technique used in the `nonnormsys` function, which simulates the correlated system of statistical equations containing continuous variables within the **SimRepeat** package.  In addition, the $M$ equations do not have to include the same number of independent variables, and a variable may be designated as being the same for all equations (in input `same.var`).  The $M$ dependent variables are created by generating the right-hand sides of \@ref(eq:System1).       
+
+## Important assumptions for this system: {-}     
+1) There are at least 2 equations and a total of at least 1 independent variable.       
+2) The independent variables are uncorrelated with the error terms within the same outcome and across outcomes.          
+3) Each equation has an error term.            
+4) All error terms have either a non-mixture or mixture distribution.
+
+Without loss of generality, consider the variable pair $X_{pi}$ and $X_{pj}$, for $p = 1,\ ...,\ M$, $i = 1,\ ...,\ K$, $j = 1,\ ...,\ K$, and $i \neq j$, with expected values of $\mu_{X_{pi}}$ and $\mu_{X_{pj}}$ and variances of $\sigma_{X_{pi}}^2$ and $\sigma_{X_{pj}}^2$.  The variables $X_{pi}$ and $X_{pj}$ have distributions specified by skews $\gamma_{1i}$ and $\gamma_{1j}$, standardized kurtoses $\gamma_{2i}$ and $\gamma_{2j}$, and standardized fifth and sixth cumulants $\gamma_{3i}$, $\gamma_{3j}$, $\gamma_{4i}$, and $\gamma_{4j}$.  $X_{pi}$ and $X_{pj}$ are generated from location-scale transformations applied to $X_{pi}'$ and $X_{pj}'$, which come from @Head2002's fifth-order PMT given by:   
+
+\begin{equation}
+\begin{split}
+X_{pi}' &= c_{0pi} + c_{1pi}Z_{pi} + c_{2pi}Z_{pi}^2 + c_{3pi}Z_{pi}^3 + c_{4pi}Z_{pi}^4 + c_{5pi}Z_{pi}^5 \\
+X_{pj}' &= c_{0pj} + c_{1pj}Z_{pj} + c_{2pj}Z_{pj}^2 + c_{3pj}Z_{pj}^3 + c_{4pj}Z_{pj}^4 + c_{5pj}Z_{pj}^5,
+\end{split}
+(\#eq:System2)
+\end{equation}
+
+where $Z_{pi}$ and $Z_{pj}$ are both $N(0,1)$ variables.  The constants $c_{0pi},\ ...,\ c_{5pi}$ are determined by solving @Head2002's system of equations (contained in `SimMultiCorrData::poly`) using $\gamma_{1i},\ \gamma_{2i},\ \gamma_{3i},$ and $\gamma_{4i}$ and likewise for $c_{0pj},\ ...,\ c_{5pj}$ [@SMCD].  The results also hold for @Fleish's method, with $c_{4pi} = c_{5pi} = c_{4pj} = c_{5pj} = 0$ and the system of equations contained in `SimMultiCorrData::fleish`.  Then the intermediate correlation $\rho_{ZpiZpj}$ between $Z_{pi}$ and $Z_{pj}$ required to achieve a target correlation $\rho_{XpiXpj}$ between $X_{pi}$ and $X_{pj}$ is given by @Head2002's Equation 26 (p. 694), or @HeadSaw1's Equation 7b (p. 28) for Fleishman's method.  The intermediate correlations are calculated by the function `SimCorrMix::intercorr_cont`.  See the **SimCorrMix** package for a vignette [@SimCorrMix].  The purpose of correlating $Z_{pi}$ and $Z_{pj}$ at an intermediate level is to adjust *a priori* for the non-normalization effect of the constants so that $X_{pi}$ and $X_{pj}$ have the desired final correlation [@HeadBeas].       
+
+The equations given by @HeadBeas to determine the beta coefficients and theoretical correlations between outcomes $Y$, outcomes and independent variables, and outcomes and error terms are derived below (with some modifications and corrections).  These are contained in the **SimRepeat** functions `calc_betas`, `calc_corr_y`, `calc_corr_ye`, and `calc_corr_yx`.
+
+# System of equations to determine the beta (slope) coefficients {-}                  
+
+Consider the following equation describing outcome $Y_p$, for $p = 1,\ ...,\ M$:   
+\begin{equation}
+Y_{p} = \beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}. (\#eq:System3)
+\end{equation}
+In \@ref(eq:System3), the error term $E_p$ has variance $\sigma_p^2 = E[E_p^2] - E[E_p]^2$.  Obtaining the values for $\beta_{p1},\ ...,\ \beta_{pi},\ ...,\ \beta_{pK}$ requires solving a system of $K$ equations.  The correlation between $Y_p$ and $X_{pi}$ is given by:   
+\begin{equation}
+\rho_{Y_pX_{pi}} = \frac{E[Y_pX_{pi}] - E[Y_p]E[X_{pi}]}{\sigma_{Y_p} \sigma_{X_{pi}}}, (\#eq:System4)
+\end{equation}         
+where 
+\begin{equation}
+\sigma_{Y_p}^2 = E[Y_p^2] - E[Y_p]^2. (\#eq:System5)
+\end{equation}          
+The correlation between two independent variables $X_{pi}$ and $X_{pj}$ is given by:     
+\begin{equation}
+\rho_{X_{pi}X_{pj}} = \frac{E[X_{pi}X_{pj}] - E[X_{pi}]E[X_{pj}]}{\sigma_{X_{pi}} \sigma_{X_{pj}}}, (\#eq:System6)
+\end{equation}         
+where 
+\begin{equation}
+\sigma_{X_{pi}}^2 = E[X_{pi}^2] - E[X_{pi}]^2\ \mathrm{and}\ \sigma_{X_{pj}}^2 = E[X_{pj}^2] - E[X_{pj}]^2. (\#eq:System7)
+\end{equation}          
+
+Using \@ref(eq:System3),              
+\begin{align}
+E[Y_{p}] &= \beta_{p0} + \beta_{p1}E[X_{p1}] + ... + \beta_{pi}E[X_{pi}] + ... + \beta_{pj}E[X_{pj}] + ... + \beta_{pK}E[X_{pK}] + E[E_{p}] (\#eq:System8) \\
+E[Y_{p}]^2 &= \beta_{p0}^2 + 2\beta_{p0} \sum_{pi} \beta_{pi}E[X_{pi}] + 2\beta_{p0}E[E_{p}] + \sum_{pi} \beta_{pi}^2 E[X_{pi}]^2 \notag \\
+&\ \ \ + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}E[X_{pi}]E[X_{pj}] + 2\sum_{pi} \beta_{pi}E[X_{pi}]E[E_p] + E[E_p]^2 (\#eq:System9)
+\end{align}                   
+
+\begin{align}
+\begin{split}
+E[Y_{p}^2] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p})^2]\\
+&= E[\beta_{p0}^2 + \beta_{p0}(\beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK}) + \beta_{p0}E_{p}\\
+&\ \ \ + \beta_{p0}\beta_{p1}X_{p1} + \beta_{p1}^2 X_{p1}^2 + \beta_{p1}X_{p1}(\beta_{p2}X_{p2} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK}) + \beta_{p1}X_{p1}E_{p}\\
+&\ \ \ \ + ...\\
+&\ \ \ + \beta_{p0}\beta_{pK}X_{pK} + \beta_{pK}X_{pK}(\beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{p(K - 1)}X_{p(K - 1)}) + \beta_{pK}^2 X_{pK}^2\\
+&\ \ \ + \beta_{pK}X_{pK}E_{p} + \beta_{p0}E_{p} + E_p(\beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK}) + E_p^2]\\
+&= \beta_{p0}^2 + 2\beta_{p0} \sum_{pi} \beta_{pi}E[X_{pi}] + 2\beta_{p0}E[E_{p}] + E[E_p^2] + \sum_{pi} \beta_{pi}^2 E[X_{pi}^2] + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}E[X_{pi}X_{pj}]\\
+&\ \ \ + 2\sum_{pi} \beta_{pi}E[X_{pi}E_p].
+\end{split}
+(\#eq:System10)
+\end{align}      
+
+From \@ref(eq:System9) and \@ref(eq:System10), the variance of $Y$ is given by:       
+\begin{align}
+\begin{split}
+\sigma_{Y_p}^2 &= E[E_p^2] - E[E_p]^2 + \sum_{pi} \beta_{pi}^2 E[X_{pi}^2] - \sum_{pi} \beta_{pi}^2 E[X_{pi}]^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}E[X_{pi}X_{pj}] \\
+&\ \ \ - 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}E[X_{pi}]E[X_{pj}] + 2\sum_{pi} \beta_{pi}E[X_{pi}E_p] - 2\sum_{pi} \beta_{pi}E[X_{pi}]E[E_p].
+\end{split}
+(\#eq:System11)
+\end{align}      
+
+Using model assumption 2 that the independent variables are uncorrelated with the error terms, $E[X_{pi}E_p] = E[X_{pi}]E[E_p]$.  Using \@ref(eq:System6), the variance of $Y$ is:        
+\begin{equation}
+\sigma_{Y_p}^2 = \sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}. (\#eq:System12)
+\end{equation}      
+
+Then,               
+\begin{align}
+\begin{split}
+E[Y_pX_{pi}] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}) X_{pi}]\\
+&= \beta_{p0}E[X_{pi}] + \sum_{pj \neq pi} \beta_{pj}E[X_{pi}X_{pj}] + \beta_{pi}E[X_{pi}^2] + E[X_{pi}E_p]
+\end{split}
+(\#eq:System13)
+\end{align}        
+and         
+\begin{align}
+\begin{split}
+E[Y_p]E[X_{pi}] &= E[\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}]E[X_{pi}]\\
+&= \beta_{p0}E[X_{pi}] + \sum_{pj \neq pi} \beta_{pj}E[X_{pi}]E[X_{pj}] + \beta_{pi}E[X_{pi}]^2 + E[X_{pi}]E[E_p].
+\end{split}
+(\#eq:System14)
+\end{align}        
+
+Combining \@ref(eq:System6), \@ref(eq:System7), \@ref(eq:System13) and \@ref(eq:System14) and using model assumption 2 gives:         
+\begin{equation}
+E[Y_pX_{pi}] - E[Y_p]E[X_{pi}] = \sigma_{X_{pi}} \sum_{pj \neq pi} \beta_{pj}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}} + \beta_{pi}\sigma_{X_{pi}}^2. (\#eq:System14)
+\end{equation}               
+
+Finally, the correlation $\rho_{Y_pX_{pi}}$ from \@ref(eq:System4) can be reexpressed as:         
+\begin{align}
+\begin{split}
+\rho_{Y_pX_{pi}} &= \frac{\sigma_{X_{pi}} \sum_{pj \neq pi} \beta_{pj}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}} + \beta_{pi}\sigma_{X_{pi}}^2}{\sigma_{X_{pi}} \sqrt{\sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}}}\\ 
+&= \frac{\sum_{pj \neq pi} \beta_{pj}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}} + \beta_{pi}\sigma_{X_{pi}}}{\sqrt{\sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}}}.
+\end{split}
+(\#eq:System15)
+\end{align}            
+
+For outcome $p$ and $i = 1,\ ...,\ K$, \@ref(eq:System15) gives a system of $K$ equations that are solved to determine the $K$ beta coefficients that yield the target correlations $\rho_{Y_pX_{pi}}$.  This is done in **SimRepeat** by the function `calc_betas`.  The required inputs $\rho_{Y_pX_{pi}}$, $\rho_{X_{pi}X_{pj}}$, and $\sigma_{X_{pi}}^2$ are specified via the function parameters `corr.yx`, `corr.x`, and `vars`.
+
+After the beta coefficients are found, theoretical values for the remaining correlations in system \@ref(eq:System1) can be determined.     
+
+# Correlation between outcome $Y_q$ and independent variable $X_{pi}$ {-}           
+
+Consider the following equation describing outcome $Y_q$, for $q = 1,\ ...,\ M$:   
+\begin{equation}
+Y_{q} = \beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qL}X_{qL} + E_{q}. (\#eq:System16)
+\end{equation}                  
+In \@ref(eq:System16), the error term $E_q$ has variance $\sigma_q^2 = E[E_q^2] - E[E_q]^2$.  Let $X_{pi}$, for $i = 1,\ ...,\ K$, be one of the independent variables in \@ref(eq:System3).  The correlation between $Y_q$ and $X_{pi}$ is given by:   
+\begin{equation}
+\rho_{Y_qX_{pi}} = \frac{E[Y_qX_{pi}] - E[Y_q]E[X_{pi}]}{\sigma_{Y_q} \sigma_{X_{pi}}}, (\#eq:System17)
+\end{equation}         
+where 
+\begin{equation}
+\sigma_{Y_q}^2 = E[Y_q^2] - E[Y_q]^2. (\#eq:System18)
+\end{equation}          
+
+The correlation between two independent variables $X_{pi}$, for $i = 1,\ ...,\ K$, and $X_{qj}$, for $j = 1,\ ...,\ L$, is given by:     
+\begin{equation}
+\rho_{X_{pi}X_{qj}} = \frac{E[X_{pi}X_{qj}] - E[X_{pi}]E[X_{qj}]}{\sigma_{X_{pi}} \sigma_{X_{qj}}}, (\#eq:System19)
+\end{equation}         
+where 
+\begin{equation}
+\sigma_{X_{pi}}^2 = E[X_{pi}^2] - E[X_{pi}]^2\ \mathrm{and}\ \sigma_{X_{qj}}^2 = E[X_{qj}^2] - E[X_{qj}]^2. (\#eq:System20)
+\end{equation}          
+
+Then,     
+\begin{align}
+\begin{split}
+E[Y_qX_{pi}] &= E[(\beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qL}X_{qL} + E_{q}) X_{pi}]\\
+&= \beta_{q0}E[X_{pi}] + \sum_{qj} \beta_{qj}E[X_{qj}X_{pi}] + E[X_{pi}E_q]
+\end{split}
+(\#eq:System21)
+\end{align}        
+and         
+\begin{align}
+\begin{split}
+E[Y_q]E[X_{pi}] &= E[\beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qL}X_{qL} + E_{q}]E[X_{pi}]\\
+&= \beta_{q0}E[X_{pi}] + \sum_{qj} \beta_{qj}E[X_{qj}]E[X_{pi}] + E[X_{pi}]E[E_q].
+\end{split}
+(\#eq:System22)
+\end{align}        
+
+Combining \@ref(eq:System19), \@ref(eq:System21) and \@ref(eq:System22) and using model assumption 2 gives:         
+\begin{equation}
+E[Y_qX_{pi}] - E[Y_q]E[X_{pi}] = \sigma_{X_{pi}} \sum_{qj} \beta_{qj}\sigma_{X_{qj}}\rho_{X_{pi}X_{qj}}. (\#eq:System23)
+\end{equation}         
+
+Finally, the correlation $\rho_{Y_qX_{pi}}$ from \@ref(eq:System17) can be reexpressed as:         
+\begin{align}
+\begin{split}
+\rho_{Y_qX_{pi}} &= \frac{\sigma_{X_{pi}} \sum_{qj} \beta_{qj}\sigma_{X_{qj}}\rho_{X_{pi}X_{qj}}}{\sigma_{X_{pi}} \sqrt{\sigma_q^2 + \sum_{qi} \beta_{qi}^2 \sigma_{X_{qi}}^2 + 2\sum_{qi \neq qj} \beta_{qi}\beta_{qj}\sigma_{X_{qi}}\sigma_{X_{qj}}\rho_{X_{qi}X_{qj}}}}\\ 
+&= \frac{\sum_{qj} \beta_{qj}\sigma_{X_{qj}}\rho_{X_{pi}X_{qj}}}{\sqrt{\sigma_q^2 + \sum_{qi} \beta_{qi}^2 \sigma_{X_{qi}}^2 + 2\sum_{qi \neq qj} \beta_{qi}\beta_{qj}\sigma_{X_{qi}}\sigma_{X_{qj}}\rho_{X_{qi}X_{qj}}}}.
+\end{split}
+(\#eq:System24)
+\end{align}    
+
+This correlation is found in **SimRepeat** by the function `calc_corr_yx`.  The required inputs $\beta_{qj}$, $\rho_{X_{pi}X_{qj}}$, $\rho_{X_{qi}X_{qj}}$, $\sigma_{X_{pi}}^2$, and $\sigma_{X_{qj}}^2$ are specified via the function parameters `betas`, `corr.x`, and `vars`.
+
+# Correlation between outcomes $Y_p$ and $Y_q$ {-}           
+            
+Consider the outcomes $Y_p$ and $Y_q$ from \@ref(eq:System3) and \@ref(eq:System16), for $1 \leq p < q \leq M$.  Their correlation is given by: 
+\begin{equation}
+\rho_{Y_pY_q} = \frac{E[Y_pY_q] - E[Y_p]E[Y_q]}{\sigma_{Y_p} \sigma_{Y_q}}. (\#eq:System25)
+\end{equation}         
+
+Then              
+\begin{align}
+\begin{split}
+E[Y_pY_q] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p})\\
+&\ \ \ * (\beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qL}X_{qL} + E_{q})]\\
+&= \beta_{p0}\beta_{q0} + \beta_{p0} \sum_{qj} \beta_{qj}E[X_{qj}] + \beta_{p0}E[E_q] + \beta_{q0}E[E_p] + \beta_{q0} \sum_{pi} \beta_{pi}E[X_{pi}]\\
+&\ \ \ + \sum_{pi} \sum_{qj} \beta_{pi} \beta_{qj} E[X_{pi}X_{qj}] + \sum_{pi} \beta_{pi} E[X_{pi}E_q] + \sum_{qj} \beta_{qj} E[X_{qj}E_p] + E[E_pE_q]
+\end{split}
+(\#eq:System26)
+\end{align}        
+and         
+\begin{align}
+\begin{split}
+E[Y_p]E[Y_q] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p})]\\
+&\ \ \ * E[(\beta_{q0} + \beta_{q1}X_{q1} + ... + \beta_{qi}X_{qi} + ... + \beta_{qj}X_{qj} + ... + \beta_{qL}X_{qL} + E_{q})]\\
+&= \beta_{p0}\beta_{q0} + \beta_{p0} \sum_{qj} \beta_{qj}E[X_{qj}] + \beta_{p0}E[E_q] + \beta_{q0}E[E_p] + \beta_{q0} \sum_{pi} \beta_{pi}E[X_{pi}]\\
+&\ \ \ + \sum_{pi} \sum_{qj} \beta_{pi} \beta_{qj} E[X_{pi}]E[X_{qj}] + \sum_{pi} \beta_{pi} E[X_{pi}]E[E_q] + \sum_{qj} \beta_{qj} E[X_{qj}]E[E_p] + E[E_p]E[E_q]
+\end{split}
+(\#eq:System27)
+\end{align}        
+
+Combining \@ref(eq:System19), \@ref(eq:System26) and \@ref(eq:System27) and using model assumption 2 gives:         
+\begin{equation}
+E[Y_pY_q] - E[Y_p]E[Y_q] = \sum_{pi} \sum_{qj} \beta_{pi} \beta_{qj} \sigma_{X_{pi}} \sigma_{X_{qj}} \rho_{X_{pi}X_{qj}} + \sigma_p \sigma_q \rho_{E_pE_q}. (\#eq:System28)
+\end{equation}         
+
+Finally, the correlation $\rho_{Y_pY_q}$ from \@ref(eq:System25) can be reexpressed as:         
+\begin{align}
+\begin{split}
+\rho_{Y_pY_q} &= \frac{\sum_{pi} \sum_{qj} \beta_{pi} \beta_{qj} \sigma_{X_{pi}} \sigma_{X_{qj}} \rho_{X_{pi}X_{qj}} + \sigma_p \sigma_q \rho_{E_pE_q}}{\sqrt{\sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}}}\\
+&\ \ \ * \frac{1}{\sqrt{\sigma_q^2 + \sum_{qi} \beta_{qi}^2 \sigma_{X_{qi}}^2 + 2\sum_{qi \neq qj} \beta_{qi}\beta_{qj}\sigma_{X_{qi}}\sigma_{X_{qj}}\rho_{X_{qi}X_{qj}}}}.
+\end{split}
+(\#eq:System29)
+\end{align}            
+
+This correlation is found in **SimRepeat** by the function `calc_corr_y`.  The required inputs $\beta_{pi}$, $\beta_{qj}$, $\rho_{X_{pi}X_{qj}}$, $\rho_{X_{pi}X_{pj}}$, $\rho_{X_{qi}X_{qj}}$, $\rho_{E_pE_q}$, $\sigma_{X_{pi}}^2$, and $\sigma_{X_{qj}}^2$ are specified via the function parameters `betas`, `corr.x`, `corr.e`, and `vars`.
+
+# Correlation between outcome $Y_p$ and error term $E_q$ {-}           
+            
+Consider the outcome $Y_p$ from \@ref(eq:System3) and the error term $E_q$ from \@ref(eq:System16), for $1 \leq p < q \leq M$.  Their correlation is given by: 
+\begin{equation}
+\rho_{Y_pE_q} = \frac{E[Y_pE_q] - E[Y_p]E[E_q]}{\sigma_{Y_p} \sigma_q}. (\#eq:System30)
+\end{equation}         
+
+Then              
+\begin{align}
+\begin{split}
+E[Y_pE_q] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}) E_q]\\
+&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}E_q] + E[E_pE_q]\\
+\end{split}
+(\#eq:System31)
+\end{align}        
+and         
+\begin{align}
+\begin{split}
+E[Y_p]E[E_q] &= E[\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}]E[E_q]\\
+&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}]E[E_q] + E[E_p]E[E_q]\\
+\end{split}
+(\#eq:System32)
+\end{align}        
+
+Combining \@ref(eq:System31) and \@ref(eq:System32) and using model assumption 2 gives:         
+\begin{equation}
+E[Y_pE_q] - E[Y_p]E[E_q] = \sigma_p \sigma_q \rho_{E_pE_q}. (\#eq:System33)
+\end{equation}         
+
+Finally, the correlation $\rho_{Y_pE_q}$ from \@ref(eq:System30) can be reexpressed as:         
+\begin{align}
+\begin{split}
+\rho_{Y_pE_q} &= \frac{\sigma_p \sigma_q \rho_{E_pE_q}}{\sigma_q \sqrt{\sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}}}\\
+&= \frac{\sigma_p \rho_{E_pE_q}}{\sqrt{\sigma_p^2 + \sum_{pi} \beta_{pi}^2 \sigma_{X_{pi}}^2 + 2\sum_{pi \neq pj} \beta_{pi}\beta_{pj}\sigma_{X_{pi}}\sigma_{X_{pj}}\rho_{X_{pi}X_{pj}}}}.
+\end{split}
+(\#eq:System34)
+\end{align}            
+
+This correlation is found in **SimRepeat** by the function `calc_corr_ye`.  The required inputs $\beta_{pi}$, $\rho_{X_{pi}X_{pj}}$, $\rho_{E_pE_q}$, $\sigma_{X_{pi}}^2$, and $\sigma_p^2$ are specified via the function parameters `betas`, `corr.x`, `corr.e`, and `vars`.
+
+# Extension to include continuous mixture distributions {-}   
+
+The equations derived above have been extended in **SimRepeat** to permit independent variables or error terms with mixture distributions.  If there are mixture distributions in the system, then the additional required parameters are `mix_pis`, `mix_mus`, `mix_sigmas`, and `error_type` (which defaults to "non_mix").  The vignette [Expected Cumulants and Correlations for Continuous Mixture Variables](SimCorrMix::corr_mixture.html) from **SimCorrMix** derives the equations for the mean, variance, skew, standardized kurtosis (*skurtosis*), and standardized fifth and sixth cumulants for a continuous mixture distribution.  Equations are also given which approximate: 1) correlations between two mixture variables and 2) correlations between a mixture variable and a non-mixture variable based on the components' distributions and correlations with components [@SimCorrMix].  These equations are summarized below [@Dave; @Schork; @Everitt; @Pears].            
+
+## Approximate Correlations for Continuous Mixture Variables: {-}
+
+Assume $M1$ and $M2$ are two continuous mixture variables.  Let $M1$ have $k_{M1}$ components with mixing probabilities $\alpha_1, ..., \alpha_{k_{M1}}$. The standard deviations of the components are $\sigma_{M1_1}, \sigma_{M1_2}, ..., \sigma_{M1_{k_{M1}}}$.  Let $M2$ have $k_{M2}$ components with mixing probabilities $\gamma_1, ..., \gamma_{k_{M1}}$.  The standard deviations of the components are $\sigma_{M2_1}, \sigma_{M2_2}, ..., \sigma_{M2_{k_{M2}}}$.            
+            
+### Correlation between continuous mixture variables M1 and M2: {-}    
+
+The correlation between the mixture variables $M1$ and $M2$ is given by:     
+\begin{equation}  
+\rho_{M1 M2} = \frac{E[M1M2] - E[M1]E[M2]}{\sigma_{M1} \sigma_{M2}}. (\#eq:System35)
+\end{equation}     
+Equation \@ref(eq:System35) requires the expected value of the product of $M1$ and $M2$.  Since there is no general method for determining this expected value, it is approximated by expressing $M1$ and $M2$ as sums of their component variables:    
+
+\begin{equation}  
+\begin{split}   
+E[(\sum_{i = 1}^{k_{M1}} \alpha_i M1_i) (\sum_{j = 1}^{k_{M2}} \gamma_j M2_j)] &= E[\alpha_1 M1_1 \gamma_1 M2_1 + \alpha_1 M1_1 \gamma_2 M2_2 + ... + \alpha_{k_{M1}} M1_{k_{M1}} \gamma_{k_{M2}} M2_{k_{M2}}] \\
+&= \alpha_1 \gamma_1 E[M1_1 M2_1] + \alpha_1 \gamma_2 E[M1_1 M2_2] + ... + \alpha_{k_{M1}} \gamma_{k_{M2}} E[M1_{k_{M1}} M2_{k_{M2}}].
+\end{split}
+(\#eq:System36)
+\end{equation}     
+
+The correlation is approximated as:         
+\begin{equation}  
+\rho_{M1 M2} = \frac{\sum_{i = 1}^{k_{M1}} \alpha_i \sigma_{M1_i} \sum_{j = 1}^{k_{M2}} \gamma_j \sigma_{M2_j} \rho_{M1_i M2_j}}{\sigma_{M1} \sigma_{M2}}, (\#eq:System37)
+\end{equation}     
+where $\rho_{M1_i M2_j}$ is the correlation between component $i$ of $M1$ and component $j$ of $M2$.  The function `SimCorrMix::rho_M1M2` returns this value.  
+
+### Correlation between continuous mixture variable M1 and other random variable Y: {-}   
+
+Here $Y$ can be any random variable without a continuous mixture distribution (i.e., continuous non-mixture, ordinal, Poisson, or Negative Binomial).  The correlation between the mixture variable $M1$ and $Y$ is given by:     
+\begin{equation}  
+\rho_{M1 Y}  = \frac{E[M1Y] - E[M1]E[Y]}{\sigma_{M1} \sigma_Y}. (\#eq:System38)
+\end{equation}     
+Equation \@ref(eq:System38) requires the expected value of the product of $M1$ and $Y$.  Since there is no general method for determining this expected value, it is again approximated by expressing $M1$ as a sum of its component variables:    
+
+\begin{equation}  
+\begin{split}   
+E[(\sum_{i = 1}^{k_{M1}} \alpha_i M1_i) Y] &= E[\alpha_1 M1_1 Y + \alpha_2 M1_2 Y + ... + \alpha_{k_{M1}} M1_{k_{M1}} Y] \\
+&= \alpha_1 E[M1_1 Y] + \alpha_2 E[M1_2 Y] + ... + \alpha_{k_{M1}} E[M1_{k_{M1}} Y].
+\end{split}
+(\#eq:System39)
+\end{equation}     
+
+The correlation is approximated as:      
+
+\begin{equation}      
+\rho_{M1 Y} = \frac{\sum_{i = 1}^{k_{M1}} \alpha_i \sigma_{M1_i} \rho_{M1_i Y}}{\sigma_{M1}}, (\#eq:System40)      
+\end{equation}       
+
+where $\rho_{M1_i Y}$ is the correlation between component $i$ of $M1$ and $Y$.  The function `SimCorrMix::rho_M1Y` returns this value.  
+
+## System of equations to determine the beta (slope) coefficients {-}     
+
+For outcome $Y_p$, \@ref(eq:System15) requires the inputs $\rho_{Y_pX_{pi}}$, $\rho_{X_{pi}X_{pj}}$, and $\sigma_{X_{pi}}^2$.  These are specified by the parameters `corr.yx`, `corr.x`, and `vars`, which are input as lists to the function `calc_betas`.  If all independent variables have non-mixture distributions, then the matrices `corr.yx[[p]]` and `corr.x[[p]][[p]]` will both have $K$ columns.    
+
+Let outcome $Y_p$ be described by the following equation:   
+\begin{equation}
+Y_{p} = \beta_{p0} + \beta_{p1}X_{p1} + \beta_{pi}X_{p2} + \beta_{p3}X_{p3} +  + \beta_{p4}X_{p4} + E_{p}, (\#eq:System41)
+\end{equation}    
+where $X_{p1}$ and $X_{p2}$ both have non-mixture distributions, while $X_{p3}$ and $X_{p4}$ both have mixture distributions.  The PDF's of $X_{p3}$ and $X_{p4}$ are given by:      
+
+\begin{equation}      
+\begin{split}     
+f_{X_{p3}}(x_{p3}) &= \alpha_1 f_{X_{p3_1}}(x_{p3_1}) + \alpha_2 f_{X_{p3_2}}(x_{p3_2}) \\
+f_{X_{p4}}(x_{p4}) &= \gamma_1 f_{X_{p4_1}}(x_{p4_1}) + \gamma_2 f_{X_{p4_2}}(x_{p4_2}) + \gamma_2 f_{X_{p4_3}}(x_{p4_3}) 
+\end{split}    
+(\#eq:System42)    
+\end{equation}     
+
+so that $X_{p3}$ has 2 components and $X_{p4}$ has 3 components.  Since simulation is done at the component-level in `nonnormsys`, the correlations between independent variables within an outcome and across outcomes is specified in terms of correlations between non-mixture and components of mixture variables.  Therefore, $K$ is 7 and `corr.x[[p]][[p]]` should have dimension $7 \times 7$.  The user may specify the correlations `corr.yx` either by: 1) correlations between outcomes and non-mixture or components of mixture variables or 2) correlations between outcomes and non-mixture or mixture variables.      
+
+In the first case, `corr.yx[[p]]` should have dimension $1 \times 7$ and the beta coefficients will be calculated in terms of non-mixture and components of mixture variables.  Then the components $X_{p3_1}$, $X_{p3_2}$, $X_{p4_1}$, $X_{p4_2}$, and $X_{p4_3}$ are treated as "non-mixture" continuous variables and \@ref(eq:System15) applies, giving 7 beta coefficients.     
+
+In the second case, `corr.yx[[p]]` should have dimension $1 \times 4$ and the beta coefficients will be calculated in terms of non-mixture and mixture variables.  In order to use \@ref(eq:System15), the correlations in `corr.x[[p]][[p]]` are reexpressed in terms of correlations between non-mixture and mixture variables using \@ref(eq:System37) and \@ref(eq:System40).  These equations require the mixing parameters $\alpha_1, \alpha_2, \gamma_1, \gamma_2$, and $\gamma_3$ to be specified in `mix_pis`, the component means to be specified in `mix_mus`, and the component standard deviations to be specified in `mix_sigmas`.  Additionally, the `error_type` must be given if the system contains any mixture variables.  
+
+For example, the correlation `rho_{X_{p3}X_{p4}}` is calculated as:     
+
+\begin{equation}  
+\begin{split}
+\rho_{X_{p3}X_{p4}} &= \frac{\sum_{i = 1}^{2} \alpha_i \sigma_{X_{p3_i}} \sum_{j = 1}^{3} \gamma_j \sigma_{X_{p4_j}} \rho_{X_{p3_i}X_{p4_j}}}{\sigma_{X_{p3}} \sigma_{X_{p4}}} \\
+&= \frac{\alpha_1 \sigma_{X_{p3_1}} (\gamma_1 \sigma_{X_{p4_1}} \rho_{X_{p3_1}X_{p4_1}} + \gamma_2 \sigma_{X_{p4_2}} \rho_{X_{p3_1}X_{p4_2}} + \gamma_3 \sigma_{X_{p4_3}} \rho_{X_{p3_1}X_{p4_3}})}{\sigma_{X_{p3}} \sigma_{X_{p4}}} \\
+&\ \ \ + \frac{\alpha_2 \sigma_{X_{p3_2}} (\gamma_1 \sigma_{X_{p4_1}} \rho_{X_{p3_2}X_{p4_1}} + \gamma_2 \sigma_{X_{p4_2}} \rho_{X_{p3_2}X_{p4_2}} + \gamma_3 \sigma_{X_{p4_3}} \rho_{X_{p3_2}X_{p4_3}})}{\sigma_{X_{p3}} \sigma_{X_{p4}}}, 
+\end{split}   
+(\#eq:System43)   
+\end{equation}    
+
+where     
+
+\begin{equation}  
+\begin{split}
+\sigma_{X_{p3}}^2 &= \alpha_1 (\sigma_{X_{p3_1}}^2 + \mu_{X_{p3_1}}^2) + \alpha_2 (\sigma_{X_{p3_2}}^2 + \mu_{X_{p3_2}}^2) - [\alpha_1 \mu_{X_{p3_1}} + \alpha_2 \mu_{X_{p3_2}}]^2 \\
+\sigma_{X_{p4}}^2 &= \gamma_1 (\sigma_{X_{p4_1}}^2 + \mu_{X_{p4_1}}^2) + \gamma_2 (\sigma_{X_{p4_2}}^2 + \mu_{X_{p4_2}}^2) + \gamma_3 (\sigma_{X_{p4_3}}^2 + \mu_{X_{p4_3}}^2) - [\gamma_1 \mu_{X_{p4_1}} + \gamma_2 \mu_{X_{p4_2}} + \gamma_3 \mu_{X_{p4_3}}]^2.
+\end{split}   
+(\#eq:System44)   
+\end{equation}     
+
+The correlation `rho_{X_{p1}X_{p3}}` is calculated as:     
+
+\begin{equation}       
+\begin{split}         
+\rho_{X_{p1}X_{p3}} &= \frac{\sum_{i = 1}^{2} \alpha_i \sigma_{X_{p3_i}} \rho_{X_{p3_i}X_{p1}}}{\sigma_{X_{p3}}} \\
+&= \frac{\alpha_1 \sigma_{X_{p3_1}} \rho_{X_{p3_1}X_{p1}} + \alpha_2 \sigma_{X_{p3_2}} \rho_{X_{p3_2}X_{p1}}}{\sigma_{X_{p3}}}. 
+\end{split}       
+(\#eq:System45)       
+\end{equation}      
+
+The remaining correlations are found similarly.  Note that these are *approximations* of the expected correlations with mixture variables, so that accuracy will vary.  After these correlations are found, \@ref(eq:System15) again applies.
+
+## Correlation between outcome $Y_q$ and independent variable $X_{pi}$ {-}           
+
+For outcome $Y_q$, \@ref(eq:System24) requires the inputs $\beta_{qj}$, $\rho_{X_{pi}X_{qj}}$, $\rho_{X_{qi}X_{qj}}$, $\sigma_{X_{pi}}^2$, and $\sigma_{X_{qj}}^2$.  These are specified via the function parameters `betas`, `corr.x`, and `vars`, which are input as a matrix or lists to the function `calc_corr_yx`.  If all independent variables have non-mixture distributions, then `betas[q, ]`, `corr.x[[p]][[q]]`, `corr.x[[q]][[q]]` will all have the same number of columns.      
+
+Similar to the example above, let outcome $Y_q$ be described by the following equation:   
+\begin{equation}
+Y_{q} = \beta_{q0} + \beta_{q1}X_{q1} + \beta_{qi}X_{q2} + \beta_{q3}X_{q3} +  + \beta_{q4}X_{q4} + E_{q}, (\#eq:System46)
+\end{equation}    
+where $X_{q1}$ and $X_{q2}$ both have non-mixture distributions, while $X_{q3}$ and $X_{q4}$ both have mixture distributions.  The PDF's of $X_{q3}$ and $X_{q4}$ are given by:      
+
+\begin{equation}      
+\begin{split}     
+f_{X_{q3}}(x_{q3}) &= \alpha_1 f_{X_{q3_1}}(x_{q3_1}) + \alpha_2 f_{X_{q3_2}}(x_{q3_2}) \\     
+f_{X_{q4}}(x_{q4}) &= \gamma_1 f_{X_{q4_1}}(x_{q4_1}) + \gamma_2 f_{X_{q4_2}}(x_{q4_2}) + \gamma_3 f_{X_{q4_3}}(x_{q4_3})     
+\end{split}    
+(\#eq:System47)     
+\end{equation}     
+
+so that $X_{q3}$ has 2 components and $X_{q4}$ has 3 components.  The matrices `corr.x[[p]][[q]]` and `corr.x[[q]][[q]]` should both have 7 columns.  The user may specify the slope coefficients `betas` either for: 1) non-mixture and components of mixture variables or 2) non-mixture and mixture variables.      
+
+In the first case, `betas[q, ]` should have 7 columns and the correlations between outcomes and independent variables will be calculated in terms of non-mixture and components of mixture variables.  Then the components $X_{q3_1}$, $X_{q3_2}$, $X_{q4_1}$, $X_{q4_2}$, and $X_{q4_3}$ are treated as "non-mixture" continuous variables and \@ref(eq:System24) applies.     
+
+In the second case, `betas[q, ]` should have 4 columns and the correlations between outcomes and independent variables will be calculated in terms of non-mixture and mixture variables.  In order to use \@ref(eq:System24), the correlations in `corr.x[[q]][[q]]` are reexpressed in terms of correlations between non-mixture and mixture variables using \@ref(eq:System37) and \@ref(eq:System40).  These equations require the mixing parameters $\alpha_1, \alpha_2, \gamma_1, \gamma_2$, and $\gamma_3$ to be specified in `mix_pis`, the component means to be specified in `mix_mus`, and the component standard deviations to be specified in `mix_sigmas`.  Additionally, the `error_type` must be given if the system contains any mixture variables.  The calculations are similar to the example in the previous section.
+
+## Correlation between outcomes $Y_p$ and $Y_q$ {-}      
+
+For outcomes $Y_p$ and $Y_q$, \@ref(eq:System29) requires the inputs $\beta_{pi}$, $\beta_{qj}$, $\rho_{X_{pi}X_{qj}}$, $\rho_{X_{pi}X_{pj}}$, $\rho_{X_{qi}X_{qj}}$, $\rho_{E_pE_q}$, $\sigma_{X_{pi}}^2$, and $\sigma_{X_{qj}}^2$.  These are specified via the function parameters `betas`, `corr.x`, `corr.e`, and `vars`, which are input as a matrix or lists to the function `calc_corr_y`.  If all independent variables have non-mixture distributions, then `betas[p, ]`, `corr.x[[q]][[p]]`, `corr.x[[p]][[p]]` will all have the same number of columns, and `betas[q, ]`, `corr.x[[p]][[q]]`, `corr.x[[q]][[q]]` will all have the same number of columns.   
+
+If the equations for $Y_p$ and/or $Y_q$ contain mixture independent variables, then the user may specify the slope coefficients `betas` either for: 1) non-mixture and components of mixture variables or 2) non-mixture and mixture variables.  In the first case, the components of the mixture independent variables are treated as "non-mixture" continuous variables and \@ref(eq:System29) applies.  In the second case, the correlations in `corr.x` are reexpressed in terms of correlations between non-mixture and mixture variables using \@ref(eq:System37) and \@ref(eq:System40).  These equations require the mixing parameters to be specified in `mix_pis`, the component means to be specified in `mix_mus`, and the component standard deviations to be specified in `mix_sigmas`.  The calculations are similar to the previous examples.      
+
+If all error terms have mixture distributions (`error_type = "mix"`), then the correlations among components given in `corr.e` are reexpressed as correlations among mixture variables using \@ref(eq:System37).  For example, assume the system contains 2 equations with error terms $E_1$ and $E_2$, both with mixture distributions.  The PDF's of $E_1$ and $E_2$ are given by:      
+
+\begin{equation}      
+\begin{split}     
+f_{E_1}(e_1) &= \alpha_1 f_{E_{11}}(e_{11}) + \alpha_2 f_{E_{12}}(e_{12}) \\     
+f_{E_2}(E_2) &= \gamma_1 f_{E_{21}}(e_{21}) + \gamma_2 f_{E_{22}}(e_{22}) + \gamma_3 f_{E_{23}}(e_{23})     
+\end{split}    
+(\#eq:System48)     
+\end{equation}     
+
+so that $E_1$ has 2 components and $E_2$ has 3 components.  The correlation `rho_{E_1 E_2}` is calculated as:     
+
+\begin{equation}  
+\begin{split}
+\rho_{E_1 E_2} &= \frac{\sum_{i = 1}^{2} \alpha_i \sigma_{E_{1i}} \sum_{j = 1}^{3} \gamma_j \sigma_{E_{2j}} \rho_{E_{1i}E_{2j}}}{\sigma_{E_1} \sigma_{E_2}} \\
+&= \frac{\alpha_1 \sigma_{E_{11}} (\gamma_1 \sigma_{E_{21}} \rho_{E_{11}E_{21}} + \gamma_2 \sigma_{E_{22}} \rho_{E_{11}E_{22}} + \gamma_3 \sigma_{E_{23}} \rho_{E_{11}E_{23}})}{\sigma_1 \sigma_2} \\
+&\ \ \ + \frac{\alpha_2 \sigma_{E_{12}} (\gamma_1 \sigma_{E_{21}} \rho_{E_{12}E_{21}} + \gamma_2 \sigma_{E_{22}} \rho_{E_{12}E_{22}} + \gamma_3 \sigma_{E_{23}} \rho_{E_{12}E_{23}})}{\sigma_1 \sigma_2}, 
+\end{split}   
+(\#eq:System49)   
+\end{equation}    
+
+where     
+
+\begin{equation}  
+\begin{split}
+\sigma_1^2 &= \alpha_1 (\sigma_{E_{11}}^2 + \mu_{E_{11}}^2) + \alpha_2 (\sigma_{E_{12}}^2 + \mu_{E_{12}}^2) - [\alpha_1 \mu_{E_{11}} + \alpha_2 \mu_{E_{12}}]^2 \\
+\sigma_2^2 &= \gamma_1 (\sigma_{E_{21}}^2 + \mu_{E_{21}}^2) + \gamma_2 (\sigma_{E_{22}}^2 + \mu_{E_{22}}^2) + \gamma_3 (\sigma_{E_{23}}^2 + \mu_{E_{23}}^2) - [\gamma_1 \mu_{E_{21}} + \gamma_2 \mu_{E_{22}} + \gamma_3 \mu_{E_{23}}]^2.
+\end{split}   
+(\#eq:System50)   
+\end{equation}       
+
+The parameters for the component distributions are given as the last entries in `mix_pis`, `mix_mus`, and `mix_sigmas`.  Again, note that the correlation computed in \@ref(eq:System49) is an *approximation* of the actual correlation.
+
+## Correlation between outcome $Y_p$ and error term $E_q$ {-}          
+
+For outcomes $Y_p$ and $Y_q$, \@ref(eq:System34) requires the inputs $\beta_{pi}$, $\rho_{X_{pi}X_{pj}}$, $\rho_{E_pE_q}$, $\sigma_{X_{pi}}^2$, and $\sigma_p^2$.  These are specified via the function parameters `betas`, `corr.x`, `corr.e`, and `vars`, which are input as a matrix or lists to the function `calc_corr_ye`.  If all independent variables have non-mixture distributions, then `betas[p, ]` and `corr.x[[p]][[p]]` will have the same number of columns.
+
+If the equations for $Y_p$ and/or $Y_q$ contain mixture independent variables, then the user may specify the slope coefficients `betas` either for: 1) non-mixture and components of mixture variables or 2) non-mixture and mixture variables.  In the first case, the components of the mixture independent variables are treated as "non-mixture" continuous variables and \@ref(eq:System34) applies.  In the second case, the correlations in `corr.x` are reexpressed in terms of correlations between non-mixture and mixture variables using \@ref(eq:System37) and \@ref(eq:System40).  These equations require the mixing parameters to be specified in `mix_pis`, the component means to be specified in `mix_mus`, and the component standard deviations to be specified in `mix_sigmas`.  The calculations are similar to the previous examples.      
+
+If all error terms have mixture distributions (`error_type = "mix"`), then the correlations among components given in `corr.e` are reexpressed as correlations among mixture variables using \@ref(eq:System37).  See the examples in the previous sections.   
+
+# Simulated correlations from `nonnormsys` {-}   
+
+The function `nonnormsys` returns the `betas` used in the simulation.  Summaries for the outcomes, independent variables, and error terms can be found using `summary_sys`.  This function also calculates the simulated correlations among outcomes (returned as `rho.y`), outcomes and independent variables (returned as `rho.yx` for non-mixture and components of mixture variables and `rho.yxall` for non-mixture and mixture variables), and outcomes and error terms (returned as `rho.ye` for non-mixture or components of mixture error terms and/or `rho.yemix` for mixture error terms).  These can be used to compare simulated values to expected values calculated from the above equations.
+
+# References {-}
+
+<script type="text/x-mathjax-config">
+   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 110, availableFonts: [] }  });
+</script>

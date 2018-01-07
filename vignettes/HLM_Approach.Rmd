@@ -1,0 +1,136 @@
+---
+title: "The Hierarchical Linear Models Approach for a System of Correlated Equations with Multiple Variable Types"
+author: "Allison C Fialkowski"
+date: "`r Sys.Date()`"
+output: 
+  bookdown::html_document2: 
+    fig_caption: yes
+bibliography: Bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{The Hierarchical Linear Models Approach for a System of Correlated Equations with Multiple Variable Types}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  text-align: center;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height = 4, cache = FALSE)
+```
+
+```{r, include=FALSE}
+library("bookdown")
+```
+
+The `corrsys` and `corrsys2` functions generate correlated systems of `M` equations representing a **system of repeated measures** at `M` time points.  The equations may contain 1) ordinal ($r \geq 2$ categories), continuous (normal, non-normal, and mixture distributions), and/or count (regular and zero-inflated, Poisson and Negative Binomial) independent variables $X$; 2) continuous error terms $E$; 3) a discrete time variable $Time$; and 4) random effects $U$.  The random effects may be a random intercept, a random slope for time, or a random slope for any of the $X$ variables.  The **important assumptions** are:    
+
+1) There are at least 2 equations with at least 1 independent variable total.      
+2) The independent variables, random effect terms, and error terms are uncorrelated.    
+3) Each equation has an error term.      
+4) All error terms have continuous non-mixture distributions or all have continuous mixture distributions.      
+5) All random effects are continuous.     
+6) Growth is linear with respect to time.  
+
+Continuous variables are simulated using either @Fleish's third-order (`method = "Fleishman"`) or @Head2002's fifth-order (`method = "Polynomial"`) power method transformation (PMT).  The $X$ terms can be the same across equations (i.e., a static covariate as in sex or height) or may be time-varying covariates.  The equations may contain different numbers of $X$ terms (i.e., a covariate could be missing for a given equation).       
+
+The outcomes $Y$ are generated using a hierarchical linear models approach, and the user can specify *subject-level* $X$ terms.  Each subject-level $X$ term is crossed with all *group-level* $X$ terms.  The equations may also contain interactions between group or subject-level $X$ variables.  Interactions between two group-level variables is considered another group-level variable which will be crossed with all subject-level variables.  Interactions between two subject-level variables is considered another subject-level variable which will be crossed with all group-level variables.  Since `Time` is a subject-level variable, each group-level term is crossed with `Time` unless otherwise specified.       
+
+The independent variables, interactions, `Time` effect, random effects, and error terms are summed together to produce the outcomes $Y$. The `beta` coefficients may be the same or differ across equations.  The user specifies the betas for the independent variables in `betas`, for the interactions between two group-level or two subject-level covariates in `betas.int`, for the group-subject level interactions in `betas.subj`, and for the `Time` interactions in `betas.tint`.  Setting a coefficient to 0 will eliminate that term.  
+
+The user specifies the correlations 1) between $E$ terms; 2) between $X$ variables within each outcome $Y_p$, $p = 1, ..., M$, and across outcomes; and 3) between $U$ variables within each outcome $Y_p$, $p = 1, ..., M$, and across outcomes.  The order of the independent variables in `corr.x` must be $1^{st}$ ordinal (same order as in `marginal`), $2^{nd}$ continuous non-mixture (same order as in `skews`), $3^{rd}$ components of continuous mixture (same order as in `mix_pis`), $4^{th}$ regular Poisson, $5^{th}$ zero-inflated Poisson (same order as in `lam`), $6^{th}$ regular NB, and $7^{th}$ zero-inflated NB (same order as in `size`).  The order of the random effects in `corr.u` must be $1^{st}$ random intercept, $2^{nd}$ random time slope, $3^{rd}$ continuous non-mixture random effects, and $4^{th}$ components of continuous mixture random effects.     
+
+The variables are generated from multivariate normal variables with intermediate correlations calculated using either `SimCorrMix::intercorr` and **correlation method 1** for `corrsys` or `SimCorrMix::intercorr2` and **correlation method 2** for `corrsys2`.  See the **SimCorrMix** package for a description of the correlation methods and the techniques used to generate each variable type.  The order of the variables returned is $1^{st}$ covariates $X$ (as specified in `corr.x`), $2^{nd}$ group-group or subject-subject interactions (ordered as in `int.var`), $3^{rd}$ subject-group interactions ($1^{st}$ by subject-level variable as specified in `subj.var`, $2^{nd}$ by covariate as specified in `corr.x`), and $4^{th}$ `Time` interactions (either as specified in `corr.x` with group-level covariates or in `tint.var`).    
+
+The `corrsys` and `corrsys2` functions contain no parameter checks in order to decrease simulation time.  That should be done first using `checkpar`.  Summaries of the system can be obtained using `summary_sys`.  More information regarding function inputs can be found by consulting the function documentation.  Some code has been adapted from the **SimMultiCorrData** [@SMCD] and **SimCorrMix** [@SimCorrMix] packages.
+
+# Hierarchical Linear Models (HLM) Approach {-}    
+
+The repeated measures model can be described using a HLM approach, which allows the data to be structured in at least two levels.  **Level-1** is the repeated measure (time or condition) and other subject-level variables.  **Level-1** is nested within **Level-2**, which describes the average of the outcome (the intercept) and growth (slope for time) as a function of group-level variables.  The first level captures the within-subject variation, while the second level describes the between-subjects variability.  Using a HLM provides a way to determine if: a) subjects differ at a specific time point with respect to the dependent variable, b) growth rates differ across conditions, or c) growth rates differ across subjects.  HLM may contain random effects that describe deviation at the subject-level from the average (fixed) effect described by the beta coefficients [@Leed; @Kinc; @GLMM; @Lini].   
+
+The **major assumptions** are:    
+
+1) The independent variables are uncorrelated with the error terms.     
+2) The random effects are uncorrelated with the error terms.    
+3) The independent variables are uncorrelated with the random effects.
+
+Consider a two level model where the outcome $Y$ is measured at `M` times for `n` subjects, and the growth is assumed to be linear with respect to `Time`.  The **Level-1** model contains subject-specific factors, including any time-varying covariates.  Assume there are three time-varying covariates: $X_{cont1}$, which has a continuous non-mixture distribution, $X_{mix1}$, which has a continuous mixture distribution, and $X_{nb1}$, which has a Negative Binomial (regular or zero-inflated) distribution.  
+
+**Level-1** is represented by a function of the $p^{th}$ time point, $p = 1, ..., M$, for the $i^{th}$ subject, $i = 1, ..., n$ as follows:  
+
+\begin{equation}   
+Y_{ip} = \lambda_{i0} + \lambda_{i1}X_{i,cont(p1)} + \lambda_{i2}X_{i,mix(p1)} + \lambda_{i3}X_{i,nb(p1)} + \lambda_{iT}Time_{ip} + E_{ip}. (\#eq:System1)
+\end{equation}   
+
+Since the repeated measurements are nested within subjects, the subject index $i$ appears $1^{st}$, followed by the measurement (`Time`) index $p$, with the independent variable index last.  This aids in thinking of the outcomes as the rows of a matrix, with the independent variables as the columns.  The slope ($\lambda$) coefficients are assumed to be randomly sampled from normal distributions with finite variance.    
+
+The **Level-2** model represents the averages of $Y$ ($\lambda_{0}$), time-varying covariates ($\lambda_{1}, \lambda_{2}, \lambda_{3}$), and growth ($\lambda_{T}$) as a function of other independent variables (covariates).  Assume there is one ordinal covariate $X_{ord(1)}$ (i.e., drug treatment group) and one Poisson (regular or zero-inflated) covariate $X_{pois(1)}$ that are static across outcomes.  In addition, there is an interaction between $X_{ord(1)}$ and $X_{pois(1)}$ which is itself a group-level variable.     
+
+**Level-2** is expressed as follows:           
+
+\begin{equation}    
+\begin{split}    
+\lambda_{0} &= \gamma_{00} + \gamma_{0,ord(1)}X_{ord(1)} + \gamma_{0,pois(1)}X_{pois(1)} + \gamma_{0,int1}X_{ord(1)} * X_{pois(1)} + \eta_{0} \\ 
+\lambda_{1} &= \gamma_{10} + \gamma_{1,ord(1)}X_{ord(1)} + \gamma_{1,pois(1)}X_{pois(1)} + \gamma_{1,int1}X_{ord(1)} * X_{pois(1)} + \eta_{1} \\ 
+\lambda_{2} &= \gamma_{20} + \gamma_{2,ord(1)}X_{ord(1)} + \gamma_{2,pois(1)}X_{pois(1)} + \gamma_{2,int1}X_{ord(1)} * X_{pois(1)} + \eta_{2} \\ 
+\lambda_{3} &= \gamma_{30} + \gamma_{3,ord(1)}X_{ord(1)} + \gamma_{3,pois(1)}X_{pois(1)} + \gamma_{3,int1}X_{ord(1)} * X_{pois(1)} + \eta_{3} \\ 
+\lambda_{T} &= \gamma_{T0} + \gamma_{T,ord(1)}X_{ord(1)} + \gamma_{T,pois(1)}X_{pois(1)} + \gamma_{T,int1}X_{ord(1)} * X_{pois(1)} + \eta_{T} 
+\end{split}   
+(\#eq:System2)
+\end{equation}   
+
+Again, the slope ($\gamma$) coefficients are assumed to be randomly sampled from normal distributions with finite variance.
+
+Combining these into a single-equation gives:     
+
+\begin{equation}    
+\begin{split}    
+Y_{ip} &= (\gamma_{00} + \gamma_{0,ord(1)}X_{i,ord(1)} + \gamma_{0,pois(1)}X_{i,pois(1)} + \gamma_{0,int1}X_{i,ord(1)} * X_{i,pois(1)} + \eta_{0}) \\
+&\ \ \ + (\gamma_{10} + \gamma_{1,ord(1)}X_{i,ord(1)} + \gamma_{1,pois(1)}X_{i,pois(1)} + \gamma_{1,int1}X_{i,ord(1)} * X_{i,pois(1)} + \eta_{1}) * X_{i,cont(p1)} \\   
+&\ \ \ + (\gamma_{20} + \gamma_{2,ord(1)}X_{i,ord(1)} + \gamma_{2,pois(1)}X_{i,pois(1)} + \gamma_{2,int1}X_{i,ord(1)} * X_{i,pois(1)} + \eta_{2}) * X_{i,mix(p1)} \\
+&\ \ \ + (\gamma_{30} + \gamma_{3,ord(1)}X_{i,ord(1)} + \gamma_{3,pois(1)}X_{i,pois(1)} + \gamma_{3,int1}X_{i,ord(1)} * X_{i,pois(1)} + \eta_{3}) * X_{i,nb(p1)} \\ 
+&\ \ \ + (\gamma_{T0} + \gamma_{T,ord(1)}X_{i,ord(1)} + \gamma_{T,ord(2)}X_{i,ord(2)} + \gamma_{T,pois(1)}X_{i,pois(1)} + \gamma_{T,int1}X_{i,ord(1)} * X_{i,pois(1)} \\
+&\ \ \ + \eta_{T}) * Time_{ip} + E_{ip}.
+\end{split}   
+(\#eq:System3)
+\end{equation}   
+
+Since $E[\eta_{0}] = E[\eta_{1}] = E[\eta_{2}] = E[\eta_{3}] = E[\eta_{T}] = 0$, $Y_{ip}$ may be re-expressed as:              
+
+\begin{equation}    
+\begin{split}    
+Y_{ip} &= \beta_{0} + \beta_{1}X_{i,ord(1)} + \beta_{2}X_{i,cont(p1)} + \beta_{3}X_{i,mix(p1)} + \beta_{4}X_{i,pois(1)} +
+\beta_{5}X_{i,nb(p1)} + \beta_{int1}X_{i,ord(1)} * X_{i,pois(1)} \\
+&\ \ \ + \beta_{T}Time_{ip} + (\beta_{subj1}X_{i,ord(1)} + \beta_{subj2}X_{i,pois(1)} + \beta_{subj3}X_{i,ord(1)} * X_{i,pois(1)}) * X_{i,cont(p1)} \\
+&\ \ \ + (\beta_{subj4}X_{i,ord(1)} + \beta_{subj5}X_{i,pois(1)} + \beta_{subj6}X_{i,ord(1)} * X_{i,pois(1)}) * X_{i,mix(p1)} \\
+&\ \ \ + (\beta_{subj7}X_{i,ord(1)} + \beta_{subj8}X_{i,pois(1)} + \beta_{subj9}X_{i,ord(1)} * X_{i,pois(1)}) * X_{i,nb(p1)} \\
+&\ \ \ + (beta_{tint1} * X_{i,ord(1)} + beta_{tint2} * X_{i,pois(1)} + beta_{tint3}X_{i,ord(1)} * X_{i,pois(1)}) * Time_{ip} + E_{ip}.
+\end{split}   
+(\#eq:System4)
+\end{equation}        
+
+Note that each of the group-level covariates ($X_{ord(1)}, X_{pois(1)},$ and $X_{ord(1)} * X_{pois(1)}$) has an interaction with each of the subject-level covariates ($X_{cont(1)}, X_{mix(1)}, X_{nb(1)}, Time$).  The slope coefficients may be the same across outcomes, as in the above example, or they may differ across outcomes.  Setting a coefficient to 0 will eliminate that term.  
+
+**Random effects** may be added for the intercept, time slope, or effects of any of the covariates.  Random effects describe deviation at the subject-level from the average (fixed) effect described by the slope coefficients (betas).  Adding a random intercept and slope for time to the above example yields the following:
+
+\begin{equation}   
+Y_{ip} = Y_{ip} + U_{i0} + U_{i1} * Time_{ip}. (\#eq:System5)  
+\end{equation}
+
+The type of random intercept and time slope (i.e., non-mixture or mixture) is specified in `rand.int` and `rand.tsl`.  This type may vary by equation.  The random effects for independent variables are specified in `rand.var` and may also contain a combination of non-mixture and mixture continuous distributions.
+
+# References {-}
+
+<script type="text/x-mathjax-config">
+   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 110, availableFonts: [] }  });
+</script>
