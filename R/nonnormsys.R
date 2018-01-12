@@ -165,6 +165,7 @@
 #'     reaches \code{maxit} (default = FALSE)
 #' @param epsilon the maximum acceptable error between the final and target correlation matrices (default = 0.001) in the error loop
 #' @param maxit the maximum number of iterations to use (default = 1000) in the error loop
+#' @param quiet if FALSE prints messages, if TRUE suppresses messages
 #' @importFrom psych describe
 #' @import SimMultiCorrData
 #' @import SimCorrMix
@@ -337,7 +338,7 @@ nonnormsys <- function(n = 10000, M = NULL,
                        same.var = NULL, betas.0 = NULL, corr.x = list(),
                        corr.yx = list(), corr.e = NULL, seed = 1234,
                        use.nearPD = TRUE, errorloop = FALSE, epsilon = 0.001,
-                       maxit = 1000) {
+                       maxit = 1000, quiet = FALSE) {
   start.time <- Sys.time()
   if (length(error_type) != 1)
     stop("Please choose one type of distribution for all of the error terms:
@@ -624,10 +625,11 @@ nonnormsys <- function(n = 10000, M = NULL,
   Z <- scale(Z, FALSE, TRUE)
   if (min(eigen(Sigma_E, symmetric = TRUE)$values) < 0) {
     if (use.nearPD == TRUE) {
-      message("Intermediate E correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
       Sigma_E <- as.matrix(nearPD(Sigma_E, corr = T, keepDiag = T)$mat)
-    } else {
+      if (quiet == FALSE)
+        message("Intermediate E correlation matrix is not positive definite.
+Nearest positive definite matrix is used.")
+    } else if (quiet == FALSE) {
       message("Intermediate E correlation matrix is not positive definite.
 Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
 positive-definite matrix instead.")
@@ -759,10 +761,11 @@ positive-definite matrix instead.")
                             rho_cont = Corr_X)
   if (min(eigen(Sigma_X, symmetric = TRUE)$values) < 0) {
     if (use.nearPD == TRUE) {
-      message("Intermediate correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
       Sigma_X <- as.matrix(nearPD(Sigma_X, corr = T, keepDiag = T)$mat)
-    } else {
+      if (quiet == FALSE)
+        message("Intermediate correlation matrix is not positive definite.
+Nearest positive definite matrix is used.")
+    } else if (quiet == FALSE) {
       message("Intermediate correlation matrix is not positive definite.
 Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
 positive-definite matrix instead.")

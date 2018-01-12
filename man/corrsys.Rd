@@ -18,7 +18,7 @@ corrsys(n = 10000, M = NULL, Time = NULL, method = c("Fleishman",
   betas.tint = list(), rand.int = c("none", "non_mix", "mix"),
   rand.tsl = c("none", "non_mix", "mix"), rand.var = NULL,
   corr.u = list(), seed = 1234, use.nearPD = TRUE, nrand = 1e+05,
-  errorloop = FALSE, epsilon = 0.001, maxit = 1000)
+  errorloop = FALSE, epsilon = 0.001, maxit = 1000, quiet = FALSE)
 }
 \arguments{
 \item{n}{the sample size (i.e. the length of each simulated variable; default = 10000)}
@@ -317,6 +317,8 @@ in the calculation of ordinal intermediate correlations with \code{\link[SimCorr
 
 \item{maxit}{the maximum number of iterations to use (default = 1000) in the calculation of ordinal
 intermediate correlations with \code{\link[SimCorrMix]{ord_norm}} or in the error loop}
+
+\item{quiet}{if FALSE prints messages, if TRUE suppresses messages}
 }
 \value{
 A list with the following components:
@@ -376,7 +378,9 @@ This function generates a correlated system of \code{M} equations representing a
     random intercept, a random slope for time, or a random slope for any of the \eqn{X} variables.  Continuous variables are simulated
     using either Fleishman's third-order (\code{method = "Fleishman"}, \doi{10.1007/BF02293811})
     or Headrick's fifth-order (\code{method = "Polynomial"}, \doi{10.1016/S0167-9473(02)00072-5}) power method transformation (PMT).
-    The \eqn{X} terms can be the same across equations (i.e., modeling sex or height) or may be time-varying covariates.  The
+    Simulation occurs at the component-level for continuous mixture distributions.  The target correlation matrix is specified in terms of
+    correlations with components of continuous mixture variables.  These components are transformed into
+    the desired mixture variables using random multinomial variables based on the mixing probabilities.  The \eqn{X} terms can be the same across equations (i.e., modeling sex or height) or may be time-varying covariates.  The
     equations may contain different numbers of \eqn{X} terms (i.e., a covariate could be missing for a given equation).
 
     The outcomes \eqn{Y} are generated using a hierarchical linear models (HLM) approach, which allows the data to be structured in at least two levels.

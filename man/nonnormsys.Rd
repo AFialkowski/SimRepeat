@@ -12,7 +12,7 @@ nonnormsys(n = 10000, M = NULL, method = c("Fleishman", "Polynomial"),
   mix_sixths = list(), mix_Six = list(), same.var = NULL,
   betas.0 = NULL, corr.x = list(), corr.yx = list(), corr.e = NULL,
   seed = 1234, use.nearPD = TRUE, errorloop = FALSE, epsilon = 0.001,
-  maxit = 1000)
+  maxit = 1000, quiet = FALSE)
 }
 \arguments{
 \item{n}{the sample size (i.e. the length of each simulated variable; default = 10000)}
@@ -129,6 +129,8 @@ reaches \code{maxit} (default = FALSE)}
 \item{epsilon}{the maximum acceptable error between the final and target correlation matrices (default = 0.001) in the error loop}
 
 \item{maxit}{the maximum number of iterations to use (default = 1000) in the error loop}
+
+\item{quiet}{if FALSE prints messages, if TRUE suppresses messages}
 }
 \value{
 A list with the following components:

@@ -10,7 +10,9 @@
 #'     random intercept, a random slope for time, or a random slope for any of the \eqn{X} variables.  Continuous variables are simulated
 #'     using either Fleishman's third-order (\code{method = "Fleishman"}, \doi{10.1007/BF02293811})
 #'     or Headrick's fifth-order (\code{method = "Polynomial"}, \doi{10.1016/S0167-9473(02)00072-5}) power method transformation (PMT).
-#'     The \eqn{X} terms can be the same across equations (i.e., modeling sex or height) or may be time-varying covariates.  The
+#'     Simulation occurs at the component-level for continuous mixture distributions.  The target correlation matrix is specified in terms of
+#'     correlations with components of continuous mixture variables.  These components are transformed into
+#'     the desired mixture variables using random multinomial variables based on the mixing probabilities.  The \eqn{X} terms can be the same across equations (i.e., modeling sex or height) or may be time-varying covariates.  The
 #'     equations may contain different numbers of \eqn{X} terms (i.e., a covariate could be missing for a given equation).
 #'
 #'     The outcomes \eqn{Y} are generated using a hierarchical linear models (HLM) approach, which allows the data to be structured in at least two levels.
@@ -318,6 +320,7 @@
 #'     in the calculation of ordinal intermediate correlations with \code{\link[SimCorrMix]{ord_norm}} or in the error loop
 #' @param maxit the maximum number of iterations to use (default = 1000) in the calculation of ordinal
 #'     intermediate correlations with \code{\link[SimCorrMix]{ord_norm}} or in the error loop
+#' @param quiet if FALSE prints messages, if TRUE suppresses messages
 #' @importFrom psych describe
 #' @import SimMultiCorrData
 #' @import SimCorrMix
@@ -597,7 +600,7 @@ corrsys <- function(n = 10000, M = NULL, Time = NULL,
                     rand.tsl = c("none", "non_mix", "mix"), rand.var = NULL,
                     corr.u = list(), seed = 1234, use.nearPD = TRUE,
                     nrand = 100000, errorloop = FALSE, epsilon = 0.001,
-                    maxit = 1000) {
+                    maxit = 1000, quiet = FALSE) {
   start.time <- Sys.time()
   if (length(error_type) != 1)
     stop("Please choose one type of distribution for all of the error terms:
@@ -1026,10 +1029,11 @@ corrsys <- function(n = 10000, M = NULL, Time = NULL,
   Z <- scale(Z, FALSE, TRUE)
   if (min(eigen(Sigma_E, symmetric = TRUE)$values) < 0) {
     if (use.nearPD == TRUE) {
-      message("Intermediate E correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
       Sigma_E <- as.matrix(nearPD(Sigma_E, corr = T, keepDiag = T)$mat)
-    } else {
+      if (quiet == FALSE)
+        message("Intermediate E correlation matrix is not positive definite.
+Nearest positive definite matrix is used.")
+    } else if (quiet == FALSE) {
       message("Intermediate E correlation matrix is not positive definite.
 Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
 positive-definite matrix instead.")
@@ -1236,10 +1240,11 @@ positive-definite matrix instead.")
                          epsilon = epsilon, maxit = maxit, nrand = nrand)
     if (min(eigen(Sigma_X, symmetric = TRUE)$values) < 0) {
       if (use.nearPD == TRUE) {
-        message("Intermediate correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
         Sigma_X <- as.matrix(nearPD(Sigma_X, corr = T, keepDiag = T)$mat)
-      } else {
+        if (quiet == FALSE)
+          message("Intermediate correlation matrix is not positive definite.
+Nearest positive definite matrix is used.")
+      } else if (quiet == FALSE) {
         message("Intermediate correlation matrix is not positive definite.
 Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
 positive-definite matrix instead.")
@@ -1882,10 +1887,11 @@ positive-definite matrix instead.")
       constants = rconstants2, rho = Corr_U, nrand = nrand, seed = seed)
     if (min(eigen(Sigma_U, symmetric = TRUE)$values) < 0) {
       if (use.nearPD == TRUE) {
-        message("Intermediate random correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
         Sigma_U <- as.matrix(nearPD(Sigma_U, corr = T, keepDiag = T)$mat)
-      } else {
+        if (quiet == FALSE)
+          message("Intermediate random correlation matrix is not positive
+definite.  Nearest positive definite matrix is used.")
+      } else if (quiet == FALSE) {
         message("Intermediate random correlation matrix is not positive definite.
 Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
 positive-definite matrix instead.")

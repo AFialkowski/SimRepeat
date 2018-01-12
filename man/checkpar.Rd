@@ -17,7 +17,7 @@ checkpar(M = NULL, method = c("Fleishman", "Polynomial"),
   betas.0 = NULL, betas = list(), betas.subj = list(),
   betas.int = list(), betas.t = NULL, betas.tint = list(),
   rand.int = c("none", "non_mix", "mix"), rand.tsl = c("none", "non_mix",
-  "mix"), rand.var = NULL, corr.u = list())
+  "mix"), rand.var = NULL, corr.u = list(), quiet = FALSE)
 }
 \arguments{
 \item{M}{the number of dependent variables \eqn{Y} (outcomes); equivalently, the number of equations in the system}
@@ -308,6 +308,8 @@ continuous non-mixture covariate with a mixture random effect (the 2nd column of
     The number of random effects for \eqn{Y_p} is taken from \code{nrow(corr.u[[p]][[1]])} so that if there should be random effects,
     there must be entries for \code{corr.u};
     use \code{corr.u[[p]][[q]] = NULL} if equation q has no \eqn{U_{(qj)}}; use \code{corr.u[[p]] = NULL} if equation p has no \eqn{U_{(pj)}}}
+
+\item{quiet}{if FALSE prints messages, if TRUE suppresses messages}
 }
 \value{
 TRUE if all inputs are correct, else it will stop with a correction message

@@ -253,6 +253,7 @@
 #'     The number of random effects for \eqn{Y_p} is taken from \code{nrow(corr.u[[p]][[1]])} so that if there should be random effects,
 #'     there must be entries for \code{corr.u};
 #'     use \code{corr.u[[p]][[q]] = NULL} if equation q has no \eqn{U_{(qj)}}; use \code{corr.u[[p]] = NULL} if equation p has no \eqn{U_{(pj)}}
+#' @param quiet if FALSE prints messages, if TRUE suppresses messages
 #'
 #' @import utils
 #' @export
@@ -336,7 +337,7 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
                      betas.int = list(), betas.t = NULL, betas.tint = list(),
                      rand.int = c("none", "non_mix", "mix"),
                      rand.tsl = c("none", "non_mix", "mix"), rand.var = NULL,
-                     corr.u = list()) {
+                     corr.u = list(), quiet = FALSE) {
   if (length(error_type) != 1)
     stop("Please choose one type of distribution for all of the error terms:
          mix if all errors have continuous mixture distributions,
@@ -365,30 +366,33 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
   if (max(K.pois) > 0) {
     if (sum(sapply(lam, function(x) sum(x < 0)) > 0) > 0)
       stop("Lambda values cannot be negative.")
-    if (class(p_zip) == "numeric" & length(p_zip) == 1) {
+    if (class(p_zip) == "numeric" & length(p_zip) == 1 & quiet == FALSE) {
       message("All p_zip values will be set at p_zip.")
-    } else if (class(p_zip) == "numeric" & length(p_zip) == M) {
+    } else if (class(p_zip) == "numeric" & length(p_zip) == M & quiet == FALSE) {
       message("All p_zip[[p]] values will be set at p_zip[p].")
-    } else if (class(p_zip) == "list" & length(p_zip) == M) {
+    } else if (class(p_zip) == "list" & length(p_zip) == M & quiet == FALSE) {
       for (p in 1:M) {
         if (length(p_zip[[p]]) != K.pois[p])
           message(paste("Missing value of p_zip for equation ", p,
             " will be set at 0.", sep = ""))
       }
-    } else {
+    } else if (quiet == FALSE) {
       message("All p_zip values will be set at 0.")
     }
-    if (class(pois_eps) == "numeric" & length(pois_eps) == 1) {
+    if (class(pois_eps) == "numeric" & length(pois_eps) == 1 &
+        quiet == FALSE) {
       message("All pois_eps values will be set at pois_eps.")
-    } else if (class(pois_eps) == "numeric" & length(pois_eps) == M) {
+    } else if (class(pois_eps) == "numeric" & length(pois_eps) == M &
+               quiet == FALSE) {
       message("All pois_eps[[p]] values will be set at pois_eps[p].")
-    } else if (class(pois_eps) == "list" & length(pois_eps) == M) {
+    } else if (class(pois_eps) == "list" & length(pois_eps) == M &
+               quiet == FALSE) {
       for (p in 1:M) {
         if (length(pois_eps[[p]]) != K.pois[p])
           message(paste("Missing value of pois_eps for equation ", p,
             " will be set at 0.0001.", sep = ""))
       }
-    } else {
+    } else if (quiet == FALSE) {
       message("All pois_eps values will be set at 0.0001.")
     }
   }
@@ -408,30 +412,34 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
       if (!all(lengths(mu) %in% K.nb))
         stop("Check lengths of mu vectors.")
     }
-    if (class(p_zinb) == "numeric" & length(p_zinb) == 1) {
+    if (class(p_zinb) == "numeric" & length(p_zinb) == 1 & quiet == FALSE) {
       message("All p_zinb values will be set at p_zinb.")
-    } else if (class(p_zinb) == "numeric" & length(p_zinb) == M) {
+    } else if (class(p_zinb) == "numeric" & length(p_zinb) == M &
+               quiet == FALSE) {
       message("All p_zinb[[p]] values will be set at p_zinb[p].")
-    } else if (class(p_zinb) == "list" & length(p_zinb) == M) {
+    } else if (class(p_zinb) == "list" & length(p_zinb) == M &
+               quiet == FALSE) {
       for (p in 1:M) {
         if (length(p_zinb[[p]]) != K.nb[p])
           message(paste("Missing value of p_zinb for equation ", p,
             " will be set at 0.", sep = ""))
       }
-    } else {
+    } else if (quiet == FALSE) {
       message("All p_zinb values will be set at 0.")
     }
-    if (class(nb_eps) == "numeric" & length(nb_eps) == 1) {
+    if (class(nb_eps) == "numeric" & length(nb_eps) == 1 & quiet == FALSE) {
       message("All nb_eps values will be set at nb_eps.")
-    } else if (class(nb_eps) == "numeric" & length(nb_eps) == M) {
+    } else if (class(nb_eps) == "numeric" & length(nb_eps) == M &
+               quiet == FALSE) {
       message("All nb_eps[[p]] values will be set at nb_eps[p].")
-    } else if (class(nb_eps) == "list" & length(nb_eps) == M) {
+    } else if (class(nb_eps) == "list" & length(nb_eps) == M &
+               quiet == FALSE) {
       for (p in 1:M) {
         if (length(nb_eps[[p]]) != K.nb[p])
           message(paste("Missing value of nb_eps for equation ", p,
             " will be set at 0.0001.", sep = ""))
       }
-    } else {
+    } else if (quiet == FALSE) {
       message("All nb_eps values will be set at 0.0001.")
     }
   }
@@ -579,10 +587,10 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
     }
   }
   if (max(K.r) > 0) {
-    if (length(rand.int) != M)
+    if (length(rand.int) != M & quiet == FALSE)
       message("The random intercept for all equations will be set at
               rand.int[1].")
-    if (length(rand.tsl) == 1)
+    if (length(rand.tsl) == 1 & quiet == FALSE)
       message("The random time slope for all equations will be set at
               rand.tsl[1].")
     if (!is.null(rand.var)) {
@@ -590,13 +598,15 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
         stop("rand.var should be matrix with 2 columns.")
     }
   }
-  if (is.null(betas.0)) message("The intercepts will all be set at 0.")
-  if (length(betas.0) < M & length(betas.0) > 0)
-    message("The intercepts will all be set at betas.0[1].")
-  if (length(corr.yx) == 0 & is.null(betas.t))
-    message("The time slopes will all be set at 1.")
-  if (length(betas.t) < M & length(betas.t) > 0)
-    message("The time slopes will all be set at betas.t[1].")
+  if (quiet == FALSE) {
+    if (is.null(betas.0)) message("The intercepts will all be set at 0.")
+    if (length(betas.0) < M & length(betas.0) > 0)
+      message("The intercepts will all be set at betas.0[1].")
+    if (length(corr.yx) == 0 & is.null(betas.t))
+      message("The time slopes will all be set at 1.")
+    if (length(betas.t) < M & length(betas.t) > 0)
+      message("The time slopes will all be set at betas.t[1].")
+  }
   if (!is.null(same.var)) {
     if (class(same.var) == "matrix") {
       if (ncol(same.var) != 4)
@@ -616,32 +626,32 @@ checkpar <- function(M = NULL, method = c("Fleishman", "Polynomial"),
   if (!is.null(tint.var)) {
     if (ncol(tint.var) != 2) stop("tint.var should be matrix with 2 columns.")
   }
-  if (length(corr.yx) == 0 & length(betas) == 0)
+  if (length(corr.yx) == 0 & length(betas) == 0 & quiet == FALSE)
     message("All betas will be set to 0 if using corrsys or corrsys2.")
-  if (class(betas) == "list" & length(betas) == 1)
+  if (class(betas) == "list" & length(betas) == 1 & quiet == FALSE)
     message("All betas will be set to betas[[1]].")
   if (class(betas) != "list" |
       (class(betas) == "list" & !(length(betas) %in% c(0, 1, M))))
     stop("Betas should be list of length 0, 1 or M.")
-  if (length(betas.subj) == 0 & !is.null(subj.var))
+  if (length(betas.subj) == 0 & !is.null(subj.var) & quiet == FALSE)
     message("All betas.subj will be set to 0 if using corrsys or corrsys2.")
-  if (class(betas.subj) == "list" & length(betas.subj) == 1)
+  if (class(betas.subj) == "list" & length(betas.subj) == 1 & quiet == FALSE)
     message("All betas.subj will be set to betas.subj[[1]] if using corrsys or
             corrsys2.")
   if (class(betas.subj) != "list" |
       (class(betas.subj) == "list" & !(length(betas.subj) %in% c(0, 1, M))))
     stop("betas.subj should be list of length 0, 1 or M.")
-  if (length(betas.int) == 0 & !is.null(int.var))
+  if (length(betas.int) == 0 & !is.null(int.var) & quiet == FALSE)
     message("All betas.int will be set to 0 if using corrsys or corrsys2.")
-  if (class(betas.int) == "list" & length(betas.int) == 1)
+  if (class(betas.int) == "list" & length(betas.int) == 1 & quiet == FALSE)
     message("All betas.int will be set to betas.int[[1]] if using corrsys or
             corrsys2.")
   if (class(betas.int) != "list" |
       (class(betas.int) == "list" & !(length(betas.int) %in% c(0, 1, M))))
     stop("betas.int should be list of length 0, 1 or M.")
-  if (length(betas.tint) == 0  & !is.null(tint.var))
+  if (length(betas.tint) == 0  & !is.null(tint.var) & quiet == FALSE)
     message("All betas.tint will be set to 0 if using corrsys or corrsys2.")
-  if (class(betas.tint) == "list" & length(betas.tint) == 1)
+  if (class(betas.tint) == "list" & length(betas.tint) == 1 & quiet == FALSE)
     message("All betas.tint will be set to betas.tint[[1]] if using corrsys or
             corrsys2.")
   if (class(betas.tint) != "list" |
