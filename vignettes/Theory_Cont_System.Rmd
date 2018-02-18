@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 6, 
 library("bookdown")
 ```
 
-Repeated measures may be thought of as a system of $M$ equations.  The dependent variables $Y_{p}$, for $p = 1,\ ...,\ M$, may represent the same variable collected at $M$ time points or under $M$ different conditions (i.e. different treatment drugs).  The $K$ independent variables $X_{pi}$, for $p = 1,\ ...,\ M$ and $i = 1,\ ...,\ K$, may be non-varying covariates (*static*, i.e. gender or height), time-varying covariates (i.e. age or blood sugar), or a combination of the two.  Although @Fleish's third and @Head2002's fifth-order polynomial transformation methods (power method transformations, PMT's) allow the simulation of correlated non-normal variables for a single equation or system of independent equations, they have certain limitations when producing a system of correlated equations.  For example, there is no way to control the distributions of and correlations between the error terms.  @HeadBeas derived a general, computationally-efficient procedure for simulating correlated non-normal systems of statistical equations that permits control of correlated non-normal: a) error (*stochastic disturbance*) terms, b) independent variables, and c) dependent and independent variables.  Such a procedure is important in order to investigate the properties of analytical models and test statistics that rely on certain distributional assumptions.  For example, sufficient sample size, multivariate normality, independent errors, homogeneous variances, and balanced data.       
+Repeated measures may be thought of as a system of $M$ equations.  The dependent variables $Y_{p}$, for $p = 1,\ ...,\ M$, may represent the same variable collected at $M$ time points or under $M$ different conditions (i.e., different treatment drugs).  The $K$ independent variables $X_{pi}$, for $p = 1,\ ...,\ M$ and $i = 1,\ ...,\ K$, may be non-varying covariates (*static*, i.e., gender or height), time-varying covariates (i.e., age or blood sugar), or a combination of the two.  Although @Fleish's third and @Head2002's fifth-order polynomial transformation methods (power method transformations, PMT's) allow the simulation of correlated non-normal variables for a single equation or system of independent equations, they have certain limitations when producing a system of correlated equations.  For example, there is no way to control the distributions of and correlations between the error terms.  @HeadBeas derived a general, computationally-efficient procedure for simulating correlated non-normal systems of statistical equations that permits control of correlated non-normal: a) error (*stochastic disturbance*) terms, b) independent variables, and c) dependent and independent variables.  Such a procedure is important in order to investigate the properties of analytical models and test statistics that rely on certain distributional assumptions.  For example, sufficient sample size, multivariate normality, independent errors, sphericity, and balanced data.       
 
 @HeadBeas's technique allows the user to specify the distributions of the independent variables $X_{(pj)}$, for $p = 1, ..., M$ equations, and stochastic disturbance (error) terms $E$.  The user also controls the correlations between: 1) independent variables $X_{(pj)}$ for a given outcome $Y_p$, 2) an outcome $Y_p$ and its $X_{(pj)}$ terms, and 3) stochastic disturbance (error) terms $E$.  The technique calculates the beta (slope) coefficients based on correlations between independent variables $X_{(pj)}$ for a given outcome $Y_p$, the correlations between that outcome $Y_p$ and the $X_{(pj)}$ terms, and the variances.  @HeadBeas also derived equations to calculate the expected correlations based on these betas between: 1) $X_{(pj)}$ terms and outcome $Y_q$, 2) outcomes $Y_p$ and $Y_q$, and 3) outcome $Y_p$ and error term $E_q$, for $p$ not equal to $q$.  All continuous variables are generated from intermediate random normal variables using @Head2002's fifth-order power transformation method (PMT).  The intermediate correlations required to generate the target correlations after variable transformations are calculated using @Head2002's equation.            
                  
@@ -283,7 +283,7 @@ Then
 \begin{align}
 \begin{split}
 E[Y_pE_q] &= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}) E_q]\\
-&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}E_q] + E[E_pE_q]\\
+&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}E_q] + E[E_pE_q]
 \end{split}
 (\#eq:System31)
 \end{align}        
@@ -291,7 +291,7 @@ and
 \begin{align}
 \begin{split}
 E[Y_p]E[E_q] &= E[\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}]E[E_q]\\
-&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}]E[E_q] + E[E_p]E[E_q]\\
+&= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}]E[E_q] + E[E_p]E[E_q]
 \end{split}
 (\#eq:System32)
 \end{align}        
@@ -501,5 +501,5 @@ The function `nonnormsys` returns the `betas` used in the simulation.  Summaries
 # References {-}
 
 <script type="text/x-mathjax-config">
-   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 110, availableFonts: [] }  });
+   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 115, availableFonts: [] }  });
 </script>

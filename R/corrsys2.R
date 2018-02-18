@@ -1298,15 +1298,13 @@ positive-definite matrix instead.")
     Corr_X <- Corr_X[order(rownames(Corr_X)), order(colnames(Corr_X)),
                      drop = FALSE]
     Sigma_X <- intercorr2(k_cat = length(grep("cat", colnames(Corr_X))),
-                          k_cont = length(grep("cont", colnames(Corr_X))),
-                          k_pois = length(grep("pois", colnames(Corr_X))),
-                          k_nb = length(grep("xnb", colnames(Corr_X))),
-                          method = method, constants = constants2,
-                          marginal = marginal2, support = support2, lam = lam2,
-                          p_zip = p_zip2, size = size2, mu = mu2,
-                          p_zinb = p_zinb2, pois_eps = pois_eps2,
-                          nb_eps = nb_eps2, rho = Corr_X, epsilon = epsilon,
-                          maxit = maxit)
+      k_cont = length(grep("cont", colnames(Corr_X))),
+      k_pois = length(grep("pois", colnames(Corr_X))),
+      k_nb = length(grep("xnb", colnames(Corr_X))), method = method,
+      constants = constants2, marginal = marginal2, support = support2,
+      lam = lam2, p_zip = p_zip2, size = size2, mu = mu2, p_zinb = p_zinb2,
+      pois_eps = pois_eps2, nb_eps = nb_eps2, rho = Corr_X, epsilon = epsilon,
+      maxit = maxit, quiet = quiet)
     if (min(eigen(Sigma_X, symmetric = TRUE)$values) < 0) {
       if (use.nearPD == TRUE) {
         Sigma_X <- as.matrix(nearPD(Sigma_X, corr = T, keepDiag = T)$mat)
@@ -1953,7 +1951,8 @@ positive-definite matrix instead.")
     }
     Corr_U <- do.call(rbind, Corr_U)
     Sigma_U <- intercorr(k_cont = ncol(Corr_U), method = method,
-      constants = rconstants2, rho = Corr_U, nrand = nrand, seed = seed)
+      constants = rconstants2, rho = Corr_U, nrand = nrand, seed = seed,
+      quiet = quiet)
     if (min(eigen(Sigma_U, symmetric = TRUE)$values) < 0) {
       if (use.nearPD == TRUE) {
         Sigma_U <- as.matrix(nearPD(Sigma_U, corr = T, keepDiag = T)$mat)

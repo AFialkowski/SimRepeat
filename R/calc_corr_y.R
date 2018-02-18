@@ -81,8 +81,8 @@ calc_corr_y <- function(betas = NULL, corr.x = list(), corr.e = NULL,
     if (!is.null(corr.x[[p]])) K.x[p] <- ncol(corr.x[[p]][[p]])
   }
   if (!isTRUE(all.equal(K.x, apply(betas, 1,
-    function(x) length(x) - sum(x == 0)), check.attributes = FALSE)) &
-    length(mix_pis) == 0)
+    function(x) length(x) - sum(round(x, 10) == 0)),
+    check.attributes = FALSE)) & length(mix_pis) == 0)
     stop("The dimensions of betas should match the dimensions of corr.x if
          there are no mixture variables.")
   if (length(error_type) == 2) error_type <- "non_mix"
@@ -92,8 +92,8 @@ calc_corr_y <- function(betas = NULL, corr.x = list(), corr.e = NULL,
   if (error_type == "mix") K.mix2 <- K.mix - 1 else K.mix2 <- K.mix
   vars0 <- vars
   if (isTRUE(all.equal(K.x, apply(betas, 1,
-    function(x) length(x) - sum(x == 0)), check.attributes = FALSE)) &
-    length(mix_pis) > 0) {
+    function(x) length(x) - sum(round(x, 10) == 0)),
+    check.attributes = FALSE)) & length(mix_pis) > 0) {
     vars <- list()
     for (i in 1:M) {
       vars <- append(vars, list(NULL))
@@ -140,8 +140,8 @@ calc_corr_y <- function(betas = NULL, corr.x = list(), corr.e = NULL,
       list(NULL) else x[-length(x)])
   }
   if (!isTRUE(all.equal(K.x, apply(betas, 1,
-    function(x) length(x) - sum(x == 0)), check.attributes = FALSE)) &
-    length(mix_pis) > 0) {
+    function(x) length(x) - sum(round(x, 10) == 0)),
+    check.attributes = FALSE)) & length(mix_pis) > 0) {
     corr.x0 <- corr.x
     K.cont <- numeric(M)
     K.cmix <- lapply(mix_pis, function(x) c(0, cumsum(sapply(x, length))))
@@ -206,20 +206,23 @@ calc_corr_y <- function(betas = NULL, corr.x = list(), corr.e = NULL,
         }
         K2 <- ncol(corr.x[[q]][[q]])
         sum2 <- 0
+        betas_q <- betas[q, which(round(betas[q, ], 10) != 0), drop = FALSE]
         if (K2 > 1) {
           for (i in 1:(K2 - 1)) {
             for (j in (i + 1):K2) {
-              sum2 <- sum2 + betas[q, i] * betas[q, j] * sqrt(vars[[q]][i]) *
-                sqrt(vars[[q]][j]) * corr.x[[q]][[q]][i, j]
+              sum2 <- sum2 + betas_q[1, i] * betas_q[1, j] *
+                sqrt(vars[[q]][i]) * sqrt(vars[[q]][j]) *
+                corr.x[[q]][[q]][i, j]
             }
           }
         }
         denom <- sqrt(vars[[q]][length(vars[[q]])] +
-          sum(betas[q, ]^2 * vars[[q]][-length(vars[[q]])]) + 2 * sum2)
+          sum(betas_q[1, ]^2 * vars[[q]][-length(vars[[q]])]) + 2 * sum2)
         corr.y[p, q] <- sqrt(vars[[q]][length(vars[[q]])]) *
           corr.e[p, q]/denom
       }
     } else {
+      betas_p <- betas[p, which(round(betas[p, ], 10) != 0), drop = FALSE]
       for (q in 1:M) {
         K1 <- ncol(corr.x[[p]][[p]])
         if (is.null(corr.x[[q]])) {
@@ -227,46 +230,50 @@ calc_corr_y <- function(betas = NULL, corr.x = list(), corr.e = NULL,
           if (K1 > 1) {
             for (i in 1:(K1 - 1)) {
               for (j in (i + 1):K1) {
-                sum1 <- sum1 + betas[p, i] * betas[p, j] * sqrt(vars[[p]][i]) *
-                  sqrt(vars[[p]][j]) * corr.x[[p]][[p]][i, j]
+                sum1 <- sum1 + betas_p[1, i] * betas_p[1, j] *
+                  sqrt(vars[[p]][i]) * sqrt(vars[[p]][j]) *
+                  corr.x[[p]][[p]][i, j]
               }
             }
           }
           denom <- sqrt(vars[[p]][length(vars[[p]])] +
-            sum(betas[p, ]^2 * vars[[p]][-length(vars[[p]])]) + 2 * sum1)
+            sum(betas_p[1, ]^2 * vars[[p]][-length(vars[[p]])]) + 2 * sum1)
           corr.y[p, q] <- sqrt(vars[[p]][length(vars[[p]])]) *
             corr.e[p, q]/denom
           next
         }
         if (q > p) {
+          betas_q <- betas[q, which(round(betas[q, ], 10) != 0), drop = FALSE]
           K2 <- ncol(corr.x[[q]][[q]])
           sum1 <- 0
           sum2 <- 0
           if (K1 > 1) {
             for (i in 1:(K1 - 1)) {
               for (j in (i + 1):K1) {
-                sum1 <- sum1 + betas[p, i] * betas[p, j] * sqrt(vars[[p]][i]) *
-                  sqrt(vars[[p]][j]) * corr.x[[p]][[p]][i, j]
+                sum1 <- sum1 + betas_p[1, i] * betas_p[1, j] *
+                  sqrt(vars[[p]][i]) * sqrt(vars[[p]][j]) *
+                  corr.x[[p]][[p]][i, j]
               }
             }
           }
           if (K2 > 1) {
             for (i in 1:(K2 - 1)) {
               for (j in (i + 1):K2) {
-                sum2 <- sum2 + betas[q, i] * betas[q, j] * sqrt(vars[[q]][i]) *
-                  sqrt(vars[[q]][j]) * corr.x[[q]][[q]][i, j]
+                sum2 <- sum2 + betas_q[1, i] * betas_q[1, j] *
+                  sqrt(vars[[q]][i]) * sqrt(vars[[q]][j]) *
+                  corr.x[[q]][[q]][i, j]
               }
             }
           }
           denom <- sqrt(vars[[p]][length(vars[[p]])] +
-            sum(betas[p, ]^2 * vars[[p]][-length(vars[[p]])]) +
+            sum(betas_p[1, ]^2 * vars[[p]][-length(vars[[p]])]) +
             2 * sum1) * sqrt(vars[[q]][length(vars[[q]])] +
-            sum(betas[q, ]^2 * vars[[q]][-length(vars[[q]])]) +
+            sum(betas_q[1, ]^2 * vars[[q]][-length(vars[[q]])]) +
             2 * sum2)
           corr.y[p, q] <- (sqrt(vars[[p]][length(vars[[p]])] *
             vars[[q]][length(vars[[q]])]) * corr.e[p, q] +
-              (betas[p, ] * sqrt(vars[[p]][-length(vars[[p]])])) %*%
-              (corr.x[[p]][[q]] %*% matrix((betas[q, ] *
+              (betas_p[1, ] * sqrt(vars[[p]][-length(vars[[p]])])) %*%
+              (corr.x[[p]][[q]] %*% matrix((betas_q[1, ] *
                 sqrt(vars[[q]][-length(vars[[q]])])), ncol = 1)))/denom
           corr.y[q, p] <- corr.y[p, q]
         }

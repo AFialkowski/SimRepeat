@@ -132,5 +132,5 @@ The type of random intercept and time slope (i.e., non-mixture or mixture) is sp
 # References {-}
 
 <script type="text/x-mathjax-config">
-   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 110, availableFonts: [] }  });
+   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 115, availableFonts: [] }  });
 </script>

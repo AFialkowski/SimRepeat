@@ -663,9 +663,11 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         ord_sum_x <- append(ord_sum_x, list(NULL))
         for (i in 1:M) {
           if (K.cat[i] == 0 | K.cat[i] < j) next
+          csum <- cumsum(table(X[[i]][, j]))/n
           ord_sum_x[[j]] <- rbind(ord_sum_x[[j]],
             cbind(rep(i, length(support[[i]][[j]])), support[[i]][[j]],
-            append(marginal[[i]][[j]], 1), cumsum(table(X[[i]][, j]))/n))
+            append(marginal[[i]][[j]], 1),
+            c(csum, rep(0, length(support[[i]][[j]]) - length(csum)))))
         }
         rownames(ord_sum_x[[j]]) <- 1:nrow(ord_sum_x[[j]])
         ord_sum_x[[j]] <- as.data.frame(ord_sum_x[[j]])

@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.align = 'ce
 library("bookdown")
 ```
 
-Systems of statistical equations  with correlated variables are common in clinical and genetic studies.  These systems may represent repeated measurements or clustered observations.  Headrick and Beasley [-@HeadBeas] developed a method for simulating correlated systems of equations containing normal or non-normal continuous variables.  The technique allows the user to specify the distributions of the independent variables $X_{(pj)}$, for $p = 1, ..., M$ equations, and stochastic disturbance (error) terms $E$.  The user also controls the correlations between: 1) independent variables $X_{(pj)}$ for a given outcome $Y_p$, 2) an outcome $Y_p$ and its $X_{(pj)}$ terms, and 3) stochastic disturbance (error) terms $E$.  Their technique calculates the beta (slope) coefficients based on correlations between independent variables $X_{(pj)}$ for a given outcome $Y_p$, the correlations between that outcome $Y_p$ and the $X_{(pj)}$ terms, and the variances.  @HeadBeas also derived equations to calculate the expected correlations based on these betas between: 1) $X_{(pj)}$ terms and outcome $Y_q$, 2) outcomes $Y_p$ and $Y_q$, and 3) outcome $Y_p$ and error term $E_q$, for $p$ not equal to $q$.  All continuous variables are generated from intermediate random normal variables using @Head2002's fifth-order power transformation method (PMT).  The intermediate correlations required to generate the target correlations after variable transformations are calculated using @Head2002's equation.               
+Systems of statistical equations  with correlated variables are common in clinical and genetic studies.  These systems may represent repeated measurements or clustered observations.  @HeadBeas developed a method for simulating correlated systems of equations containing normal or non-normal continuous variables.  The technique allows the user to specify the distributions of the independent variables $X_{(pj)}$, for $p = 1, ..., M$ equations, and stochastic disturbance (error) terms $E$.  The user also controls the correlations between: 1) independent variables $X_{(pj)}$ for a given outcome $Y_p$, 2) an outcome $Y_p$ and its $X_{(pj)}$ terms, and 3) stochastic disturbance (error) terms $E$.  Their technique calculates the beta (slope) coefficients based on correlations between independent variables $X_{(pj)}$ for a given outcome $Y_p$, the correlations between that outcome $Y_p$ and the $X_{(pj)}$ terms, and the variances.  @HeadBeas also derived equations to calculate the expected correlations based on these betas between: 1) $X_{(pj)}$ terms and outcome $Y_q$, 2) outcomes $Y_p$ and $Y_q$, and 3) outcome $Y_p$ and error term $E_q$, for $p$ not equal to $q$.  All continuous variables are generated from intermediate random normal variables using @Head2002's fifth-order power transformation method (PMT).  The intermediate correlations required to generate the target correlations after variable transformations are calculated using @Head2002's equation.               
 
 The package **SimRepeat** extends @HeadBeas's method to include continuous variables (independent variables or error terms) that have mixture distributions.  The `nonnormsys` function simulates the system of equations containing correlated continuous normal or non-normal variables with non-mixture or mixture distributions.  Mixture distributions are generated using the techniques of @SimCorrMix.  Mixture distributions describe random variables that are drawn from more than one component distribution.  Mixture distributions provide a useful way for describing heterogeneity in a population, especially when an outcome is a composite response from multiple sources.  For a random variable $Y$ from a finite mixture distribution with $k$ components, the PDF can be described by: 
 \[h_{Y}(y) = \sum_{i=1}^{k} \pi_{i} f_{Y_{i}}(y),\] 
@@ -49,11 +49,11 @@ The following examples demonstrate usage of the `nonnormsys` function.  **Exampl
 
 In this example taken from @HeadBeas:    
 
-1. $X_{11}, X_{21}, X_{31}$ have Exponential(2) distributions    
+1. $X_{11}, X_{21}, X_{31}$ each have Exponential(2) distribution    
 
-2. $X_{12}, X_{22}, X_{32}$ have Laplace(0, 1) distribution s 
+2. $X_{12}, X_{22}, X_{32}$ each have Laplace(0, 1) distribution
 
-3. $E_1, E_2, E_3$ have Cauchy(0, 1) distributions (the standardized cumulants were taken from the paper)     
+3. $E_1, E_2, E_3$ each have Cauchy(0, 1) distribution (the standardized cumulants were taken from the paper)     
 
 \begin{equation}    
 \begin{split}    
@@ -214,13 +214,13 @@ knitr::kable(Sum1$rho.yx,
 
 In this example:    
 
-1. $X_{11} = X_{21} = X_{31}$ has a Logistic(0, 1) distribution and is the same variable for each Y 
+1. $X_{11} = X_{21} = X_{31}$ has a Logistic(0, 1) distribution and is the same variable for each Y (*static* covariate)
 
-2. $X_{12}, X_{22}, X_{32}$ have Beta(4, 1.5) distributions 
+2. $X_{12}, X_{22}, X_{32}$ each have a Beta(4, 1.5) distribution 
 
-3. $X_{13}, X_{23}, X_{33}$ have normal mixture distributions 
+3. $X_{13}, X_{23}, X_{33}$ each have a Normal(-2, 1), Normal(2, 1) mixture distribution
 
-3. $E_1, E_2, E_3$ have Logistic, Chisq, Beta mixture distributions         
+3. $E_1, E_2, E_3$ each have a Logistic(0, 1), Chisq(4), Beta(4, 1.5) mixture distribution         
 
 \begin{equation}   
 \begin{split}    
@@ -413,7 +413,7 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 
 ### Step 5: Compare simulated correlations to theoretical values {-}    
 
-Sincere the system contains mixture variables, the mixture parameter inputs `mix_pis`, `mix_mus`, and `mix_sigmas` and the `error_type` must also be used.
+Since the system contains mixture variables, the mixture parameter inputs `mix_pis`, `mix_mus`, and `mix_sigmas` and the `error_type` must also be used.
 
 ```{r}
 knitr::kable(calc_corr_y(Sys2$betas, corr.x, corr.e, vars, mix_pis, 

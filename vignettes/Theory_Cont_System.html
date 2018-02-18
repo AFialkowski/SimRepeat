@@ -11,7 +11,7 @@
 
 <meta name="author" content="Allison C Fialkowski" />
 
-<meta name="date" content="2018-01-07" />
+<meta name="date" content="2018-02-18" />
 
 <title>Theory and Equations for Correlated Systems of Continuous Variables</title>
 
@@ -121,7 +121,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Theory and Equations for Correlated Systems of Continuous Variables</h1>
 <h4 class="author"><em>Allison C Fialkowski</em></h4>
-<h4 class="date"><em>2018-01-07</em></h4>
+<h4 class="date"><em>2018-02-18</em></h4>
 
 </div>
 
@@ -138,7 +138,7 @@ h4.date { /* Header 4 - and the author and data headers use this too  */
   text-align: center;
 }
 </style>
-<p>Repeated measures may be thought of as a system of <span class="math inline">\(M\)</span> equations. The dependent variables <span class="math inline">\(Y_{p}\)</span>, for <span class="math inline">\(p = 1,\ ...,\ M\)</span>, may represent the same variable collected at <span class="math inline">\(M\)</span> time points or under <span class="math inline">\(M\)</span> different conditions (i.e. different treatment drugs). The <span class="math inline">\(K\)</span> independent variables <span class="math inline">\(X_{pi}\)</span>, for <span class="math inline">\(p = 1,\ ...,\ M\)</span> and <span class="math inline">\(i = 1,\ ...,\ K\)</span>, may be non-varying covariates (<em>static</em>, i.e. gender or height), time-varying covariates (i.e. age or blood sugar), or a combination of the two. Although <span class="citation">Fleishman (1978)</span>’s third and <span class="citation">Headrick (2002)</span>’s fifth-order polynomial transformation methods (power method transformations, PMT’s) allow the simulation of correlated non-normal variables for a single equation or system of independent equations, they have certain limitations when producing a system of correlated equations. For example, there is no way to control the distributions of and correlations between the error terms. <span class="citation">Headrick and Beasley (2004)</span> derived a general, computationally-efficient procedure for simulating correlated non-normal systems of statistical equations that permits control of correlated non-normal: a) error (<em>stochastic disturbance</em>) terms, b) independent variables, and c) dependent and independent variables. Such a procedure is important in order to investigate the properties of analytical models and test statistics that rely on certain distributional assumptions. For example, sufficient sample size, multivariate normality, independent errors, homogeneous variances, and balanced data.</p>
+<p>Repeated measures may be thought of as a system of <span class="math inline">\(M\)</span> equations. The dependent variables <span class="math inline">\(Y_{p}\)</span>, for <span class="math inline">\(p = 1,\ ...,\ M\)</span>, may represent the same variable collected at <span class="math inline">\(M\)</span> time points or under <span class="math inline">\(M\)</span> different conditions (i.e., different treatment drugs). The <span class="math inline">\(K\)</span> independent variables <span class="math inline">\(X_{pi}\)</span>, for <span class="math inline">\(p = 1,\ ...,\ M\)</span> and <span class="math inline">\(i = 1,\ ...,\ K\)</span>, may be non-varying covariates (<em>static</em>, i.e., gender or height), time-varying covariates (i.e., age or blood sugar), or a combination of the two. Although <span class="citation">Fleishman (1978)</span>’s third and <span class="citation">Headrick (2002)</span>’s fifth-order polynomial transformation methods (power method transformations, PMT’s) allow the simulation of correlated non-normal variables for a single equation or system of independent equations, they have certain limitations when producing a system of correlated equations. For example, there is no way to control the distributions of and correlations between the error terms. <span class="citation">Headrick and Beasley (2004)</span> derived a general, computationally-efficient procedure for simulating correlated non-normal systems of statistical equations that permits control of correlated non-normal: a) error (<em>stochastic disturbance</em>) terms, b) independent variables, and c) dependent and independent variables. Such a procedure is important in order to investigate the properties of analytical models and test statistics that rely on certain distributional assumptions. For example, sufficient sample size, multivariate normality, independent errors, sphericity, and balanced data.</p>
 <p><span class="citation">Headrick and Beasley (2004)</span>’s technique allows the user to specify the distributions of the independent variables <span class="math inline">\(X_{(pj)}\)</span>, for <span class="math inline">\(p = 1, ..., M\)</span> equations, and stochastic disturbance (error) terms <span class="math inline">\(E\)</span>. The user also controls the correlations between: 1) independent variables <span class="math inline">\(X_{(pj)}\)</span> for a given outcome <span class="math inline">\(Y_p\)</span>, 2) an outcome <span class="math inline">\(Y_p\)</span> and its <span class="math inline">\(X_{(pj)}\)</span> terms, and 3) stochastic disturbance (error) terms <span class="math inline">\(E\)</span>. The technique calculates the beta (slope) coefficients based on correlations between independent variables <span class="math inline">\(X_{(pj)}\)</span> for a given outcome <span class="math inline">\(Y_p\)</span>, the correlations between that outcome <span class="math inline">\(Y_p\)</span> and the <span class="math inline">\(X_{(pj)}\)</span> terms, and the variances. <span class="citation">Headrick and Beasley (2004)</span> also derived equations to calculate the expected correlations based on these betas between: 1) <span class="math inline">\(X_{(pj)}\)</span> terms and outcome <span class="math inline">\(Y_q\)</span>, 2) outcomes <span class="math inline">\(Y_p\)</span> and <span class="math inline">\(Y_q\)</span>, and 3) outcome <span class="math inline">\(Y_p\)</span> and error term <span class="math inline">\(E_q\)</span>, for <span class="math inline">\(p\)</span> not equal to <span class="math inline">\(q\)</span>. All continuous variables are generated from intermediate random normal variables using <span class="citation">Headrick (2002)</span>’s fifth-order power transformation method (PMT). The intermediate correlations required to generate the target correlations after variable transformations are calculated using <span class="citation">Headrick (2002)</span>’s equation.</p>
 <div id="description-of-the-model" class="section level1 unnumbered">
 <h1>Description of the model</h1>
@@ -388,7 +388,7 @@ Then<br />
 <span class="math display" id="eq:System31">\[\begin{align}
 \begin{split}
 E[Y_pE_q] &amp;= E[(\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}) E_q]\\
-&amp;= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}E_q] + E[E_pE_q]\\
+&amp;= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}E_q] + E[E_pE_q]
 \end{split}
 \tag{31}
 \end{align}\]</span>
@@ -397,7 +397,7 @@ and<br />
 <span class="math display" id="eq:System32">\[\begin{align}
 \begin{split}
 E[Y_p]E[E_q] &amp;= E[\beta_{p0} + \beta_{p1}X_{p1} + ... + \beta_{pi}X_{pi} + ... + \beta_{pj}X_{pj} + ... + \beta_{pK}X_{pK} + E_{p}]E[E_q]\\
-&amp;= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}]E[E_q] + E[E_p]E[E_q]\\
+&amp;= \beta_{p0}E[E_q] + \sum_{pi} \beta_{pi}E[X_{pi}]E[E_q] + E[E_p]E[E_q]
 \end{split}
 \tag{32}
 \end{align}\]</span>
@@ -578,7 +578,7 @@ f_{E_2}(E_2) &amp;= \gamma_1 f_{E_{21}}(e_{21}) + \gamma_2 f_{E_{22}}(e_{22}) + 
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <script type="text/x-mathjax-config">
-   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 110, availableFonts: [] }  });
+   MathJax.Hub.Config({  "HTML-CSS": { minScaleAdjust: 115, availableFonts: [] }  });
 </script>
 <div id="refs" class="references">
 <div id="ref-Dave">
