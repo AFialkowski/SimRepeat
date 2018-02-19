@@ -227,7 +227,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.21 minutes
+#> Total Simulation time: 0.219 minutes
 ```
 
 ``` r
@@ -371,7 +371,7 @@ Nplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 3], ylower = -10,
 Nplot
 ```
 
-![](man/figures/README-unnamed-chunk-16-1.png)
+![](man/figures/unnamed-chunk-16-1.png)
 
 Summary of Ordinal Variable: (for Y\_1)
 
@@ -405,7 +405,7 @@ Pplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 4],
 Pplot
 ```
 
-![](man/figures/README-unnamed-chunk-18-1.png)
+![](man/figures/unnamed-chunk-18-1.png)
 
 Summary of Negative Binomial Variables X\_nb(11), X\_nb(21), and X\_nb(31):
 
@@ -423,11 +423,12 @@ knitr::kable(Sum1$nb_sum_x, digits = 3, row.names = FALSE,
 ``` r
 NBplot <- plot_simtheory(sim_y = Sys1$X_all[[1]][, 5], 
   title = "Simulated Values for X_nb(11)", Dist = "Negative_Binomial", 
-  params = c(size[[1]][1], mu[[1]][1], p_zinb), cont_var = FALSE)
+  params = c(size[[1]][1], mu[[1]][1], p_zinb), cont_var = FALSE, 
+  binwidth = 0.5)
 NBplot
 ```
 
-![](man/figures/README-unnamed-chunk-19-1.png)
+![](man/figures/unnamed-chunk-19-1.png)
 
 Maximum Correlation Errors for X Variables by Outcome:
 
@@ -599,32 +600,29 @@ rand.int <- "non_mix"
 rand.tsl <- "non_mix"
 rand.var <- NULL
 
-Stcum5 <- calc_theory("Logistic", c(0, 1))
-Stcum6 <- calc_theory("t", 10)
+Log <- calc_theory("Logistic", c(0, 1))
+t10 <- calc_theory("t", 10)
 
-rmeans <- lapply(seq_len(M), function(x) c(Stcum5[1], Stcum6[1]))
-rvars <- lapply(seq_len(M), function(x) c(Stcum5[2]^2, Stcum6[2]^2))
-rskews <- lapply(seq_len(M), function(x) c(Stcum5[3], Stcum6[3]))
-rskurts <- lapply(seq_len(M), function(x) c(Stcum5[4], Stcum6[4]))
-rfifths <- lapply(seq_len(M), function(x) c(Stcum5[5], Stcum6[5]))
-rsixths <- lapply(seq_len(M), function(x) c(Stcum5[6], Stcum6[6]))
-rSix <- lapply(seq_len(M), function(x) list(1.75, NULL))
+rmeans <- c(Log[1], t10[1])
+rvars <- c(Log[2]^2, t10[2]^2)
+rskews <- c(Log[3], t10[3])
+rskurts <- c(Log[4], t10[4])
+rfifths <- c(Log[5], t10[5])
+rsixths <- c(Log[6], t10[6])
+rSix <- list(1.75, NULL)
 
-# append parameters for random effect distributions to parameters for 
+# append parameters for random effect distributions to parameters for
 # continuous fixed effects and error terms
-means <- append(means, rmeans)
-vars <- append(vars, rvars)
-skews <- append(skews, rskews)
-skurts <- append(skurts, rskurts)
-fifths <- append(fifths, rfifths)
-sixths <- append(sixths, rsixths)
-Six <- append(Six, rSix)
+means <- append(means, list(rmeans))
+vars <- append(vars, list(rvars))
+skews <- append(skews, list(rskews))
+skurts <- append(skurts, list(rskurts))
+fifths <- append(fifths, list(rfifths))
+sixths <- append(sixths, list(rsixths))
+Six <- append(Six, list(rSix))
 
-# set up correlation matrices for random effects
-corr.u <- lapply(seq_len(M), function(x) lapply(seq_len(M), 
-  function(x) matrix(c(1, 0.4, 0.4, 1), 2, 2)))
-diag(corr.u[[1]][[1]]) <- diag(corr.u[[2]][[2]]) <- 
-  diag(corr.u[[3]][[3]]) <- 1
+# set up correlation matrix for random effects
+corr.u <- matrix(c(1, 0.4, 0.4, 1), 2, 2)
 ```
 
 ### Step 2: Check parameter inputs
@@ -648,7 +646,7 @@ Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.18 minutes
+#> Total Simulation time: 0.175 minutes
 ```
 
 ### Step 4: Describe results
@@ -665,7 +663,7 @@ names(Sum2)
 #>  [9] "target_sum_x" "sum_xall"     "mix_sum_x"    "target_mix_x"
 #> [13] "pois_sum_x"   "nb_sum_x"     "rho.x"        "rho.xall"    
 #> [17] "rho.yx"       "rho.yxall"    "maxerr"       "target_sum_u"
-#> [21] "cont_sum_u"   "sum_uall"     "rho.u"        "maxerr_u"
+#> [21] "cont_sum_u"   "sum_uall"     "rho.u"
 ```
 
 ``` r
@@ -675,9 +673,9 @@ knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE,
 
 |     |  Outcome|      N|     Mean|       SD|   Median|       Min|       Max|   Skew|  Skurtosis|  Fifth|   Sixth|
 |-----|--------:|------:|--------:|--------:|--------:|---------:|---------:|------:|----------:|------:|-------:|
-| Y1  |        1|  10000|  248.196|  265.805|  161.216|  -110.700|  1991.536|  1.781|      3.943|  8.537|   8.774|
-| Y2  |        2|  10000|  337.011|  322.560|  234.740|   -81.658|  2432.025|  1.526|      2.744|  4.734|   4.470|
-| Y3  |        3|  10000|  457.619|  395.444|  352.447|    -9.952|  3499.962|  1.417|      2.744|  7.075|  23.617|
+| Y1  |        1|  10000|  248.194|  265.822|  160.662|  -107.212|  1995.831|  1.781|      3.944|  8.536|   8.754|
+| Y2  |        2|  10000|  337.008|  322.589|  234.903|   -80.091|  2423.297|  1.526|      2.742|  4.710|   4.271|
+| Y3  |        3|  10000|  457.614|  395.465|  352.588|   -10.240|  3498.069|  1.418|      2.746|  7.063|  23.415|
 
 ``` r
 knitr::kable(Sum2$target_sum_u, digits = 3, booktabs = TRUE, 
@@ -688,37 +686,23 @@ knitr::kable(Sum2$target_sum_u, digits = 3, booktabs = TRUE,
 |----------|--------:|----:|-----:|------:|-----:|----------:|------:|-------:|
 | cont1\_1 |        1|    1|     0|  1.814|     0|        1.2|      0|   6.857|
 | cont1\_2 |        1|    2|     0|  1.118|     0|        1.0|      0|  10.000|
-| cont2\_1 |        2|    1|     0|  1.814|     0|        1.2|      0|   6.857|
-| cont2\_2 |        2|    2|     0|  1.118|     0|        1.0|      0|  10.000|
-| cont3\_1 |        3|    1|     0|  1.814|     0|        1.2|      0|   6.857|
-| cont3\_2 |        3|    2|     0|  1.118|     0|        1.0|      0|  10.000|
 
 ``` r
 knitr::kable(Sum2$sum_uall, digits = 3, booktabs = TRUE, 
   caption = "Simulated Distributions of Random Effects")
 ```
 
-|         |  Outcome|    U|      N|   Mean|     SD|  Median|     Min|    Max|   Skew|  Skurtosis|  Fifth|  Sixth|
-|---------|--------:|----:|------:|------:|------:|-------:|-------:|------:|------:|----------:|------:|------:|
-| U\_int  |        1|    1|  10000|  0.000|  1.809|   0.003|  -8.615|  9.155|  0.011|      0.964|  0.330|  2.499|
-| U\_T1   |        1|    2|  10000|  0.002|  1.117|  -0.004|  -4.803|  5.725|  0.091|      0.806|  0.809|  2.457|
-| U\_int1 |        2|    1|  10000|  0.000|  1.809|   0.003|  -8.615|  9.155|  0.011|      0.964|  0.330|  2.499|
-| U\_T2   |        2|    2|  10000|  0.002|  1.117|  -0.004|  -4.803|  5.725|  0.091|      0.806|  0.809|  2.457|
-| U\_int2 |        3|    1|  10000|  0.000|  1.809|   0.003|  -8.615|  9.155|  0.011|      0.964|  0.330|  2.499|
-| U\_T3   |        3|    2|  10000|  0.002|  1.117|  -0.004|  -4.803|  5.725|  0.091|      0.806|  0.809|  2.457|
+|        |  Outcome|    U|      N|  Mean|     SD|  Median|     Min|    Max|    Skew|  Skurtosis|  Fifth|  Sixth|
+|--------|--------:|----:|------:|-----:|------:|-------:|-------:|------:|-------:|----------:|------:|------:|
+| U\_int |        1|    1|  10000|     0|  1.810|  -0.011|  -8.164|  9.194|  -0.001|      0.966|  0.284|  1.727|
+| U\_T1  |        1|    2|  10000|     0|  1.118|  -0.002|  -5.759|  6.783|   0.023|      1.016|  1.005|  7.887|
+
+Maximum Correlation Error for Random Effects:
 
 ``` r
-maxerr <- do.call(rbind, Sum2$maxerr_u)
-rownames(maxerr) <- colnames(maxerr) <- paste("Y", 1:M, sep = "")
-knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE, 
-  caption = "Maximum Correlation Errors for Random Effects")
+Sum2$maxerr_u
+#> NULL
 ```
-
-|     |       Y1|       Y2|       Y3|
-|-----|--------:|--------:|--------:|
-| Y1  |  0.00161|  0.00161|  0.00161|
-| Y2  |  0.00161|  0.00161|  0.00161|
-| Y3  |  0.00161|  0.00161|  0.00161|
 
 ### Linear mixed model
 
@@ -743,7 +727,7 @@ data2 <- merge(merge(merge(data2.a, data2.b, by = c("Subject", "Time")),
   data2.c, by = c("Subject", "Time")), data2.d, by = c("Subject", "Time"))
 ```
 
-Errors E\_1, E\_2, and E\_3 modeled as having Gaussian distributions (Kuznetsova, Brockhoff, and Christensen 2017):
+Errors E\_1, E\_2, and E\_3 modeled as having Gaussian distributions using **lmerTest** (Kuznetsova, Brockhoff, and Christensen 2017):
 
 ``` r
 library("lmerTest")
@@ -762,60 +746,60 @@ summary(fm2)
 #>     (1 + Time | Subject)
 #>    Data: data2
 #> 
-#> REML criterion at convergence: 74657.4
+#> REML criterion at convergence: 74681
 #> 
 #> Scaled residuals: 
 #>     Min      1Q  Median      3Q     Max 
-#> -3.3185 -0.3269 -0.0074  0.3436  2.9585 
+#> -3.3502 -0.3269 -0.0066  0.3403  2.8840 
 #> 
 #> Random effects:
 #>  Groups   Name        Variance Std.Dev. Corr
-#>  Subject  (Intercept) 3.30684  1.818        
-#>           Time        1.25224  1.119    0.39
+#>  Subject  (Intercept) 3.30835  1.819        
+#>           Time        1.25541  1.120    0.39
 #>  Residual             0.01587  0.126        
 #> Number of obs: 30000, groups:  Subject, 10000
 #> 
 #> Fixed effects:
 #>                           Estimate    Std. Error            df  t value
-#> (Intercept)              0.7346066     0.0592431 11300.0000000   12.400
-#> ord1_1                   0.4936285     0.0577103 11108.0000000    8.554
-#> cont1                    0.7497023     0.0025130 11182.0000000  298.326
-#> mix1                     0.9950631     0.0019827 10936.0000000  501.879
-#> pois1_1                  1.2496985     0.0046208 11334.0000000  270.448
-#> nb1                      1.4961057     0.0025878 11007.0000000  578.143
-#> Time                     0.9932534     0.0290641 10741.0000000   34.175
-#> ord1_1:pois1_1           0.5000645     0.0037501 10718.0000000  133.348
-#> ord1_1:cont1             0.4996764     0.0021167 11418.0000000  236.068
-#> cont1:pois1_1            0.5999830     0.0001863 11277.0000000 3220.673
-#> ord1_1:mix1              0.8018884     0.0020571 10995.0000000  389.816
-#> mix1:pois1_1             0.9004817     0.0001560 10941.0000000 5772.979
-#> ord1_1:nb1               1.1030087     0.0022890 11059.0000000  481.882
-#> pois1_1:nb1              1.2002572     0.0001935 11032.0000000 6201.291
-#> ord1_1:Time              0.2562552     0.0151332 10664.0000000   16.933
-#> pois1_1:Time             0.5001908     0.0021342 10701.0000000  234.366
-#> ord1_1:cont1:pois1_1     0.7000438     0.0001363 11543.0000000 5137.622
-#> ord1_1:mix1:pois1_1      0.9998310     0.0001341 10980.0000000 7454.225
-#> ord1_1:pois1_1:nb1       1.2998303     0.0001480 11078.0000000 8785.123
-#>                                 Pr(>|t|)    
-#> (Intercept)          <0.0000000000000002 ***
-#> ord1_1               <0.0000000000000002 ***
-#> cont1                <0.0000000000000002 ***
-#> mix1                 <0.0000000000000002 ***
-#> pois1_1              <0.0000000000000002 ***
-#> nb1                  <0.0000000000000002 ***
-#> Time                 <0.0000000000000002 ***
-#> ord1_1:pois1_1       <0.0000000000000002 ***
-#> ord1_1:cont1         <0.0000000000000002 ***
-#> cont1:pois1_1        <0.0000000000000002 ***
-#> ord1_1:mix1          <0.0000000000000002 ***
-#> mix1:pois1_1         <0.0000000000000002 ***
-#> ord1_1:nb1           <0.0000000000000002 ***
-#> pois1_1:nb1          <0.0000000000000002 ***
-#> ord1_1:Time          <0.0000000000000002 ***
-#> pois1_1:Time         <0.0000000000000002 ***
-#> ord1_1:cont1:pois1_1 <0.0000000000000002 ***
-#> ord1_1:mix1:pois1_1  <0.0000000000000002 ***
-#> ord1_1:pois1_1:nb1   <0.0000000000000002 ***
+#> (Intercept)              0.7805782     0.0592499 11413.0000000   13.174
+#> ord1_1                   0.4306025     0.0577093 11177.0000000    7.462
+#> cont1                    0.7504963     0.0025131 11485.0000000  298.636
+#> mix1                     0.9951903     0.0019827 11237.0000000  501.942
+#> pois1_1                  1.2457071     0.0046213 11442.0000000  269.559
+#> nb1                      1.4969461     0.0025878 11309.0000000  578.465
+#> Time                     1.0064493     0.0290995 10840.0000000   34.586
+#> ord1_1:pois1_1           0.5046446     0.0037498 10766.0000000  134.579
+#> ord1_1:cont1             0.4989112     0.0021167 11723.0000000  235.699
+#> cont1:pois1_1            0.5999031     0.0001863 11581.0000000 3220.174
+#> ord1_1:mix1              0.8022328     0.0020571 11298.0000000  389.983
+#> mix1:pois1_1             0.9004751     0.0001560 11242.0000000 5772.926
+#> ord1_1:nb1               1.1019762     0.0022890 11362.0000000  481.428
+#> pois1_1:nb1              1.2001807     0.0001936 11335.0000000 6200.863
+#> ord1_1:Time              0.2434248     0.0151517 10764.0000000   16.066
+#> pois1_1:Time             0.5000631     0.0021368 10801.0000000  234.021
+#> ord1_1:cont1:pois1_1     0.7001108     0.0001363 11848.0000000 5137.937
+#> ord1_1:mix1:pois1_1      0.9998046     0.0001341 11282.0000000 7454.013
+#> ord1_1:pois1_1:nb1       1.2999087     0.0001480 11381.0000000 8785.605
+#>                                  Pr(>|t|)    
+#> (Intercept)          < 0.0000000000000002 ***
+#> ord1_1                 0.0000000000000919 ***
+#> cont1                < 0.0000000000000002 ***
+#> mix1                 < 0.0000000000000002 ***
+#> pois1_1              < 0.0000000000000002 ***
+#> nb1                  < 0.0000000000000002 ***
+#> Time                 < 0.0000000000000002 ***
+#> ord1_1:pois1_1       < 0.0000000000000002 ***
+#> ord1_1:cont1         < 0.0000000000000002 ***
+#> cont1:pois1_1        < 0.0000000000000002 ***
+#> ord1_1:mix1          < 0.0000000000000002 ***
+#> mix1:pois1_1         < 0.0000000000000002 ***
+#> ord1_1:nb1           < 0.0000000000000002 ***
+#> pois1_1:nb1          < 0.0000000000000002 ***
+#> ord1_1:Time          < 0.0000000000000002 ***
+#> pois1_1:Time         < 0.0000000000000002 ***
+#> ord1_1:cont1:pois1_1 < 0.0000000000000002 ***
+#> ord1_1:mix1:pois1_1  < 0.0000000000000002 ***
+#> ord1_1:pois1_1:nb1   < 0.0000000000000002 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -842,8 +826,8 @@ knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE,
 
 |           |  (Intercept)|  ord1\_1|  cont1|   mix1|  pois1\_1|    nb1|
 |-----------|------------:|--------:|------:|------:|---------:|------:|
-| Simulated |        0.000|    0.500|   0.75|  1.000|      1.25|  1.500|
-| Estimated |        0.735|    0.494|   0.75|  0.995|      1.25|  1.496|
+| Simulated |        0.000|    0.500|   0.75|  1.000|     1.250|  1.500|
+| Estimated |        0.781|    0.431|   0.75|  0.995|     1.246|  1.497|
 
 ``` r
 knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
@@ -851,8 +835,8 @@ knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
 
 |           |  ord1\_1:pois1\_1|   Time|  ord1\_1:cont1|  cont1:pois1\_1|  ord1\_1:cont1:pois1\_1|  ord1\_1:mix1|
 |-----------|-----------------:|------:|--------------:|---------------:|-----------------------:|-------------:|
-| Simulated |               0.5|  1.000|            0.5|             0.6|                     0.7|         0.800|
-| Estimated |               0.5|  0.993|            0.5|             0.6|                     0.7|         0.802|
+| Simulated |             0.500|  1.000|          0.500|             0.6|                     0.7|         0.800|
+| Estimated |             0.505|  1.006|          0.499|             0.6|                     0.7|         0.802|
 
 ``` r
 knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
@@ -861,7 +845,7 @@ knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
 |           |  mix1:pois1\_1|  ord1\_1:mix1:pois1\_1|  ord1\_1:nb1|  pois1\_1:nb1|  ord1\_1:pois1\_1:nb1|  ord1\_1:Time|  pois1\_1:Time|
 |-----------|--------------:|----------------------:|------------:|-------------:|---------------------:|-------------:|--------------:|
 | Simulated |            0.9|                      1|        1.100|           1.2|                   1.3|         0.250|            0.5|
-| Estimated |            0.9|                      1|        1.103|           1.2|                   1.3|         0.256|            0.5|
+| Estimated |            0.9|                      1|        1.102|           1.2|                   1.3|         0.243|            0.5|
 
 All of the slope coefficients are estimated well except for the intercept. This could result from the non-normal error terms.
 

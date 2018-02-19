@@ -20,16 +20,16 @@
 #'     in equation p with non-mixture (\eqn{X_{cont}}) or mixture (\eqn{X_{mix}}) distributions and for the error terms (\eqn{E});
 #'     order in vector is \eqn{X_{cont}, X_{mix}, E}
 #'
-#'     if there are random effects, a list of length \code{2 * M}
-#'     where \code{means[(M + 1):(2 * M)]} are vectors of means for all random effects with continuous non-mixture or mixture distributions;
+#'     if there are random effects, a list of length \code{M + 1} if the effects are the same across equations or \code{2 * M} if they differ;
+#'     where \code{means[M + 1]} or \code{means[(M + 1):(2 * M)]} are vectors of means for all random effects with continuous non-mixture or mixture distributions;
 #'     order in vector is 1st random intercept \eqn{U_0} (if \code{rand.int != "none"}), 2nd random time slope \eqn{U_1} (if \code{rand.tsl != "none"}),
 #'     3rd other random slopes with non-mixture distributions \eqn{U_{cont}}, 4th other random slopes with mixture distributions \eqn{U_{mix}}
 #' @param vars a list of same length and order as \code{means} containing vectors of variances for the continuous variables, error terms, and any random effects
 #' @param skews if no random effects, a list of length \code{M} where \code{skews[[p]]} contains a vector of skew values for the continuous independent variables
 #'     in equation p with non-mixture (\eqn{X_{cont}}) distributions and for \eqn{E} if \code{error_type = "non_mix"}; order in vector is \eqn{X_{cont}, E}
 #'
-#'     if there are random effects, a list of length \code{2 * M} where
-#'     \code{skews[(M + 1):(2 * M)]} are vectors of skew values for all random effects with continuous non-mixture distributions;
+#'     if there are random effects, a list of length \code{M + 1} if the effects are the same across equations or \code{2 * M} if they differ;
+#'     where \code{skews[M + 1]} or \code{skews[(M + 1):(2 * M)]} are vectors of skew values for all random effects with continuous non-mixture distributions;
 #'     order in vector is 1st random intercept \eqn{U_0} (if \code{rand.int = "non_mix"}), 2nd random time slope \eqn{U_1} (if \code{rand.tsl = "non_mix"}),
 #'     3rd other random slopes with non-mixture distributions \eqn{U_{cont}}
 #' @param skurts a list of same length and order as \code{skews} containing vectors of standardized kurtoses (kurtosis - 3) for the continuous variables,
@@ -38,10 +38,25 @@
 #'     error terms, and any random effects with non-mixture distributions; not necessary for \code{method = "Fleishman"}
 #' @param sixths a list of same length and order as \code{skews} containing vectors of standardized sixth cumulants for the continuous variables,
 #'     error terms, and any random effects with non-mixture distributions; not necessary for \code{method = "Fleishman"}
-#' @param mix_pis list of length \code{M} or \code{2 * M}, where \code{mix_pis[1:M]} are for \eqn{X_{cont}, E} (if \code{error_type = "mix"}) and
-#'     \code{mix_pis[(M + 1):(2 * M)]} are for mixture \eqn{U}; use \code{mix_pis[[p]] = NULL} if equation p has no continuous mixture terms
+#' @param Six a list of length \code{M}, \code{M + 1}, or \code{2 * M}, where \code{Six[1:M]} are for \eqn{X_{cont}, E} (if \code{error_type = "non_mix"}) and
+#'     \code{Six[M + 1]} or \code{Six[(M + 1):(2 * M)]} are for non-mixture \eqn{U};
+#'     if \code{error_type = "mix"} and there are only random effects (i.e., \code{length(corr.x) = 0}), use \code{Six[1:M] = rep(list(NULL), M)} so that
+#'     \code{Six[M + 1]} or \code{Six[(M + 1):(2 * M)]} describes the non-mixture \eqn{U};
+#'
+#'     \code{Six[[p]][[j]]} is a vector of sixth cumulant correction values to aid in finding a valid PDF for \eqn{X_{cont(pj)}}, the
+#'     j-th continuous non-mixture covariate for outcome \eqn{Y_p}; the last vector in \code{Six[[p]]} is for \eqn{E_p} (if \code{error_type = "non_mix"});
+#'     use \code{Six[[p]][[j]] = NULL} if no correction desired for \eqn{X_{cont(pj)}};
+#'     use \code{Six[[p]] = NULL} if no correction desired for any continuous non-mixture covariate or error term in equation p
+#'
+#'     \code{Six[[M + p]][[j]]} is a vector of sixth cumulant correction values to aid in finding a valid PDF for \eqn{U_{(pj)}}, the
+#'     j-th non-mixture random effect for outcome \eqn{Y_p}; use \code{Six[[M + p]][[j]] = NULL} if no correction desired for \eqn{U_{(pj)}};
+#'     use \code{Six[[M + p]] = NULL} if no correction desired for any continuous non-mixture random effect in equation p
+#'
+#'     keep \code{Six = list()} if no corrections desired for all equations or if \code{method = "Fleishman"}
+#' @param mix_pis list of length \code{M}, \code{M + 1} or \code{2 * M}, where \code{mix_pis[1:M]} are for \eqn{X_{cont}, E} (if \code{error_type = "mix"}) and
+#'     \code{mix_pis[M + 1]} or \code{mix_pis[(M + 1):(2 * M)]} are for mixture \eqn{U}; use \code{mix_pis[[p]] = NULL} if equation p has no continuous mixture terms
 #'     if \code{error_type = "non_mix"} and there are only random effects (i.e., \code{length(corr.x) = 0}), use \code{mix_pis[1:M] = NULL} so that
-#'     \code{mix_pis[(M + 1):(2 * M)]} describes the mixture \eqn{U};
+#'     \code{mix_pis[M + 1]} or \code{mix_pis[(M + 1):(2 * M)]} describes the mixture \eqn{U};
 #'
 #'     \code{mix_pis[[p]][[j]]} is a vector of mixing probabilities of the component distributions for \eqn{X_{mix(pj)}}, the j-th mixture covariate for outcome \eqn{Y_p};
 #'     the last vector in \code{mix_pis[[p]]} is for \eqn{E_p} (if \code{error_type = "mix"}); components should be ordered as in \code{corr.x}
@@ -144,19 +159,21 @@
 #' @param rand.tsl "none" (default) if no random slope for time for all outcomes, "non_mix" if all random time slopes have a
 #'     continuous non-mixture distribution, "mix" if all random time slopes have a continuous mixture distribution; also can
 #'     be a vector of length \code{M} as in \code{rand.int}
-#' @param corr.u a list of length \code{M}, each component a list of length \code{M}; \code{corr.u[[p]][[q]]} is matrix of correlations
-#'     for random effects in equations p (\eqn{U_{(pj)}} for outcome \eqn{Y_p}) and q (\eqn{U_{(qj)}} for outcome \eqn{Y_q});
-#'     correlations are specified in terms of components of mixture variables (if present);
-#'     order is 1st random intercept (if \code{rand.int != "none"}), 2nd random time slope (if \code{rand.tsl != "none"}),
-#'     3rd other random slopes with non-mixture distributions, 4th other random slopes with mixture distributions;
+#' @param corr.u if the random effects are the same variables across equations, a matrix of correlations for \eqn{U};
+#'     if the random effects are different variables across equations, a list of length \code{M}, each component a list of length \code{M};
+#'     \code{corr.u[[p]][[q]]} is matrix of correlations for random effects in equations p (\eqn{U_{(pj)}} for outcome \eqn{Y_p}) and
+#'     q (\eqn{U_{(qj)}} for outcome \eqn{Y_q});
 #'     if p = q, \code{corr.u[[p]][[q]]} is a correlation matrix with \code{nrow(corr.u[[p]][[q]])} = # \eqn{U_{(pj)}} for outcome \eqn{Y_p};
 #'     if p != q, \code{corr.u[[p]][[q]]} is a non-symmetric matrix of correlations where rows correspond to \eqn{U_{(pj)}} for \eqn{Y_p}
 #'     so that \code{nrow(corr.u[[p]][[q]])} = # \eqn{U_{(pj)}} for outcome \eqn{Y_p} and
 #'     columns correspond to \eqn{U_{(qj)}} for \eqn{Y_q} so that \code{ncol(corr.u[[p]][[q]])} = # \eqn{U_{(qj)}} for outcome \eqn{Y_q};
-#'
-#'     The number of random effects for \eqn{Y_p} is taken from \code{nrow(corr.u[[p]][[1]])} so that if there should be random effects,
+#'     the number of random effects for \eqn{Y_p} is taken from \code{nrow(corr.u[[p]][[1]])} so that if there should be random effects,
 #'     there must be entries for \code{corr.u};
-#'     use \code{corr.u[[p]][[q]] = NULL} if equation q has no \eqn{U_{(qj)}}; use \code{corr.u[[p]] = NULL} if equation p has no \eqn{U_{(pj)}}
+#'     use \code{corr.u[[p]][[q]] = NULL} if equation q has no \eqn{U_{(qj)}}; use \code{corr.u[[p]] = NULL} if equation p has no \eqn{U_{(pj)}};
+#'
+#'     correlations are specified in terms of components of mixture variables (if present);
+#'     order is 1st random intercept (if \code{rand.int != "none"}), 2nd random time slope (if \code{rand.tsl != "none"}),
+#'     3rd other random slopes with non-mixture distributions, 4th other random slopes with mixture distributions
 #' @param rmeans2 a list returned from \code{corrsys} or \code{corrsys2} which has the non-mixture and component means ordered according to
 #'     types of random intercept and time slope
 #' @param rvars2 a list returned like \code{rmeans}
@@ -459,38 +476,69 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     }
   }
   K.r <- rep(0, M)
+  if (class(corr.u) == "list" & length(corr.u) > 0)
+    K.r <- sapply(mapply('[', corr.u, lengths(corr.u), SIMPLIFY = FALSE),
+                  function(x) if (is.null(x)) 0 else nrow(x[[1]]))
+  if (class(corr.u) == "matrix") K.r <- rep(ncol(corr.u), M)
   rmix_pis <- list()
-  if (length(means) == (2 * M)) {
+  if (length(means) %in% c(2 * M, M + 1)) {
     means <- means[1:M]
     vars <- vars[1:M]
   }
+  if (length(skews) == (M + 1)) {
+    rskews <- skews[M + 1]
+    rskurts <- skurts[M + 1]
+    if (method == "Polynomial") {
+      rfifths <- fifths[M + 1]
+      rsixths <- sixths[M + 1]
+    }
+  }
   if (length(skews) == (2 * M)) {
     rskews <- skews[(M + 1):(2 * M)]
-    skews <- skews[1:M]
     rskurts <- skurts[(M + 1):(2 * M)]
-    skurts <- skurts[1:M]
     if (method == "Polynomial") {
       rfifths <- fifths[(M + 1):(2 * M)]
-      fifths <- fifths[1:M]
       rsixths <- sixths[(M + 1):(2 * M)]
+    }
+  }
+  if (length(skews) %in% c(2 * M, M + 1)) {
+    skews <- skews[1:M]
+    skurts <- skurts[1:M]
+    if (method == "Polynomial") {
+      fifths <- fifths[1:M]
       sixths <- sixths[1:M]
+    }
+  }
+  if (length(mix_pis) == (M + 1)) {
+    rmix_pis <- mix_pis[M + 1]
+    rmix_mus <- mix_mus[M + 1]
+    rmix_sigmas <- mix_sigmas[M + 1]
+    rmix_skews <- mix_skews[M + 1]
+    rmix_skurts <- mix_skurts[M + 1]
+    if (method == "Polynomial") {
+      rmix_fifths <- mix_fifths[M + 1]
+      rmix_sixths <- mix_sixths[M + 1]
     }
   }
   if (length(mix_pis) == (2 * M)) {
     rmix_pis <- mix_pis[(M + 1):(2 * M)]
-    mix_pis <- mix_pis[1:M]
     rmix_mus <- mix_mus[(M + 1):(2 * M)]
-    mix_mus <- mix_mus[1:M]
     rmix_sigmas <- mix_sigmas[(M + 1):(2 * M)]
-    mix_sigmas <- mix_sigmas[1:M]
     rmix_skews <- mix_skews[(M + 1):(2 * M)]
-    mix_skews <- mix_skews[1:M]
     rmix_skurts <- mix_skurts[(M + 1):(2 * M)]
-    mix_skurts <- mix_skurts[1:M]
     if (method == "Polynomial") {
       rmix_fifths <- mix_fifths[(M + 1):(2 * M)]
-      mix_fifths <- mix_fifths[1:M]
       rmix_sixths <- mix_sixths[(M + 1):(2 * M)]
+    }
+  }
+  if (length(mix_pis) %in% c(2 * M, M + 1)) {
+    mix_pis <- mix_pis[1:M]
+    mix_mus <- mix_mus[1:M]
+    mix_sigmas <- mix_sigmas[1:M]
+    mix_skews <- mix_skews[1:M]
+    mix_skurts <- mix_skurts[1:M]
+    if (method == "Polynomial") {
+      mix_fifths <- mix_fifths[1:M]
       mix_sixths <- mix_sixths[1:M]
     }
   }
@@ -936,8 +984,9 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
   if (length(rmeans2) > 0) {
     if (length(rand.int) != M) rand.int <- rep(rand.int[1], M)
     if (length(rand.tsl) != M) rand.tsl <- rep(rand.tsl[1], M)
-    K.rmix <- rep(0, M)
-    K.rcomp <- rep(0, M)
+    M0 <- ifelse(class(corr.u) == "list", M, 1)
+    K.rmix <- rep(0, M0)
+    K.rcomp <- rep(0, M0)
     if (length(rmix_pis) > 0) {
       K.rmix <- lengths(rmix_pis)
       K.rcmix <- unlist(lapply(rmix_pis, lengths))
@@ -946,7 +995,6 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     }
     K.rcont <- sapply(rvars2,
       function(x) if (is.null(x[[1]])) 0 else length(x)) - K.rcomp
-    K.r <- K.rcont + K.rcomp
     k.rcont <- c(0, cumsum(K.rcont))
     k.rmix <- c(0, cumsum(K.rmix))
     rskews2 <- list()
@@ -955,7 +1003,7 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       rfifths2 <- list()
       rsixths2 <- list()
     }
-    for (i in 1:M) {
+    for (i in 1:M0) {
       rskews2[[i]] <- append(rskews2, list(NULL))
       rskurts2[[i]] <- append(rskurts2, list(NULL))
       if (method == "Polynomial") {
@@ -1057,7 +1105,7 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     }
     if (max(K.rmix) > 0) {
       U_mix <- list()
-      for (i in 1:M) {
+      for (i in 1:M0) {
         if (K.rmix[i] == 0) {
           U_mix <- append(U_mix, list(NULL))
           next
@@ -1089,13 +1137,13 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       }
     }
     rho.u <- list()
-    for (i in 1:M) {
+    for (i in 1:M0) {
       if (K.r[i] == 0) {
         rho.u <- append(rho.u, list(NULL))
         next
       }
       rho.u[[i]] <- list()
-      for (j in 1:M) {
+      for (j in 1:M0) {
         if (K.r[j] == 0) {
           rho.u[[i]] <- append(rho.u[[i]], list(NULL))
           next
@@ -1116,7 +1164,7 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     mix_sum_u <- list()
     target_mix_u <- list()
     sum_uall <- list()
-    for (i in 1:M) {
+    for (i in 1:M0) {
       sum_uall <- append(sum_uall, list(NULL))
       cont_sum_u <- append(cont_sum_u, list(NULL))
       target_sum_u <- append(target_sum_u, list(NULL))
@@ -1190,13 +1238,13 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       cont_sum_u = cont_sum_u, sum_uall = sum_uall, rho.u = rho.u))
     if (max(K.rmix) > 0) {
       rho.uall <- list()
-      for (i in 1:M) {
+      for (i in 1:M0) {
         if (K.rmix[i] == 0) {
           rho.uall <- append(rho.uall, list(NULL))
           next
         }
         rho.uall[[i]] <- list()
-        for (j in 1:M) {
+        for (j in 1:M0) {
           if (K.rmix[j] == 0) {
             rho.uall[[i]] <- append(rho.uall[[i]], list(NULL))
             next
@@ -1220,7 +1268,8 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         target_mix_u = target_mix_u, mix_sum_u = mix_sum_u))
     }
   }
-  if (length(corr.u) > 0) {
+  if (class(corr.u) == "matrix") emax3 <- max(abs(rho.u[[1]][[1]] - corr.u))
+  if (class(corr.u) == "list" & length(corr.u) > 0) {
     emax3 <- list()
     for (i in 1:M) {
       if (K.r[i] == 0) {
