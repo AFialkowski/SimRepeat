@@ -227,7 +227,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.219 minutes
+#> Total Simulation time: 0.233 minutes
 ```
 
 ``` r
@@ -646,7 +646,7 @@ Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
-#> Total Simulation time: 0.175 minutes
+#> Total Simulation time: 0.173 minutes
 ```
 
 ### Step 4: Describe results
@@ -663,7 +663,7 @@ names(Sum2)
 #>  [9] "target_sum_x" "sum_xall"     "mix_sum_x"    "target_mix_x"
 #> [13] "pois_sum_x"   "nb_sum_x"     "rho.x"        "rho.xall"    
 #> [17] "rho.yx"       "rho.yxall"    "maxerr"       "target_sum_u"
-#> [21] "cont_sum_u"   "sum_uall"     "rho.u"
+#> [21] "cont_sum_u"   "sum_uall"     "rho.u"        "maxerr_u"
 ```
 
 ``` r
@@ -701,7 +701,7 @@ Maximum Correlation Error for Random Effects:
 
 ``` r
 Sum2$maxerr_u
-#> NULL
+#> [1] 0.001658546
 ```
 
 ### Linear mixed model

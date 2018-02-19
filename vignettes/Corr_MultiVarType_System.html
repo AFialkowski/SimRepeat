@@ -383,7 +383,7 @@ betas.tint &lt;- list(c(0.25, 0.5))</code></pre>
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.404 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.408 minutes</code></pre>
 <pre class="r"><code>knitr::kable(Sys1$constants[[1]], booktabs = TRUE, 
   caption = &quot;PMT constants for Y_1&quot;)</code></pre>
 <table>
@@ -1528,7 +1528,7 @@ corr.u &lt;- matrix(c(1, 0.4, 0.4, 1), 2, 2)</code></pre>
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.414 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.438 minutes</code></pre>
 </div>
 <div id="step-4-describe-results-1" class="section level3 unnumbered">
 <h3>Step 4: Describe results</h3>
@@ -1543,7 +1543,7 @@ names(Sum2)</code></pre>
 ##  [9] &quot;target_sum_x&quot; &quot;sum_xall&quot;     &quot;mix_sum_x&quot;    &quot;target_mix_x&quot;
 ## [13] &quot;pois_sum_x&quot;   &quot;nb_sum_x&quot;     &quot;rho.x&quot;        &quot;rho.xall&quot;    
 ## [17] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;       &quot;target_sum_u&quot;
-## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;</code></pre>
+## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;        &quot;maxerr_u&quot;</code></pre>
 <pre class="r"><code>knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Outcomes&quot;)</code></pre>
 <table>
@@ -1707,7 +1707,7 @@ names(Sum2)</code></pre>
 </table>
 <p>Maximum Correlation Error for Random Effects:</p>
 <pre class="r"><code>Sum2$maxerr_u</code></pre>
-<pre><code>## NULL</code></pre>
+<pre><code>## [1] 0.0004425613</code></pre>
 </div>
 <div id="linear-mixed-model" class="section level3 unnumbered">
 <h3>Linear mixed model</h3>
@@ -2040,7 +2040,7 @@ betas.tint &lt;- list(c(0.25, 0.5), NULL, c(0.25, 0.5))</code></pre>
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
   betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u, seed, 
   use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.214 minutes</code></pre>
+<pre><code>## Total Simulation time: 0.215 minutes</code></pre>
 </div>
 <div id="step-4-describe-results-2" class="section level3 unnumbered">
 <h3>Step 4: Describe results</h3>
@@ -2055,7 +2055,7 @@ names(Sum3)</code></pre>
 ##  [9] &quot;target_sum_x&quot; &quot;sum_xall&quot;     &quot;mix_sum_x&quot;    &quot;target_mix_x&quot;
 ## [13] &quot;pois_sum_x&quot;   &quot;nb_sum_x&quot;     &quot;rho.x&quot;        &quot;rho.xall&quot;    
 ## [17] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;       &quot;target_sum_u&quot;
-## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;</code></pre>
+## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;        &quot;maxerr_u&quot;</code></pre>
 <pre class="r"><code>knitr::kable(Sum3$cont_sum_y, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Outcomes&quot;)</code></pre>
 <table>

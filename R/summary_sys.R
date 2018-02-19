@@ -1268,7 +1268,10 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         target_mix_u = target_mix_u, mix_sum_u = mix_sum_u))
     }
   }
-  if (class(corr.u) == "matrix") emax3 <- max(abs(rho.u[[1]][[1]] - corr.u))
+  if (class(corr.u) == "matrix") {
+    emax3 <- max(abs(rho.u[[1]][[1]] - corr.u))
+    result <- append(result, list(maxerr_u = emax3))
+  }
   if (class(corr.u) == "list" & length(corr.u) > 0) {
     emax3 <- list()
     for (i in 1:M) {
