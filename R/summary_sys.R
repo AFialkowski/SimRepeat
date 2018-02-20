@@ -177,7 +177,6 @@
 #' @param rmeans2 a list returned from \code{corrsys} or \code{corrsys2} which has the non-mixture and component means ordered according to
 #'     types of random intercept and time slope
 #' @param rvars2 a list returned like \code{rmeans}
-#' @importFrom psych describe
 #' @import SimMultiCorrData
 #' @import SimCorrMix
 #' @importFrom stats cor dbeta dbinom dchisq density dexp df dgamma dlnorm dlogis dmultinom dnbinom dnorm dpois dt dunif dweibull ecdf
@@ -586,22 +585,26 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
   }
   if (!is.null(Y)) {
     rho.y <- cor(Y)
-    cont_sum_y <- describe(Y, type = 1)
     mom <- apply(Y, 2, calc_moments)
-    cont_sum_y <- as.data.frame(cbind(c(1:M),
-      cont_sum_y[, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ]))
+    medians <- apply(Y, 2, median)
+    mins <- apply(Y, 2, min)
+    maxs <- apply(Y, 2, max)
+    cont_sum_y <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
+      medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
     colnames(cont_sum_y) <- c("Outcome", "N", "Mean", "SD", "Median",
       "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
     result <- list(cont_sum_y = cont_sum_y, rho.y = rho.y)
   }
   if (error_type != "none") {
-    cont_sum_e <- describe(E, type = 1)
     mom <- apply(E, 2, calc_moments)
+    medians <- apply(E, 2, median)
+    mins <- apply(E, 2, min)
+    maxs <- apply(E, 2, max)
     if (error_type == "non_mix") {
       e.means <- mapply('[[', means, lengths(means))
       e.vars <- mapply('[[', vars, lengths(vars))
-      cont_sum_e <- as.data.frame(cbind(1:M,
-        cont_sum_e[, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ]))
+      cont_sum_e <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
+        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(cont_sum_e) <- c("Outcome", "N", "Mean", "SD", "Median",
         "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       if (method == "Fleishman") {
@@ -624,15 +627,17 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       e.means <- unlist(mapply('[', mix_mus, lengths(mix_mus)))
       e.vars <- (unlist(mapply('[', mix_sigmas, lengths(mix_sigmas))))^2
       cont_sum_e <- as.data.frame(cbind(rep(1:M, K.error),
-        unlist(lapply(K.error, seq)), cont_sum_e[, -c(1, 6, 7, 10, 13)],
-        mom[5, ], mom[6, ]))
+        unlist(lapply(K.error, seq)), rep(n, ncol(mom)), mom[1, ], mom[2, ],
+        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(cont_sum_e) <- c("Outcome", "Component", "N", "Mean", "SD",
         "Median", "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       rho.emix <- cor(E_mix)
-      mix_sum_e <- describe(E_mix, type = 1)
       mom <- apply(E_mix, 2, calc_moments)
-      mix_sum_e <- as.data.frame(cbind(1:M,
-        mix_sum_e[, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ]))
+      medians <- apply(E_mix, 2, median)
+      mins <- apply(E_mix, 2, min)
+      maxs <- apply(E_mix, 2, max)
+      mix_sum_e <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
+        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(mix_sum_e) <- c("Outcome", "N", "Mean", "SD", "Median",
         "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       target_mix_e <- NULL
@@ -729,11 +734,13 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     for (i in 1:M) {
       sum_xall <- append(sum_xall, list(NULL))
       if (K.x[i] > 0) {
-        sum_xall[[i]] <- describe(X_all[[i]], type = 1)
         mom <- apply(X_all[[i]], 2, calc_moments)
+        medians <- apply(X_all[[i]], 2, median)
+        mins <- apply(X_all[[i]], 2, min)
+        maxs <- apply(X_all[[i]], 2, max)
         sum_xall[[i]] <- cbind(rep(i, ncol(X_all[[i]])),
-          1:ncol(X_all[[i]]), sum_xall[[i]][, -c(1, 6, 7, 10, 13)],
-          mom[5, ], mom[6, ])
+          1:ncol(X_all[[i]]), rep(n, ncol(X_all[[i]])), mom[1, ], mom[2, ],
+          medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
         rownames(sum_xall[[i]]) <- colnames(X_all[[i]])
       }
     }
@@ -755,11 +762,13 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         if ((K.x[i] - K.cat[i] - K.pois[i] - K.nb[i]) > 0) {
           Y_comp[[i]] <- X[[i]][, (K.cat[i] + 1):(ncol(X[[i]]) - K.pois[i] -
                                                     K.nb[i]), drop = FALSE]
-          cont_sum_x[[i]] <- describe(Y_comp[[i]], type = 1)
           mom <- apply(Y_comp[[i]], 2, calc_moments)
+          medians <- apply(Y_comp[[i]], 2, median)
+          mins <- apply(Y_comp[[i]], 2, min)
+          maxs <- apply(Y_comp[[i]], 2, max)
           cont_sum_x[[i]] <- cbind(rep(i, ncol(Y_comp[[i]])),
-            1:ncol(Y_comp[[i]]), cont_sum_x[[i]][, -c(1, 6, 7, 10, 13)],
-            mom[5, ], mom[6, ])
+            1:ncol(Y_comp[[i]]), rep(n, ncol(Y_comp[[i]])), mom[1, ], mom[2, ],
+            medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
           rownames(cont_sum_x[[i]]) <- paste("cont", rep(i, ncol(Y_comp[[i]])),
             "_", 1:ncol(Y_comp[[i]]), sep = "")
           ind <- ncol(Y_comp[[i]]) - K.comp[i] + K.error[i]
@@ -796,13 +805,17 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
             1:ncol(Y_comp[[i]]), target_sum_x[[i]])
           rownames(target_sum_x[[i]]) <- rownames(cont_sum_x[[i]])
           if (K.mix2[i] > 0) {
-            mix_sum_x[[i]] <-
-              describe(X_all[[i]][, (K.cat[i] + ind + 1):(K.cat[i] + ind +
-                                      K.mix2[i]), drop = FALSE], type = 1)
             mom <- apply(X_all[[i]][, (K.cat[i] + ind + 1):(K.cat[i] + ind +
                                   K.mix2[i]), drop = FALSE], 2, calc_moments)
+            medians <- apply(X_all[[i]][, (K.cat[i] + ind + 1):(K.cat[i] + ind +
+                                  K.mix2[i]), drop = FALSE], 2, median)
+            mins <- apply(X_all[[i]][, (K.cat[i] + ind + 1):(K.cat[i] + ind +
+                                  K.mix2[i]), drop = FALSE], 2, min)
+            maxs <- apply(X_all[[i]][, (K.cat[i] + ind + 1):(K.cat[i] + ind +
+                                  K.mix2[i]), drop = FALSE], 2, max)
             mix_sum_x[[i]] <- cbind(rep(i, K.mix2[i]), 1:K.mix2[i],
-              mix_sum_x[[i]][, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ])
+              rep(n, K.mix2[i]), mom[1, ], mom[2, ],
+              medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
             rownames(mix_sum_x[[i]]) <- paste("mix", rep(i, K.mix2[i]), "_",
                                               1:K.mix2[i], sep = "")
             if (method == "Fleishman") {
@@ -855,19 +868,23 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         if (K.pois[i] == 0) {
           pois_sum_x <- append(pois_sum_x, list(NULL))
         } else {
-          pois_sum_x[[i]] <- describe(X[[i]][, (ncol(X[[i]]) - K.pois[i] -
-            K.nb[i] + 1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], type = 1)
+          mom <- apply(X[[i]][, (ncol(X[[i]]) - K.pois[i] - K.nb[i] +
+            1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], 2, calc_moments)
+          medians <- apply(X[[i]][, (ncol(X[[i]]) - K.pois[i] - K.nb[i] +
+            1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], 2, median)
+          mins <- apply(X[[i]][, (ncol(X[[i]]) - K.pois[i] - K.nb[i] +
+            1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], 2, min)
+          maxs <- apply(X[[i]][, (ncol(X[[i]]) - K.pois[i] - K.nb[i] +
+            1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], 2, max)
           p_0 <- apply(X[[i]][, (ncol(X[[i]]) - K.pois[i] - K.nb[i] +
             1):(ncol(X[[i]]) - K.nb[i]), drop = FALSE], 2,
             function(x) sum(x == 0)/n)
-          pois_sum_x[[i]] <- cbind(rep(i, K.pois[i]), pois_sum_x[[i]]$vars,
-            pois_sum_x[[i]]$n, p_0,
+          pois_sum_x[[i]] <- cbind(rep(i, K.pois[i]), 1:K.pois[i],
+            rep(n, K.pois[i]), p_0,
             mapply(function(x, y) dzipois(0, x, y), lam[[i]], p_zip[[i]]),
-            pois_sum_x[[i]]$mean, (1 - p_zip[[i]]) * lam[[i]],
-            (pois_sum_x[[i]][, 4])^2,
+            mom[1, ], (1 - p_zip[[i]]) * lam[[i]], mom[2, ]^2,
             lam[[i]] + (lam[[i]]^2) * p_zip[[i]]/(1 - p_zip[[i]]),
-            pois_sum_x[[i]]$median, pois_sum_x[[i]]$min, pois_sum_x[[i]]$max,
-            pois_sum_x[[i]]$skew, pois_sum_x[[i]]$kurtosis)
+            medians, mins, maxs, mom[3, ], mom[4, ])
           rownames(pois_sum_x[[i]]) <- paste("pois", rep(i, K.pois[i]), "_",
             1:K.pois[i], sep = "")
         }
@@ -884,21 +901,24 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         if (K.nb[i] == 0) {
           nb_sum_x <- append(nb_sum_x, list(NULL))
         } else {
-          nb_sum_x[[i]] <- describe(X[[i]][, (ncol(X[[i]]) - K.nb[i] +
-                                    1):ncol(X[[i]]), drop = FALSE], type = 1)
           prob <- size[[i]]/(mu[[i]] + size[[i]])
           p_0 <- apply(X[[i]][, (ncol(X[[i]]) - K.nb[i] + 1):ncol(X[[i]]),
             drop = FALSE], 2, function(x) sum(x == 0)/n)
-          nb_sum_x[[i]] <- cbind(rep(i, K.nb[i]), nb_sum_x[[i]]$vars,
-            nb_sum_x[[i]]$n, p_0,
-            mapply(function(x, y, z) dzinegbin(0, x, munb = y, pstr0 = z),
-                   size[[i]], mu[[i]], p_zinb[[i]]),
-            prob, nb_sum_x[[i]]$mean, (1 - p_zinb[[i]]) * mu[[i]],
-            (nb_sum_x[[i]][, 4])^2,
+          mom <- apply(X[[i]][, (ncol(X[[i]]) - K.nb[i] + 1):ncol(X[[i]]),
+            drop = FALSE], 2, calc_moments)
+          medians <- apply(X[[i]][, (ncol(X[[i]]) - K.nb[i] + 1):ncol(X[[i]]),
+            drop = FALSE], 2, median)
+          mins <- apply(X[[i]][, (ncol(X[[i]]) - K.nb[i] + 1):ncol(X[[i]]),
+            drop = FALSE], 2, min)
+          maxs <- apply(X[[i]][, (ncol(X[[i]]) - K.nb[i] + 1):ncol(X[[i]]),
+            drop = FALSE], 2, max)
+          nb_sum_x[[i]] <- cbind(rep(i, K.nb[i]), 1:K.nb[i], rep(n, K.nb[i]),
+            p_0, mapply(function(x, y, z) dzinegbin(0, x, munb = y, pstr0 = z),
+              size[[i]], mu[[i]], p_zinb[[i]]),
+            prob, mom[1, ], (1 - p_zinb[[i]]) * mu[[i]], mom[2, ]^2,
             (1 - p_zinb[[i]]) * mu[[i]] * (1 + mu[[i]] *
-                                               (p_zinb[[i]] + 1/size[[i]])),
-            nb_sum_x[[i]]$median, nb_sum_x[[i]]$min, nb_sum_x[[i]]$max,
-            nb_sum_x[[i]]$skew, nb_sum_x[[i]]$kurtosis)
+              (p_zinb[[i]] + 1/size[[i]])), medians, mins, maxs, mom[3, ],
+            mom[4, ])
           rownames(nb_sum_x[[i]]) <- paste("nb", rep(i, K.nb[i]), "_",
             1:K.nb[i], sep = "")
         }
@@ -1171,15 +1191,21 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       mix_sum_u <- append(mix_sum_u, list(NULL))
       target_mix_u <- append(target_mix_u, list(NULL))
       if (K.r[i] > 0) {
-        sum_uall[[i]] <- describe(U_all[[i]], type = 1)
         mom <- apply(U_all[[i]], 2, calc_moments)
+        medians <- apply(U_all[[i]], 2, median)
+        mins <- apply(U_all[[i]], 2, min)
+        maxs <- apply(U_all[[i]], 2, max)
         sum_uall[[i]] <- cbind(rep(i, ncol(U_all[[i]])), 1:ncol(U_all[[i]]),
-          sum_uall[[i]][, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ])
+          rep(n, ncol(U_all[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
+          mom[3, ], mom[4, ], mom[5, ], mom[6, ])
         rownames(sum_uall[[i]]) <- colnames(U_all[[i]])
-        cont_sum_u[[i]] <- describe(U[[i]], type = 1)
         mom <- apply(U[[i]], 2, calc_moments)
+        medians <- apply(U[[i]], 2, median)
+        mins <- apply(U[[i]], 2, min)
+        maxs <- apply(U[[i]], 2, max)
         cont_sum_u[[i]] <- cbind(rep(i, K.r[i]), 1:K.r[i],
-          cont_sum_u[[i]][, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ])
+          rep(n, ncol(U[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
+          mom[3, ], mom[4, ], mom[5, ], mom[6, ])
         rownames(cont_sum_u[[i]]) <- paste("cont", rep(i, ncol(U[[i]])),
           "_", 1:ncol(U[[i]]), sep = "")
         if (method == "Fleishman") {
@@ -1192,10 +1218,13 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         target_sum_u[[i]] <- cbind(rep(i, K.r[i]), 1:K.r[i], target_sum_u[[i]])
         rownames(target_sum_u[[i]]) <- rownames(cont_sum_u[[i]])
         if (K.rmix[i] > 0) {
-          mix_sum_u[[i]] <- describe(U_mix[[i]], type = 1)
           mom <- apply(U_mix[[i]], 2, calc_moments)
+          medians <- apply(U_mix[[i]], 2, median)
+          mins <- apply(U_mix[[i]], 2, min)
+          maxs <- apply(U_mix[[i]], 2, max)
           mix_sum_u[[i]] <- cbind(rep(i, K.rmix[i]), 1:K.rmix[i],
-            mix_sum_u[[i]][, -c(1, 6, 7, 10, 13)], mom[5, ], mom[6, ])
+            rep(n, ncol(U_mix[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
+            mom[3, ], mom[4, ], mom[5, ], mom[6, ])
           rownames(mix_sum_u[[i]]) <- paste("mix", rep(i, K.rmix[i]),
             "_", 1:K.rmix[i], sep = "")
           if (method == "Fleishman") {

@@ -332,7 +332,6 @@
 #' @param maxit the maximum number of iterations to use (default = 1000) in the calculation of ordinal
 #'     intermediate correlations with \code{\link[SimCorrMix]{ord_norm}} or in the error loop
 #' @param quiet if FALSE prints messages, if TRUE suppresses messages
-#' @importFrom psych describe
 #' @import SimMultiCorrData
 #' @import SimCorrMix
 #' @importFrom stats cor dbeta dbinom dchisq density dexp df dgamma dlnorm dlogis dmultinom dnbinom dnorm dpois dt dunif dweibull ecdf

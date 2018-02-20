@@ -166,7 +166,6 @@
 #' @param epsilon the maximum acceptable error between the final and target correlation matrices (default = 0.001) in the error loop
 #' @param maxit the maximum number of iterations to use (default = 1000) in the error loop
 #' @param quiet if FALSE prints messages, if TRUE suppresses messages
-#' @importFrom psych describe
 #' @import SimMultiCorrData
 #' @import SimCorrMix
 #' @importFrom stats cor dbeta dbinom dchisq density dexp df dgamma dlnorm dlogis dmultinom dnbinom dnorm dpois dt dunif dweibull ecdf
