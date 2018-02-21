@@ -1,7 +1,7 @@
 ## Test environments
-* local OS 'Windows 10' install, 'R 3.4.2'
+* local OS 'Windows 10' install, 'R 3.4.4'
 * 'win-builder' (devel and release)
-* 'CentOS', 'R 3.3.1'
+* 'CentOS', 'R 3.4.1'
 
 ## R CMD check results
 

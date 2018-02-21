@@ -3,7 +3,7 @@ library("SimRepeat")
 context("Simulate correlated system of continuous variables")
 
 options(scipen = 999)
-tol <- 1e-5
+tol <- 1e-4
 
 seed <- 276
 n <- 10000

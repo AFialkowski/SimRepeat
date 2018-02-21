@@ -589,7 +589,7 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     medians <- apply(Y, 2, median)
     mins <- apply(Y, 2, min)
     maxs <- apply(Y, 2, max)
-    cont_sum_y <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
+    cont_sum_y <- as.data.frame(cbind(1:M, rep(nrow(Y), M), mom[1, ], mom[2, ],
       medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
     colnames(cont_sum_y) <- c("Outcome", "N", "Mean", "SD", "Median",
       "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
@@ -603,8 +603,8 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
     if (error_type == "non_mix") {
       e.means <- mapply('[[', means, lengths(means))
       e.vars <- mapply('[[', vars, lengths(vars))
-      cont_sum_e <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
-        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
+      cont_sum_e <- as.data.frame(cbind(1:M, rep(nrow(E), M), mom[1, ],
+        mom[2, ], medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(cont_sum_e) <- c("Outcome", "N", "Mean", "SD", "Median",
         "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       if (method == "Fleishman") {
@@ -627,8 +627,8 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       e.means <- unlist(mapply('[', mix_mus, lengths(mix_mus)))
       e.vars <- (unlist(mapply('[', mix_sigmas, lengths(mix_sigmas))))^2
       cont_sum_e <- as.data.frame(cbind(rep(1:M, K.error),
-        unlist(lapply(K.error, seq)), rep(n, ncol(mom)), mom[1, ], mom[2, ],
-        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
+        unlist(lapply(K.error, seq)), rep(nrow(E), ncol(mom)), mom[1, ],
+        mom[2, ], medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(cont_sum_e) <- c("Outcome", "Component", "N", "Mean", "SD",
         "Median", "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       rho.emix <- cor(E_mix)
@@ -636,8 +636,8 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
       medians <- apply(E_mix, 2, median)
       mins <- apply(E_mix, 2, min)
       maxs <- apply(E_mix, 2, max)
-      mix_sum_e <- as.data.frame(cbind(1:M, rep(n, M), mom[1, ], mom[2, ],
-        medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
+      mix_sum_e <- as.data.frame(cbind(1:M, rep(nrow(E_mix), M), mom[1, ],
+        mom[2, ], medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ]))
       colnames(mix_sum_e) <- c("Outcome", "N", "Mean", "SD", "Median",
         "Min", "Max", "Skew", "Skurtosis", "Fifth", "Sixth")
       target_mix_e <- NULL
@@ -1196,16 +1196,16 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         mins <- apply(U_all[[i]], 2, min)
         maxs <- apply(U_all[[i]], 2, max)
         sum_uall[[i]] <- cbind(rep(i, ncol(U_all[[i]])), 1:ncol(U_all[[i]]),
-          rep(n, ncol(U_all[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
-          mom[3, ], mom[4, ], mom[5, ], mom[6, ])
+          rep(nrow(U_all[[i]]), ncol(U_all[[i]])), mom[1, ], mom[2, ], medians,
+          mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
         rownames(sum_uall[[i]]) <- colnames(U_all[[i]])
         mom <- apply(U[[i]], 2, calc_moments)
         medians <- apply(U[[i]], 2, median)
         mins <- apply(U[[i]], 2, min)
         maxs <- apply(U[[i]], 2, max)
         cont_sum_u[[i]] <- cbind(rep(i, K.r[i]), 1:K.r[i],
-          rep(n, ncol(U[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
-          mom[3, ], mom[4, ], mom[5, ], mom[6, ])
+          rep(nrow(U[[i]]), ncol(U[[i]])), mom[1, ], mom[2, ], medians, mins,
+          maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
         rownames(cont_sum_u[[i]]) <- paste("cont", rep(i, ncol(U[[i]])),
           "_", 1:ncol(U[[i]]), sep = "")
         if (method == "Fleishman") {
@@ -1223,8 +1223,8 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
           mins <- apply(U_mix[[i]], 2, min)
           maxs <- apply(U_mix[[i]], 2, max)
           mix_sum_u[[i]] <- cbind(rep(i, K.rmix[i]), 1:K.rmix[i],
-            rep(n, ncol(U_mix[[i]])), mom[1, ], mom[2, ], medians, mins, maxs,
-            mom[3, ], mom[4, ], mom[5, ], mom[6, ])
+            rep(nrow(U_mix[[i]]), ncol(U_mix[[i]])), mom[1, ], mom[2, ],
+            medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
           rownames(mix_sum_u[[i]]) <- paste("mix", rep(i, K.rmix[i]),
             "_", 1:K.rmix[i], sep = "")
           if (method == "Fleishman") {
