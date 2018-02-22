@@ -239,17 +239,19 @@ calc_betas <- function(corr.yx = list(), corr.x = list(), vars = list(),
                              method = "Broyden",
                              control = list(ftol = 1e-05))
       if (nl_solution$termcd == 1) {
-        converged <- as.data.frame(rbind(converged, c(nl_solution$x,
-                                         sum(nl_solution$fvec^2), p)))
+        if (K.max - K > 0) {
+          converged <- as.data.frame(rbind(converged, c(nl_solution$x,
+            rep(0, K.max - K), sum(nl_solution$fvec^2), p)))
+        } else {
+          converged <- as.data.frame(rbind(converged, c(nl_solution$x,
+            sum(nl_solution$fvec^2), p)))
+        }
       }
     }
     if (!is.null(converged)) {
       colnames(converged)[(ncol(converged) - 1):ncol(converged)] <-
         c("fnorm", "Y")
       converged <- subset(converged, fnorm == min(fnorm))
-      if (ncol(converged) != K.max) {
-        converged <- cbind(converged, matrix(rep(0, K.max - K), nrow = 1))
-      }
       colnames(converged) <- 1:K.max
       betas <- rbind(betas, converged[, 1:K.max])
     } else {
