@@ -37,7 +37,7 @@ Description: SimRepeat generates correlated systems of statistical equations whi
     modification of GenOrd (<DOI:10.1002/asmb.2072>).  The optional error loop may be used 
     to improve the accuracy of the final correlation matrices.  The package also provides 
     function to check parameter inputs and summarize the generated systems of equations.
-Depends: R (>= 3.3.1),
+Depends: R (>= 3.4.0),
     SimMultiCorrData (>= 0.2.1), SimCorrMix (>= 0.1.0)
 License: GPL-2
 Imports:
@@ -47,7 +47,7 @@ LazyData: true
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
 Suggests: knitr,
-    rmarkdown, printr,
+    rmarkdown, printr, bookdown,
     testthat
 VignetteBuilder: knitr
 URL: https://github.com/AFialkowski/SimRepeat

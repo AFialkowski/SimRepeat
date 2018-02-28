@@ -63,6 +63,10 @@ This package contains 3 \emph{simulation} functions:
 1 \emph{summary} function:
 
 \code{\link[SimRepeat]{summary_sys}}
+
+1 \emph{correction} function for non-PD correlation matrices:
+
+\code{\link[SimRepeat]{adj_grad}}
 }
 
 \references{

@@ -158,8 +158,16 @@
 #' @param betas.0 vector of length \code{M} containing intercepts, if \code{NULL} all set equal to 0; if length 1, all intercepts set to \code{betas.0}
 #' @param seed the seed value for random number generation (default = 1234)
 #' @param use.nearPD TRUE to convert the overall intermediate correlation matrix formed by the \eqn{X} (for all outcomes and independent
-#'     variables) or \eqn{E} to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary; if FALSE the negative
-#'     eigenvalues are replaced with 0 if necessary
+#'     variables) or \eqn{E} to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary;
+#'     if FALSE and \code{adjgrad = FALSE} the negative eigenvalues are replaced with \code{eigmin} if necessary
+#' @param eigmin minimum replacement eigenvalue if overall intermediate correlation matrix is not positive-definite (default = 0)
+#' @param adjgrad TRUE to use \code{adj_grad} to convert overall intermediate correlation matrix to a positive-definite matrix and next
+#'     5 inputs can be used
+#' @param B1 the initial matrix for algorithm; if NULL, uses a scaled initial matrix with diagonal elements \code{sqrt(nrow(Sigma))/2}
+#' @param tau parameter used to calculate theta (default = 0.5)
+#' @param tol maximum error for Frobenius norm distance between new matrix and original matrix (default = 0.1)
+#' @param steps maximum number of steps for k (default = 100)
+#' @param msteps maximum number of steps for m (default = 10)
 #' @param errorloop if TRUE, uses \code{\link[SimCorrMix]{corr_error}} to attempt to correct the correlation of the independent
 #'     variables within and across outcomes to be within \code{epsilon} of the target correlations \code{corr.x} until the number of iterations
 #'     reaches \code{maxit} (default = FALSE)
@@ -200,8 +208,10 @@
 #' @return \code{valid.pdf} a list of length \code{M} of vectors where the i-th element is "TRUE" if the constants for the i-th
 #'         continuous variable generate a valid pdf, else "FALSE"
 #'
-#' @return \code{Sigma.X} matrix of intermediate correlations applied to generate \eqn{Z_{cont(pj)}, Z_{comp(pj)}};
-#'     these are the normal variables transformed to get the desired distributions
+#' @return \code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+#'
+#' @return \code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
+#'     applied to generate the normal variables transformed to get the desired distributions
 #'
 #' @return \code{Error_Time} the time in minutes required to use the error loop
 #'
@@ -336,7 +346,9 @@ nonnormsys <- function(n = 10000, M = NULL,
                        mix_sixths =  list(), mix_Six = list(),
                        same.var = NULL, betas.0 = NULL, corr.x = list(),
                        corr.yx = list(), corr.e = NULL, seed = 1234,
-                       use.nearPD = TRUE, errorloop = FALSE, epsilon = 0.001,
+                       use.nearPD = TRUE, eigmin = 0, adjgrad = FALSE,
+                       B1 = NULL, tau = 0.5, tol = 0.1, steps = 100,
+                       msteps = 10, errorloop = FALSE, epsilon = 0.001,
                        maxit = 1000, quiet = FALSE) {
   start.time <- Sys.time()
   if (length(error_type) != 1)
@@ -623,15 +635,13 @@ nonnormsys <- function(n = 10000, M = NULL,
   Z <- Z %*% svd(Z, nu = 0)$v
   Z <- scale(Z, FALSE, TRUE)
   if (min(eigen(Sigma_E, symmetric = TRUE)$values) < 0) {
+    if (quiet == FALSE)
+      message("Intermediate E correlation matrix is not positive definite.")
     if (use.nearPD == TRUE) {
       Sigma_E <- as.matrix(nearPD(Sigma_E, corr = T, keepDiag = T)$mat)
-      if (quiet == FALSE)
-        message("Intermediate E correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
-    } else if (quiet == FALSE) {
-      message("Intermediate E correlation matrix is not positive definite.
-Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
-positive-definite matrix instead.")
+    } else if (adjgrad == TRUE) {
+      sadj <- adj_grad(Sigma_E, B1, tau, tol, steps, msteps)
+      Sigma_E <- sadj$Sigma2
     }
   }
   eig <- eigen(Sigma_E, symmetric = TRUE)
@@ -758,16 +768,17 @@ positive-definite matrix instead.")
   names1 <- colnames(Corr_X)
   Sigma_X <- intercorr_cont(method = method, constants = constants2,
                             rho_cont = Corr_X)
+  colnames(Sigma_X) <- colnames(Corr_X)
+  rownames(Sigma_X) <- rownames(Corr_X)
+  Sigma_X0 <- Sigma_X
   if (min(eigen(Sigma_X, symmetric = TRUE)$values) < 0) {
+    if (quiet == FALSE)
+      message("Intermediate correlation matrix is not positive definite.")
     if (use.nearPD == TRUE) {
       Sigma_X <- as.matrix(nearPD(Sigma_X, corr = T, keepDiag = T)$mat)
-      if (quiet == FALSE)
-        message("Intermediate correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
-    } else if (quiet == FALSE) {
-      message("Intermediate correlation matrix is not positive definite.
-Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
-positive-definite matrix instead.")
+    } else if (adjgrad == TRUE) {
+      sadj <- adj_grad(Sigma_X, B1, tau, tol, steps, msteps)
+      Sigma_X <- sadj$Sigma2
     }
   }
   eig <- eigen(Sigma_X, symmetric = TRUE)
@@ -1006,9 +1017,9 @@ positive-definite matrix instead.")
   Time <- round(difftime(stop.time, start.time, units = "min"), 3)
   cat("Total Simulation time:", Time, "minutes \n")
   result <- list(Y = Y, X = Y_comp, X_all = Y_cont, E = E_comp, betas = betas,
-    Sigma.X = Sigma_X, constants = constants0, SixCorr = SixCorr,
-    valid.pdf = Valid.PDF, niter = niter, Error_Time = Time.error,
-    Time = Time)
+    Sigma_X0 = Sigma_X0, Sigma_X = Sigma_X, constants = constants0,
+    SixCorr = SixCorr, valid.pdf = Valid.PDF, niter = niter,
+    Error_Time = Time.error, Time = Time)
   if (error_type == "mix") result <- append(result, list(E_mix = E2))
   result
 }

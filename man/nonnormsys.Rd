@@ -11,8 +11,9 @@ nonnormsys(n = 10000, M = NULL, method = c("Fleishman", "Polynomial"),
   mix_skews = list(), mix_skurts = list(), mix_fifths = list(),
   mix_sixths = list(), mix_Six = list(), same.var = NULL,
   betas.0 = NULL, corr.x = list(), corr.yx = list(), corr.e = NULL,
-  seed = 1234, use.nearPD = TRUE, errorloop = FALSE, epsilon = 0.001,
-  maxit = 1000, quiet = FALSE)
+  seed = 1234, use.nearPD = TRUE, eigmin = 0, adjgrad = FALSE,
+  B1 = NULL, tau = 0.5, tol = 0.1, steps = 100, msteps = 10,
+  errorloop = FALSE, epsilon = 0.001, maxit = 1000, quiet = FALSE)
 }
 \arguments{
 \item{n}{the sample size (i.e. the length of each simulated variable; default = 10000)}
@@ -119,8 +120,23 @@ use \code{corr.yx[[p]] = NULL} if equation p has no \eqn{X_{(pj)}}}
 \item{seed}{the seed value for random number generation (default = 1234)}
 
 \item{use.nearPD}{TRUE to convert the overall intermediate correlation matrix formed by the \eqn{X} (for all outcomes and independent
-variables) or \eqn{E} to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary; if FALSE the negative
-eigenvalues are replaced with 0 if necessary}
+variables) or \eqn{E} to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary;
+if FALSE and \code{adjgrad = FALSE} the negative eigenvalues are replaced with \code{eigmin} if necessary}
+
+\item{eigmin}{minimum replacement eigenvalue if overall intermediate correlation matrix is not positive-definite (default = 0)}
+
+\item{adjgrad}{TRUE to use \code{adj_grad} to convert overall intermediate correlation matrix to a positive-definite matrix and next
+5 inputs can be used}
+
+\item{B1}{the initial matrix for algorithm; if NULL, uses a scaled initial matrix with diagonal elements \code{sqrt(nrow(Sigma))/2}}
+
+\item{tau}{parameter used to calculate theta (default = 0.5)}
+
+\item{tol}{maximum error for Frobenius norm distance between new matrix and original matrix (default = 0.1)}
+
+\item{steps}{maximum number of steps for k (default = 100)}
+
+\item{msteps}{maximum number of steps for m (default = 10)}
 
 \item{errorloop}{if TRUE, uses \code{\link[SimCorrMix]{corr_error}} to attempt to correct the correlation of the independent
 variables within and across outcomes to be within \code{epsilon} of the target correlations \code{corr.x} until the number of iterations
@@ -157,8 +173,10 @@ A list with the following components:
 \code{valid.pdf} a list of length \code{M} of vectors where the i-th element is "TRUE" if the constants for the i-th
         continuous variable generate a valid pdf, else "FALSE"
 
-\code{Sigma.X} matrix of intermediate correlations applied to generate \eqn{Z_{cont(pj)}, Z_{comp(pj)}};
-    these are the normal variables transformed to get the desired distributions
+\code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+
+\code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
+    applied to generate the normal variables transformed to get the desired distributions
 
 \code{Error_Time} the time in minutes required to use the error loop
 

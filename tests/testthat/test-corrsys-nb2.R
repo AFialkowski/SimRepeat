@@ -13,7 +13,7 @@ Time <- 1:M
 # Error terms have a beta(4, 1.5) distribution with an AR(1, p = 0.4)
 # correlation structure
 error_type <- "non_mix"
-Stcum4 <- calc_theory("Beta", c(4, 1.5))
+B <- calc_theory("Beta", c(4, 1.5))
 corr.e <- matrix(c(1, 0.4, 0.4^2,
                    0.4, 1, 0.4,
                    0.4^2, 0.4, 1), M, M, byrow = TRUE)
@@ -446,7 +446,7 @@ test_that("works for Fleishman method: 3 nb, same.var, subj.var, int.var,
 # Error terms have a beta(4, 1.5) distribution with an AR(1, p = 0.4)
 # correlation structure
 error_type <- "non_mix"
-Stcum4 <- calc_theory("Beta", c(4, 1.5))
+B <- calc_theory("Beta", c(4, 1.5))
 corr.e <- matrix(c(1, 0.4, 0.4^2,
                    0.4, 1, 0.4,
                    0.4^2, 0.4, 1), M, M, byrow = TRUE)

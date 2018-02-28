@@ -57,6 +57,10 @@
 #'
 #' \code{\link[SimRepeat]{summary_sys}}
 #'
+#' 1 \emph{correction} function for non-PD correlation matrices:
+#'
+#' \code{\link[SimRepeat]{adj_grad}}
+#'
 #' @docType package
 #' @name SimRepeat
 #' @references

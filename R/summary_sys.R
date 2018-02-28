@@ -111,32 +111,32 @@
 #'     \code{support[[p]][[j]]} is a vector of the support values defining the marginal distribution of \eqn{X_{ord(pj)}},
 #'     the j-th ordinal variable for outcome \eqn{Y_p}; if not provided, the default for r categories is 1, ..., r
 #' @param lam list of length \code{M}, p-th component a vector of lambda (means > 0) values for Poisson variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;Poisson]{dpois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
+#'     (see \code{stats::dpois}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
 #'     \code{length(lam[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param p_zip a list of vectors of probabilities of structural zeros (not including zeros from the Poisson distribution) for the
-#'     zero-inflated Poisson variables (see \code{\link[VGAM;Zipois]{dzipois}}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
+#'     zero-inflated Poisson variables (see \code{VGAM::dzipois}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
 #'     distribution; if \code{p_zip} is in (0, 1), \eqn{Y_{pois}} has a zero-inflated Poisson distribution;
 #'     if \code{p_zip} is in \code{(-(exp(lam) - 1)^(-1), 0)}, \eqn{Y_{pois}} has a zero-deflated Poisson distribution and \code{p_zip}
 #'     is not a probability; if \code{p_zip = -(exp(lam) - 1)^(-1)}, \eqn{Y_{pois}} has a positive-Poisson distribution
-#'     (see \code{\link[VGAM;Pospois]{dpospois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
+#'     (see \code{VGAM::dpospois}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
 #'     if a single number, all Poisson variables given this value; if a vector of length \code{M}, all Poisson variables in equation p
 #'     given \code{p_zip[p]}; otherwise, missing values are set to 0 and ordered 1st
 #' @param size list of length \code{M}, p-th component a vector of size parameters for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::nbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(size[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param prob list of length \code{M}, p-th component a vector of success probabilities for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::nbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(prob[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param mu list of length \code{M}, p-th component a vector of mean values for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::nbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(mu[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}; for zero-inflated NB variables,
-#'     this refers to the mean of the NB distribution (see \code{\link[VGAM;Zinegbin]{dzinegbin}})
+#'     this refers to the mean of the NB distribution (see \code{VGAM::dzinegbin})
 #'     (*Note: either \code{prob} or \code{mu} should be supplied for all Negative Binomial variables, not a mixture)
 #' @param p_zinb a vector of probabilities of structural zeros (not including zeros from the NB distribution) for the zero-inflated NB variables
-#'     (see \code{\link[VGAM;Zinegbin]{dzinegbin}}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
+#'     (see \code{VGAM::dzinegbin}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
 #'     if \code{p_zinb} is in \code{(-prob^size/(1 - prob^size),} \code{0)}, \eqn{Y_{nb}} has a zero-deflated NB distribution and \code{p_zinb}
 #'     is not a probability; if \code{p_zinb = -prob^size/(1 - prob^size)}, \eqn{Y_{nb}} has a positive-NB distribution (see
-#'     \code{\link[VGAM;Posnegbin]{dposnegbin}}); order is 1st regular NB and 2nd zero-inflated NB;
+#'     \code{VGAM::dposnegbin}); order is 1st regular NB and 2nd zero-inflated NB;
 #'     if a single number, all NB variables given this value; if a vector of length \code{M}, all NB variables in equation p
 #'     given \code{p_zinb[p]}; otherwise, missing values are set to 0 and ordered 1st
 #' @param corr.x list of length \code{M}, each component a list of length \code{M}; \code{corr.x[[p]][[q]]} is matrix of correlations

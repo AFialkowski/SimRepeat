@@ -191,32 +191,32 @@
 #'     \code{support[[p]][[j]]} is a vector of the support values defining the marginal distribution of \eqn{X_{ord(pj)}},
 #'     the j-th ordinal variable for outcome \eqn{Y_p}; if not provided, the default for r categories is 1, ..., r
 #' @param lam list of length \code{M}, p-th component a vector of lambda (means > 0) values for Poisson variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;Poisson]{dpois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
+#'     (see \code{stats::dpois}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
 #'     \code{length(lam[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param p_zip a list of vectors of probabilities of structural zeros (not including zeros from the Poisson distribution) for the
-#'     zero-inflated Poisson variables (see \code{\link[VGAM;Zipois]{dzipois}}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
+#'     zero-inflated Poisson variables (see \code{VGAM::dzipois}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
 #'     distribution; if \code{p_zip} is in (0, 1), \eqn{Y_{pois}} has a zero-inflated Poisson distribution;
 #'     if \code{p_zip} is in \code{(-(exp(lam) - 1)^(-1), 0)}, \eqn{Y_{pois}} has a zero-deflated Poisson distribution and \code{p_zip}
 #'     is not a probability; if \code{p_zip = -(exp(lam) - 1)^(-1)}, \eqn{Y_{pois}} has a positive-Poisson distribution
-#'     (see \code{\link[VGAM;Pospois]{dpospois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
+#'     (see \code{VGAM::dpospois}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
 #'     if a single number, all Poisson variables given this value; if a vector of length \code{M}, all Poisson variables in equation p
 #'     given \code{p_zip[p]}; otherwise, missing values are set to 0 and ordered 1st
 #' @param size list of length \code{M}, p-th component a vector of size parameters for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(size[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param prob list of length \code{M}, p-th component a vector of success probabilities for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(prob[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}
 #' @param mu list of length \code{M}, p-th component a vector of mean values for the Negative Binomial variables for outcome \eqn{Y_p}
-#'     (see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+#'     (see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 #'     \code{length(mu[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}; for zero-inflated NB variables,
-#'     this refers to the mean of the NB distribution (see \code{\link[VGAM;Zinegbin]{dzinegbin}})
+#'     this refers to the mean of the NB distribution (see \code{VGAM::dzinegbin})
 #'     (*Note: either \code{prob} or \code{mu} should be supplied for all Negative Binomial variables, not a mixture)
 #' @param p_zinb a vector of probabilities of structural zeros (not including zeros from the NB distribution) for the zero-inflated NB variables
-#'     (see \code{\link[VGAM;Zinegbin]{dzinegbin}}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
+#'     (see \code{VGAM::dzinegbin}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
 #'     if \code{p_zinb} is in \code{(-prob^size/(1 - prob^size),} \code{0)}, \eqn{Y_{nb}} has a zero-deflated NB distribution and \code{p_zinb}
 #'     is not a probability; if \code{p_zinb = -prob^size/(1 - prob^size)}, \eqn{Y_{nb}} has a positive-NB distribution (see
-#'     \code{\link[VGAM;Posnegbin]{dposnegbin}}); order is 1st regular NB and 2nd zero-inflated NB;
+#'     \code{VGAM::dposnegbin}); order is 1st regular NB and 2nd zero-inflated NB;
 #'     if a single number, all NB variables given this value; if a vector of length \code{M}, all NB variables in equation p
 #'     given \code{p_zinb[p]}; otherwise, missing values are set to 0 and ordered 1st
 #' @param corr.x list of length \code{M}, each component a list of length \code{M}; \code{corr.x[[p]][[q]]} is matrix of correlations
@@ -314,8 +314,16 @@
 #'     3rd other random slopes with non-mixture distributions, 4th other random slopes with mixture distributions
 #' @param seed the seed value for random number generation (default = 1234)
 #' @param use.nearPD TRUE to convert the overall intermediate correlation matrix formed by the \eqn{X} (for all outcomes and independent
-#'     variables), \eqn{E}, or the random effects to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary; if FALSE the negative
-#'     eigenvalues are replaced with 0 if necessary
+#'     variables), \eqn{E}, or the random effects to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary;
+#'     if FALSE and \code{adjgrad = FALSE} the negative eigenvalues are replaced with \code{eigmin} if necessary
+#' @param eigmin minimum replacement eigenvalue if overall intermediate correlation matrix is not positive-definite (default = 0)
+#' @param adjgrad TRUE to use \code{adj_grad} to convert overall intermediate correlation matrix to a positive-definite matrix and next
+#'     5 inputs can be used
+#' @param B1 the initial matrix for algorithm; if NULL, uses a scaled initial matrix with diagonal elements \code{sqrt(nrow(Sigma))/2}
+#' @param tau parameter used to calculate theta (default = 0.5)
+#' @param tol maximum error for Frobenius norm distance between new matrix and original matrix (default = 0.1)
+#' @param steps maximum number of steps for k (default = 100)
+#' @param msteps maximum number of steps for m (default = 10)
 #' @param nrand the number of random numbers to generate in calculating intermediate correlations (default = 10000)
 #' @param errorloop if TRUE, uses \code{\link[SimCorrMix]{corr_error}} to attempt to correct the correlation of the independent
 #'     variables within and across outcomes to be within \code{epsilon} of the target correlations \code{corr.x} until the number of iterations
@@ -355,8 +363,10 @@
 #'
 #' @return \code{E_mix} matrix with \code{n} rows containing continuous mixture error terms
 #'
-#' @return \code{Sigma.X} matrix of intermediate correlations applied to generate \eqn{Z_{ord(pj)}, Z_{cont(pj)}, Z_{comp(pj)},
-#'     Z_{pois(pj)}, Z_{nb(pj)}}; these are the normal variables transformed to get the desired distributions
+#' @return \code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+#'
+#' @return \code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
+#'     applied to generate the normal variables transformed to get the desired distributions
 #'
 #' @return \code{Error_Time} the time in minutes required to use the error loop
 #'
@@ -602,8 +612,10 @@ corrsys <- function(n = 10000, M = NULL, Time = NULL,
                     rand.int = c("none", "non_mix", "mix"),
                     rand.tsl = c("none", "non_mix", "mix"), rand.var = NULL,
                     corr.u = list(), seed = 1234, use.nearPD = TRUE,
-                    nrand = 100000, errorloop = FALSE, epsilon = 0.001,
-                    maxit = 1000, quiet = FALSE) {
+                    eigmin = 0, adjgrad = FALSE, B1 = NULL, tau = 0.5,
+                    tol = 0.1, steps = 100, msteps = 10, nrand = 100000,
+                    errorloop = FALSE, epsilon = 0.001, maxit = 1000,
+                    quiet = FALSE) {
   start.time <- Sys.time()
   if (length(error_type) != 1)
     stop("Please choose one type of distribution for all of the error terms:
@@ -1051,15 +1063,13 @@ corrsys <- function(n = 10000, M = NULL, Time = NULL,
   Z <- Z %*% svd(Z, nu = 0)$v
   Z <- scale(Z, FALSE, TRUE)
   if (min(eigen(Sigma_E, symmetric = TRUE)$values) < 0) {
+    if (quiet == FALSE)
+      message("Intermediate E correlation matrix is not positive definite.")
     if (use.nearPD == TRUE) {
       Sigma_E <- as.matrix(nearPD(Sigma_E, corr = T, keepDiag = T)$mat)
-      if (quiet == FALSE)
-        message("Intermediate E correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
-    } else if (quiet == FALSE) {
-      message("Intermediate E correlation matrix is not positive definite.
-Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
-positive-definite matrix instead.")
+    } else if (adjgrad == TRUE) {
+      sadj <- adj_grad(Sigma_E, B1, tau, tol, steps, msteps)
+      Sigma_E <- sadj$Sigma2
     }
   }
   eig <- eigen(Sigma_E, symmetric = TRUE)
@@ -1260,20 +1270,21 @@ positive-definite matrix instead.")
       lam = lam2, p_zip = p_zip2, size = size2, mu = mu2, p_zinb = p_zinb2,
       rho = Corr_X, seed = seed, epsilon = epsilon, maxit = maxit,
       nrand = nrand, quiet = quiet)
+    colnames(Sigma_X) <- colnames(Corr_X)
+    rownames(Sigma_X) <- rownames(Corr_X)
+    Sigma_X0 <- Sigma_X[names1, names1, drop = FALSE]
     if (min(eigen(Sigma_X, symmetric = TRUE)$values) < 0) {
+      if (quiet == FALSE)
+        message("Intermediate correlation matrix is not positive definite.")
       if (use.nearPD == TRUE) {
         Sigma_X <- as.matrix(nearPD(Sigma_X, corr = T, keepDiag = T)$mat)
-        if (quiet == FALSE)
-          message("Intermediate correlation matrix is not positive definite.
-Nearest positive definite matrix is used.")
-      } else if (quiet == FALSE) {
-        message("Intermediate correlation matrix is not positive definite.
-Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
-positive-definite matrix instead.")
+      } else if (adjgrad == TRUE) {
+        sadj <- adj_grad(Sigma_X, B1, tau, tol, steps, msteps)
+        Sigma_X <- sadj$Sigma2
       }
     }
     eig <- eigen(Sigma_X, symmetric = TRUE)
-    sqrteigval <- diag(sqrt(pmax(eig$values, 0)), nrow(Sigma_X))
+    sqrteigval <- diag(sqrt(pmax(eig$values, eigmin)), nrow(Sigma_X))
     eigvec <- eig$vectors
     fry <- eigvec %*% sqrteigval
     X <- fry %*% t(Z[, (ncol(Sigma_E) + 1):(ncol(Sigma_E) + ncol(Sigma_X)),
@@ -1915,15 +1926,14 @@ positive-definite matrix instead.")
       constants = rconstants2, rho = Corr_U, nrand = nrand, seed = seed,
       quiet = quiet)
     if (min(eigen(Sigma_U, symmetric = TRUE)$values) < 0) {
+      if (quiet == FALSE)
+        message("Intermediate random correlation matrix is not
+                positive definite.")
       if (use.nearPD == TRUE) {
         Sigma_U <- as.matrix(nearPD(Sigma_U, corr = T, keepDiag = T)$mat)
-        if (quiet == FALSE)
-          message("Intermediate random correlation matrix is not positive
-definite.  Nearest positive definite matrix is used.")
-      } else if (quiet == FALSE) {
-        message("Intermediate random correlation matrix is not positive definite.
-Negative eigenvalues are replaced with 0.  Set use.nearPD = TRUE to use nearest
-positive-definite matrix instead.")
+      } else if (adjgrad == TRUE) {
+        sadj <- adj_grad(Sigma_U, B1, tau, tol, steps, msteps)
+        Sigma_U <- sadj$Sigma2
       }
     }
     eig <- eigen(Sigma_U, symmetric = TRUE)
@@ -2135,7 +2145,7 @@ positive-definite matrix instead.")
       X_all2[[i]] <- cbind(X_all2[[i]], Time[, i, drop = FALSE])
     }
     result <- append(result, list(X = Y_all, X_all = X_all2,
-      Sigma.X = Sigma_X2, niter = niter))
+      Sigma_X0 = Sigma_X0, Sigma_X = Sigma_X2, niter = niter))
     Time.error <- round(difftime(stop.time.error, start.time.error,
                                  units = "min"), 3)
   }

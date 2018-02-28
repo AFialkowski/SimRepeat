@@ -18,8 +18,9 @@ corrsys2(n = 10000, M = NULL, Time = NULL, method = c("Fleishman",
   betas.int = list(), betas.t = NULL, betas.tint = list(),
   rand.int = c("none", "non_mix", "mix"), rand.tsl = c("none", "non_mix",
   "mix"), rand.var = NULL, corr.u = list(), seed = 1234,
-  use.nearPD = TRUE, errorloop = FALSE, epsilon = 0.001, maxit = 1000,
-  quiet = FALSE)
+  use.nearPD = TRUE, eigmin = 0, adjgrad = FALSE, B1 = NULL,
+  tau = 0.5, tol = 0.1, steps = 100, msteps = 10, errorloop = FALSE,
+  epsilon = 0.001, maxit = 1000, quiet = FALSE)
 }
 \arguments{
 \item{n}{the sample size (i.e. the length of each simulated variable; default = 10000)}
@@ -160,15 +161,15 @@ with outcome \eqn{Y_p}; use \code{support[[p]] = NULL} if outcome \eqn{Y_p} has 
 the j-th ordinal variable for outcome \eqn{Y_p}; if not provided, the default for r categories is 1, ..., r}
 
 \item{lam}{list of length \code{M}, p-th component a vector of lambda (means > 0) values for Poisson variables for outcome \eqn{Y_p}
-(see \code{\link[stats;Poisson]{dpois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
+(see \code{stats::dpois}); order is 1st regular Poisson and 2nd zero-inflated Poisson; use \code{lam[[p]] = NULL} if outcome \eqn{Y_p} has no Poisson variables;
 \code{length(lam[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}}
 
 \item{p_zip}{a list of vectors of probabilities of structural zeros (not including zeros from the Poisson distribution) for the
-zero-inflated Poisson variables (see \code{\link[VGAM;Zipois]{dzipois}}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
+zero-inflated Poisson variables (see \code{VGAM::dzipois}); if \code{p_zip} = 0, \eqn{Y_{pois}} has a regular Poisson
 distribution; if \code{p_zip} is in (0, 1), \eqn{Y_{pois}} has a zero-inflated Poisson distribution;
 if \code{p_zip} is in \code{(-(exp(lam) - 1)^(-1), 0)}, \eqn{Y_{pois}} has a zero-deflated Poisson distribution and \code{p_zip}
 is not a probability; if \code{p_zip = -(exp(lam) - 1)^(-1)}, \eqn{Y_{pois}} has a positive-Poisson distribution
-(see \code{\link[VGAM;Pospois]{dpospois}}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
+(see \code{VGAM::dpospois}); order is 1st regular Poisson and 2nd zero-inflated Poisson;
 if a single number, all Poisson variables given this value; if a vector of length \code{M}, all Poisson variables in equation p
 given \code{p_zip[p]}; otherwise, missing values are set to 0 and ordered 1st}
 
@@ -178,24 +179,24 @@ if a single number, all Poisson variables given this value; if a vector of lengt
 given \code{pois_eps[p]}; otherwise, missing values are set to 0.0001 and ordered 1st}
 
 \item{size}{list of length \code{M}, p-th component a vector of size parameters for the Negative Binomial variables for outcome \eqn{Y_p}
-(see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+(see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{size[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 \code{length(size[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}}
 
 \item{prob}{list of length \code{M}, p-th component a vector of success probabilities for the Negative Binomial variables for outcome \eqn{Y_p}
-(see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+(see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{prob[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 \code{length(prob[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}}
 
 \item{mu}{list of length \code{M}, p-th component a vector of mean values for the Negative Binomial variables for outcome \eqn{Y_p}
-(see \code{\link[stats;NegBinomial]{dnbinom}}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
+(see \code{stats::dnbinom}); order is 1st regular NB and 2nd zero-inflated NB; use \code{mu[[p]] = NULL} if outcome \eqn{Y_p} has no Negative Binomial variables;
 \code{length(mu[[p]])} can differ across outcomes; the order should be the same as in \code{corr.x}; for zero-inflated NB variables,
-this refers to the mean of the NB distribution (see \code{\link[VGAM;Zinegbin]{dzinegbin}})
+this refers to the mean of the NB distribution (see \code{VGAM::dzinegbin})
 (*Note: either \code{prob} or \code{mu} should be supplied for all Negative Binomial variables, not a mixture)}
 
 \item{p_zinb}{a vector of probabilities of structural zeros (not including zeros from the NB distribution) for the zero-inflated NB variables
-(see \code{\link[VGAM;Zinegbin]{dzinegbin}}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
+(see \code{VGAM::dzinegbin}); if \code{p_zinb} = 0, \eqn{Y_{nb}} has a regular NB distribution;
 if \code{p_zinb} is in \code{(-prob^size/(1 - prob^size),} \code{0)}, \eqn{Y_{nb}} has a zero-deflated NB distribution and \code{p_zinb}
 is not a probability; if \code{p_zinb = -prob^size/(1 - prob^size)}, \eqn{Y_{nb}} has a positive-NB distribution (see
-\code{\link[VGAM;Posnegbin]{dposnegbin}}); order is 1st regular NB and 2nd zero-inflated NB;
+\code{VGAM::dposnegbin}); order is 1st regular NB and 2nd zero-inflated NB;
 if a single number, all NB variables given this value; if a vector of length \code{M}, all NB variables in equation p
 given \code{p_zinb[p]}; otherwise, missing values are set to 0 and ordered 1st}
 
@@ -316,8 +317,23 @@ continuous non-mixture covariate with a mixture random effect (the 2nd column of
 \item{seed}{the seed value for random number generation (default = 1234)}
 
 \item{use.nearPD}{TRUE to convert the overall intermediate correlation matrix formed by the \eqn{X} (for all outcomes and independent
-variables), \eqn{E}, or the random effects to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary; if FALSE the negative
-eigenvalues are replaced with 0 if necessary}
+variables), \eqn{E}, or the random effects to the nearest positive definite matrix with \code{Matrix::nearPD} if necessary;
+if FALSE and \code{adjgrad = FALSE} the negative eigenvalues are replaced with \code{eigmin} if necessary}
+
+\item{eigmin}{minimum replacement eigenvalue if overall intermediate correlation matrix is not positive-definite (default = 0)}
+
+\item{adjgrad}{TRUE to use \code{adj_grad} to convert overall intermediate correlation matrix to a positive-definite matrix and next
+5 inputs can be used}
+
+\item{B1}{the initial matrix for algorithm; if NULL, uses a scaled initial matrix with diagonal elements \code{sqrt(nrow(Sigma))/2}}
+
+\item{tau}{parameter used to calculate theta (default = 0.5)}
+
+\item{tol}{maximum error for Frobenius norm distance between new matrix and original matrix (default = 0.1)}
+
+\item{steps}{maximum number of steps for k (default = 100)}
+
+\item{msteps}{maximum number of steps for m (default = 10)}
 
 \item{errorloop}{if TRUE, uses \code{\link[SimCorrMix]{corr_error}} to attempt to correct the correlation of the independent
 variables within and across outcomes to be within \code{epsilon} of the target correlations \code{corr.x} until the number of iterations
@@ -348,8 +364,10 @@ A list with the following components:
 
 \code{E_mix} matrix with \code{n} rows containing continuous mixture error terms
 
-\code{Sigma.X} matrix of intermediate correlations applied to generate \eqn{Z_{ord(pj)}, Z_{cont(pj)}, Z_{comp(pj)},
-    Z_{pois(pj)}, Z_{nb(pj)}}; these are the normal variables transformed to get the desired distributions
+\code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+
+\code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
+    applied to generate the normal variables transformed to get the desired distributions
 
 \code{Error_Time} the time in minutes required to use the error loop
 
