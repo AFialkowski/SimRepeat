@@ -51,7 +51,7 @@ LazyData: true
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
 Suggests: knitr,
-    rmarkdown, printr, bookdown,
+    rmarkdown, printr, bookdown, nlme, reshape2,
     testthat
 VignetteBuilder: knitr
 URL: https://github.com/AFialkowski/SimRepeat

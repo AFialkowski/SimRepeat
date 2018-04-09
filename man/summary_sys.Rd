@@ -209,22 +209,6 @@ be a vector of length \code{M} as in \code{rand.int}}
 types of random intercept and time slope}
 
 \item{rvars2}{a list returned like \code{rmeans}}
-
-\item{Six}{a list of length \code{M}, \code{M + 1}, or \code{2 * M}, where \code{Six[1:M]} are for \eqn{X_{cont}, E} (if \code{error_type = "non_mix"}) and
-    \code{Six[M + 1]} or \code{Six[(M + 1):(2 * M)]} are for non-mixture \eqn{U};
-    if \code{error_type = "mix"} and there are only random effects (i.e., \code{length(corr.x) = 0}), use \code{Six[1:M] = rep(list(NULL), M)} so that
-    \code{Six[M + 1]} or \code{Six[(M + 1):(2 * M)]} describes the non-mixture \eqn{U};
-
-    \code{Six[[p]][[j]]} is a vector of sixth cumulant correction values to aid in finding a valid PDF for \eqn{X_{cont(pj)}}, the
-    j-th continuous non-mixture covariate for outcome \eqn{Y_p}; the last vector in \code{Six[[p]]} is for \eqn{E_p} (if \code{error_type = "non_mix"});
-    use \code{Six[[p]][[j]] = NULL} if no correction desired for \eqn{X_{cont(pj)}};
-    use \code{Six[[p]] = NULL} if no correction desired for any continuous non-mixture covariate or error term in equation p
-
-    \code{Six[[M + p]][[j]]} is a vector of sixth cumulant correction values to aid in finding a valid PDF for \eqn{U_{(pj)}}, the
-    j-th non-mixture random effect for outcome \eqn{Y_p}; use \code{Six[[M + p]][[j]] = NULL} if no correction desired for \eqn{U_{(pj)}};
-    use \code{Six[[M + p]] = NULL} if no correction desired for any continuous non-mixture random effect in equation p
-
-    keep \code{Six = list()} if no corrections desired for all equations or if \code{method = "Fleishman"}}
 }
 \value{
 A list with the following components:

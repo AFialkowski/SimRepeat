@@ -364,7 +364,7 @@ A list with the following components:
 
 \code{E_mix} matrix with \code{n} rows containing continuous mixture error terms
 
-\code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+\code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr2}
 
 \code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
     applied to generate the normal variables transformed to get the desired distributions

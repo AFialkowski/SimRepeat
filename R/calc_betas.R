@@ -251,7 +251,7 @@ calc_betas <- function(corr.yx = list(), corr.x = list(), vars = list(),
     if (!is.null(converged)) {
       colnames(converged)[(ncol(converged) - 1):ncol(converged)] <-
         c("fnorm", "Y")
-      converged <- subset(converged, fnorm == min(fnorm))
+      converged <- converged[which.min(converged$fnorm), ]
       colnames(converged) <- 1:K.max
       betas <- rbind(betas, converged[, 1:K.max])
     } else {

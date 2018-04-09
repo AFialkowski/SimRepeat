@@ -370,7 +370,7 @@
 #'
 #' @return \code{E_mix} matrix with \code{n} rows containing continuous mixture error terms
 #'
-#' @return \code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr}
+#' @return \code{Sigma_X0} matrix of intermediate correlations calculated by \code{intercorr2}
 #'
 #' @return \code{Sigma_X} matrix of intermediate correlations after \code{nearPD} or \code{adj_grad} function has been used;
 #'     applied to generate the normal variables transformed to get the desired distributions
@@ -2014,9 +2014,8 @@ corrsys2 <- function(n = 10000, M = NULL, Time = NULL,
       }
       Corr_U <- do.call(rbind, Corr_U)
     } else Corr_U <- corr.u
-    Sigma_U <- intercorr(k_cont = ncol(Corr_U), method = method,
-      constants = rconstants2, rho = Corr_U, nrand = nrand, seed = seed,
-      quiet = quiet)
+    Sigma_U <- intercorr2(k_cont = ncol(Corr_U), method = method,
+      constants = rconstants2, rho = Corr_U, quiet = quiet)
     if (min(eigen(Sigma_U, symmetric = TRUE)$values) < 0) {
       if (quiet == FALSE)
         message("Intermediate random correlation matrix is not positive
