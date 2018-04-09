@@ -4,7 +4,7 @@ SimRepeat
 
 The goal of **SimRepeat** is to generate correlated systems of statistical equations which represent **repeated measurements** or clustered data. These systems contain either: **a)** continuous normal, non-normal, and mixture variables based on the techniques of Headrick and Beasley (Headrick and Beasley 2004) or *b)* continuous (normal, non-normal and mixture), ordinal, and count (regular or zero-inflated, Poisson and Negative Binomial) variables based on the hierarchical linear models (HLM) approach. Headrick and Beasley's method for continuous variables calculates the beta (slope) coefficients based on the target correlations between independent variables and between outcomes and independent variables. The package provides functions to calculate the expected correlations between outcomes, between outcomes and error terms, and between outcomes and independent variables, extending Headrick and Beasley's equations to include mixture variables. These theoretical values can be compared to the simulated correlations. The HLM approach requires specification of the beta coefficients, but permits group and subject-level independent variables, interactions among independent variables, and fixed and random effects, providing more flexibility in the system of equations. Both methods permit simulation of data sets that mimic real-world clinical or genetic data sets (i.e. plasmodes, as in Vaughan et al. (2009)).
 
-The techniques extend those found in the **SimMultiCorrData** and **SimCorrMix** packages. Standard normal variables with an imposed intermediate correlation matrix are transformed to generate the desired distributions. Continuous variables are simulated using either Fleishman's third-order (Fleishman 1978) or Headrick's fifth-order (Headrick 2002) power method transformation (PMT). Simulation occurs at the component-level for continuous mixture distributions. These components are transformed into the desired mixture variables using random multinomial variables based on the mixing probabilities. The target correlation matrices are specified in terms of correlations with components of continuous mixture variables. Binary and ordinal variables are simulated by discretizing the normal variables at quantiles defined by the marginal distributions. Count variables are simulated using the inverse CDF method.
+The techniques extend those found in the **SimMultiCorrData** (Fialkowski 2017) and **SimCorrMix** (Fialkowski 2018) packages. Standard normal variables with an imposed intermediate correlation matrix are transformed to generate the desired distributions. Continuous variables are simulated using either Fleishman's third-order (Fleishman 1978) or Headrick's fifth-order (Headrick 2002) power method transformation (PMT). Simulation occurs at the component-level for continuous mixture distributions. These components are transformed into the desired mixture variables using random multinomial variables based on the mixing probabilities. The target correlation matrices are specified in terms of correlations with components of continuous mixture variables. Binary and ordinal variables are simulated by discretizing the normal variables at quantiles defined by the marginal distributions. Count variables are simulated using the inverse CDF method.
 
 There are two simulation pathways for the multi-variable type systems which differ by intermediate correlations involving count variables. Correlation Method 1 adapts Yahav and Shmueli's 2012 method (Yahav and Shmueli 2012) and performs best with large count variable means and positive correlations or small means and negative correlations. Correlation Method 2 adapts Barbiero and Ferrari's 2015 modification of the **GenOrd** package (A. Barbiero and Ferrari 2015; Ferrari and Barbiero 2012; Barbiero and Ferrari 2015) and performs best under the opposite scenarios. There are three methods available for correcting non-positive definite correlation matrices. The optional error loop may be used to improve the accuracy of the final correlation matrices. The package also provides function to check parameter inputs and summarize the generated systems of equations.
 
@@ -230,7 +230,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
   seed = seed, use.nearPD = FALSE, quiet = TRUE)
-#> Total Simulation time: 0.255 minutes
+#> Total Simulation time: 0.269 minutes
 ```
 
 ``` r
@@ -722,7 +722,7 @@ Sys3 <- corrsys(n, M, Time = NULL, "Polynomial", "non_mix", means, vars,
   betas = betas, betas.subj = betas.subj, betas.tint = betas.tint,
   rand.int = rand.int, rand.tsl = rand.tsl, corr.u = corr.u, seed = seed,
   use.nearPD = FALSE, quiet = TRUE)
-#> Total Simulation time: 0.007 minutes
+#> Total Simulation time: 0.008 minutes
 ```
 
 ### Step 4: Describe results
@@ -866,6 +866,10 @@ Barbiero, Alessandro, and Pier Alda Ferrari. 2015. *GenOrd: Simulation of Discre
 Bates, Douglas, and Martin Maechler. 2017. *Matrix: Sparse and Dense Matrix Classes and Methods*. <https://CRAN.R-project.org/package=Matrix>.
 
 Ferrari, P A, and A Barbiero. 2012. “Simulating Ordinal Data.” *Multivariate Behavioral Research* 47 (4): 566–89. <https://doi.org/10.1080/00273171.2012.692630>.
+
+Fialkowski, A C. 2017. *SimMultiCorrData: Simulation of Correlated Data with Multiple Variable Types*. <https://CRAN.R-project.org/package=SimMultiCorrData>.
+
+———. 2018. *SimCorrMix: Simulation of Correlated Data with Multiple Variable Types Including Continuous and Count Mixture Distributions*. <https://CRAN.R-project.org/package=SimCorrMix>.
 
 Fleishman, A I. 1978. “A Method for Simulating Non-Normal Distributions.” *Psychometrika* 43: 521–32. <https://doi.org/10.1007/BF02293811>.
 

@@ -25,6 +25,10 @@
 #' Y Zhang and JF Yin. Modified alternative gradients algorithm for computing the nearest correlation matrix.
 #'     Internal paper of the Tongji University, Shanghai.
 #'
+#' @examples
+#' Sigma <- matrix(c(1, 0, 0.8, 0, 1, 0.8, 0.8, 0.8, 1), 3, 3, byrow = TRUE)
+#' adj_grad(Sigma)
+#'
 adj_grad <- function(Sigma = NULL, B1 = NULL, tau = 0.5, tol = 0.1,
                      steps = 100, msteps = 10) {
   eig0 <- eigen(Sigma, symmetric = TRUE)$values

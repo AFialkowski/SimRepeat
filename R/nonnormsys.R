@@ -153,7 +153,7 @@
 #'     \code{same.var[1] = 1} and the 1st term for all other outcomes must also be height;
 #'     if a matrix, columns 1 and 2 are outcome p and column index in \code{corr.x[[p]][[p]]} for 1st instance of variable,
 #'     columns 3 and 4 are outcome q and column index in \code{corr.x[[q]][[q]]} for subsequent instances of variable; i.e., if
-#'     1st term for all outcomes is height and \code{M = 3}, then \code{same.var = matrix(c(1, 1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
+#'     1st term for all outcomes is height and \code{M = 3}, then \code{same.var = matrix(c(1,} \code{1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
 #'     independent variable index corresponds to continuous non-mixture and component of continuous mixture covariate
 #' @param betas.0 vector of length \code{M} containing intercepts, if \code{NULL} all set equal to 0; if length 1, all intercepts set to \code{betas.0}
 #' @param seed the seed value for random number generation (default = 1234)
@@ -267,7 +267,27 @@
 #'
 #' Vale CD & Maurelli VA (1983). Simulating Multivariate Nonnormal Distributions. Psychometrika, 48:465-471. \doi{10.1007/BF02293687}.
 #'
-#' @examples \dontrun{
+#' @examples
+#' M <- 3
+#' B <- calc_theory("Beta", c(4, 1.5))
+#' skews <- lapply(seq_len(M), function(x) c(0, B[3]))
+#' skurts <- lapply(seq_len(M), function(x) c(0, B[4]))
+#' fifths <- lapply(seq_len(M), function(x) c(0, B[5]))
+#' sixths <- lapply(seq_len(M), function(x) c(0, B[6]))
+#' Six <- lapply(seq_len(M), function(x) list(NULL, 0.03))
+#' corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4, 1, 0.4, 0.4^2, 0.4, 1), M, M,
+#'   byrow = TRUE)
+#' means <- lapply(seq_len(M), function(x) c(0, B[1]))
+#' vars <- lapply(seq_len(M), function(x) c(1, B[2]^2))
+#' corr.x <- list(list(matrix(1, 1, 1), matrix(0.4, 1, 1), matrix(0.4, 1, 1)),
+#'   list(matrix(0.4, 1, 1), matrix(1, 1, 1), matrix(0.4, 1, 1)),
+#'   list(matrix(0.4, 1, 1), matrix(0.4, 1, 1), matrix(1, 1, 1)))
+#' corr.yx <- list(matrix(0.4, 1), matrix(0.5, 1), matrix(0.6, 1))
+#' Sys1 <- nonnormsys(10000, M, "Polynomial", "non_mix", means, vars,
+#'   skews, skurts, fifths, sixths, Six, corr.x = corr.x, corr.yx = corr.yx,
+#'   corr.e = corr.e)
+#'
+#' \dontrun{
 #' # Example: system of three equations for 2 independent variables, where each
 #' # error term has unit variance, from Headrick & Beasley (2002)
 #' # Y_1 = beta_10 + beta_11 * X_11 + beta_12 * X_12 + sigma_1 * e_1

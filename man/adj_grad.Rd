@@ -28,6 +28,11 @@ list with \code{Sigma2} the new correlation matrix, \code{dist} the Frobenius no
 This function converts a non-positive-definite correlation matrix to a positive-definite matrix using the
     adjusted gradient updating method with initial matrix \code{B1}.
 }
+\examples{
+Sigma <- matrix(c(1, 0, 0.8, 0, 1, 0.8, 0.8, 0.8, 1), 3, 3, byrow = TRUE)
+adj_grad(Sigma)
+
+}
 \references{
 S Maree (2012). Correcting Non Positive Definite Correlation Matrices. BSc Thesis Applied Mathematics, TU Delft.
   \url{https://repository.tudelft.nl/islandora/object/uuid:2175c274-ab03-4fd5.../download}.

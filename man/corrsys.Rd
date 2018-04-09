@@ -215,7 +215,7 @@ corresponding to independent variables that should be identical across equations
 the 1st term for all other outcomes must also be sex;
 if a matrix, columns 1 and 2 are outcome p and column index in \code{corr.x[[p]][[p]]} for 1st instance of variable,
 columns 3 and 4 are outcome q and column index in \code{corr.x[[q]][[q]]} for subsequent instances of variable; i.e., if
-1st term for all outcomes is sex and \code{M = 3}, then \code{same.var = matrix(c(1, 1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
+1st term for all outcomes is sex and \code{M = 3}, then \code{same.var = matrix(c(1,} \code{1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
 independent variable index corresponds to ordinal, continuous non-mixture, \strong{component} of continuous mixture, Poisson, or
 NB variable}
 
@@ -466,6 +466,30 @@ This function generates a correlated system of \code{M} equations representing a
 }
 
 \examples{
+M <- 3
+B <- calc_theory("Beta", c(4, 1.5))
+skews <- lapply(seq_len(M), function(x) B[3])
+skurts <- lapply(seq_len(M), function(x) B[4])
+fifths <- lapply(seq_len(M), function(x) B[5])
+sixths <- lapply(seq_len(M), function(x) B[6])
+Six <- lapply(seq_len(M), function(x) list(0.03))
+corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4, 1, 0.4, 0.4^2, 0.4, 1), M, M,
+  byrow = TRUE)
+means <- lapply(seq_len(M), function(x) B[1])
+vars <- lapply(seq_len(M), function(x) B[2]^2)
+marginal <- list(0.3, 0.4, 0.5)
+support <- lapply(seq_len(M), function(x) list(0:1))
+corr.x <- list(list(matrix(1, 1, 1), matrix(0.4, 1, 1), matrix(0.4, 1, 1)),
+  list(matrix(0.4, 1, 1), matrix(1, 1, 1), matrix(0.4, 1, 1)),
+  list(matrix(0.4, 1, 1), matrix(0.4, 1, 1), matrix(1, 1, 1)))
+betas <- list(0.5)
+betas.t <- 1
+betas.tint <- list(0.25)
+Sys1 <- corrsys(10000, M, Time = 1:M, "Polynomial", "non_mix", means, vars,
+  skews, skurts, fifths, sixths, Six, marginal = marginal, support = support,
+  corr.x = corr.x, corr.e = corr.e, betas = betas, betas.t = betas.t,
+  betas.tint = betas.tint, quiet = TRUE)
+
 \dontrun{
 seed <- 276
 n <- 10000

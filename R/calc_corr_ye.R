@@ -47,7 +47,7 @@
 #' Headrick TC, Beasley TM (2004).  A Method for Simulating Correlated Non-Normal Systems of Linear Statistical Equations.
 #'     Communications in Statistics - Simulation and Computation, 33(1).  \doi{10.1081/SAC-120028431}
 #'
-#' @examples \dontrun{
+#' @examples
 #' # Example: system of three equations for 2 independent variables, where each
 #' # error term has unit variance, from Headrick & Beasley (2002)
 #' corr.yx <- list(matrix(c(0.4, 0.4), 1), matrix(c(0.5, 0.5), 1),
@@ -71,7 +71,7 @@
 #' vars <- list(rep(1, 3), rep(1, 3), rep(1, 3))
 #' betas <- calc_betas(corr.yx, corr.x, vars)
 #' calc_corr_ye(betas, corr.x, corr.e, vars)
-#' }
+#'
 calc_corr_ye <- function(betas = NULL, corr.x = list(), corr.e = NULL,
                          vars = list(), mix_pis = list(), mix_mus = list(),
                          mix_sigmas = list(),

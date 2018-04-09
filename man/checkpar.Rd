@@ -226,7 +226,7 @@ corresponding to independent variables that should be identical across equations
 the 1st term for all other outcomes must also be sex;
 if a matrix, columns 1 and 2 are outcome p and column index in \code{corr.x[[p]][[p]]} for 1st instance of variable,
 columns 3 and 4 are outcome q and column index in \code{corr.x[[q]][[q]]} for subsequent instances of variable; i.e., if
-1st term for all outcomes is sex and \code{M = 3}, then \code{same.var = matrix(c(1, 1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
+1st term for all outcomes is sex and \code{M = 3}, then \code{same.var = matrix(c(1,} \code{1, 2, 1, 1, 1, 3, 1), 2, 4, byrow = TRUE)}; the
 independent variable index corresponds to ordinal, continuous non-mixture, component of continuous mixture, Poisson, or
 NB variable}
 
@@ -326,18 +326,14 @@ This function checks the parameter inputs to the simulation functions \code{\lin
     for all possible errors, if simulation gives an error, the user should still check the parameter inputs.
 }
 \examples{
-\dontrun{
 # Example: system of three equations for 2 independent variables, where each
 # error term has unit variance, from Headrick & Beasley (2002)
 # Y_1 = beta_10 + beta_11 * X_11 + beta_12 * X_12 + sigma_1 * e_1
 # Y_2 = beta_20 + beta_21 * X_21 + beta_22 * X_22 + sigma_2 * e_2
 # Y_3 = beta_30 + beta_31 * X_31 + beta_32 * X_32 + sigma_3 * e_3
-
 # X_11 = X_21 = X_31 = Exponential(2)
 # X_12 = X_22 = X_32 = Laplace(0, 1)
 # e_1 = e_2 = e_3 = Cauchy(0, 1)
-
-seed <- 1234
 M <- 3
 Stcum1 <- calc_theory("Exponential", 2)
 Stcum2 <- calc_theory("Laplace", c(0, 1))
@@ -348,12 +344,6 @@ skews <- lapply(seq_len(M), function(x) c(Stcum1[3], Stcum2[3], Stcum3[3]))
 skurts <- lapply(seq_len(M), function(x) c(Stcum1[4], Stcum2[4], Stcum3[4]))
 fifths <- lapply(seq_len(M), function(x) c(Stcum1[5], Stcum2[5], Stcum3[5]))
 sixths <- lapply(seq_len(M), function(x) c(Stcum1[6], Stcum2[6], Stcum3[6]))
-
-# No sixth cumulant corrections will be used in order to match the results
-# from the paper.  Otherwise, the following should be used in order to
-# produce variables with valid PDF's:
-# Six <- lapply(seq_len(M), function(x) list(NULL, 25.14, NULL))
-
 corr.yx <- list(matrix(c(0.4, 0.4), 1), matrix(c(0.5, 0.5), 1),
   matrix(c(0.6, 0.6), 1))
 corr.x <- list()
@@ -372,15 +362,9 @@ corr.x[[3]][[2]] <- t(corr.x[[2]][[3]])
 corr.x[[3]][[3]] <- matrix(c(1, 0.7, 0.7, 1), 2, 2)
 corr.e <- matrix(0.4, nrow = 3, ncol = 3)
 diag(corr.e) <- 1
-
-# Check the parameter inputs
 checkpar(M, "Polynomial", "non_mix", means, vars, skews,
   skurts, fifths, sixths, corr.x = corr.x, corr.yx = corr.yx,
-  corr.e = corr.e)
-
-# Examples for the corrsys and corrsys2 functions can be found in the
-# function documentation.
-}
+  corr.e = corr.e, quiet = TRUE)
 
 }
 \references{

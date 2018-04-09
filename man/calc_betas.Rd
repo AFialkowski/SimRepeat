@@ -67,7 +67,6 @@ This function calculates the beta (slope) coefficients used in \code{\link[SimRe
     non-mixture and mixture variables.
 }
 \examples{
-\dontrun{
 # Example: system of three equations for 2 independent variables, where each
 # error term has unit variance, from Headrick & Beasley (2002)
 corr.yx <- list(matrix(c(0.4, 0.4), 1), matrix(c(0.5, 0.5), 1),
@@ -88,7 +87,7 @@ corr.x[[3]][[2]] <- t(corr.x[[2]][[3]])
 corr.x[[3]][[3]] <- matrix(c(1, 0.7, 0.7, 1), 2, 2)
 vars <- list(rep(1, 3), rep(1, 3), rep(1, 3))
 calc_betas(corr.yx, corr.x, vars)
-}
+
 }
 \references{
 Headrick TC, Beasley TM (2004).  A Method for Simulating Correlated Non-Normal Systems of Linear Statistical Equations.

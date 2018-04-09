@@ -316,6 +316,33 @@ This function summarizes the results of \code{\link[SimRepeat]{nonnormsys}}, \co
     \code{method = "Polynomial"}, specify \code{E, M, method, means, vars, skews, skurts, fifths, sixths, corr.e}.
 }
 \examples{
+M <- 3
+B <- calc_theory("Beta", c(4, 1.5))
+skews <- lapply(seq_len(M), function(x) B[3])
+skurts <- lapply(seq_len(M), function(x) B[4])
+fifths <- lapply(seq_len(M), function(x) B[5])
+sixths <- lapply(seq_len(M), function(x) B[6])
+Six <- lapply(seq_len(M), function(x) list(0.03))
+corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4, 1, 0.4, 0.4^2, 0.4, 1), M, M,
+  byrow = TRUE)
+means <- lapply(seq_len(M), function(x) B[1])
+vars <- lapply(seq_len(M), function(x) B[2]^2)
+marginal <- list(0.3, 0.4, 0.5)
+support <- lapply(seq_len(M), function(x) list(0:1))
+corr.x <- list(list(matrix(1, 1, 1), matrix(0.4, 1, 1), matrix(0.4, 1, 1)),
+  list(matrix(0.4, 1, 1), matrix(1, 1, 1), matrix(0.4, 1, 1)),
+  list(matrix(0.4, 1, 1), matrix(0.4, 1, 1), matrix(1, 1, 1)))
+betas <- list(0.5)
+betas.t <- 1
+betas.tint <- list(0.25)
+Sys1 <- corrsys(10000, M, Time = 1:M, "Polynomial", "non_mix", means, vars,
+  skews, skurts, fifths, sixths, Six, marginal = marginal, support = support,
+  corr.x = corr.x, corr.e = corr.e, betas = betas, betas.t = betas.t,
+  betas.tint = betas.tint, quiet = TRUE)
+Sum1 <- summary_sys(Sys1$Y, Sys1$E, E_mix = NULL, Sys1$X, Sys1$X_all, M,
+  "Polynomial", means, vars, skews, skurts, fifths, sixths,
+  marginal = marginal, support = support, corr.x = corr.x, corr.e = corr.e)
+
 \dontrun{
 seed <- 276
 n <- 10000
