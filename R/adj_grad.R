@@ -17,7 +17,7 @@
 #' @export
 #' @references
 #' S Maree (2012). Correcting Non Positive Definite Correlation Matrices. BSc Thesis Applied Mathematics, TU Delft.
-#'   \url{https://repository.tudelft.nl/islandora/object/uuid:2175c274-ab03-4fd5.../download}.
+#'   \url{http://resolver.tudelft.nl/uuid:2175c274-ab03-4fd5-85a9-228fe421cdbf}.
 #'
 #' JF Yin and Y Zhang (2013). Alternative gradient algorithms for computing the nearest correlation matrix.
 #'     Applied Mathematics and Computation, 219(14): 7591-7599. \url{https://doi.org/10.1016/j.amc.2013.01.045}.

@@ -4,7 +4,7 @@ Title: Simulation of Correlated Systems of Equations with Multiple Variable Type
 Version: 0.1.0
 Author: Allison Cynthia Fialkowski
 Maintainer: Allison Cynthia Fialkowski <allijazz@uab.edu>
-Description: SimRepeat generates correlated systems of statistical equations which represent 
+Description: This package generates correlated systems of statistical equations which represent 
     repeated measurements or clustered data.  These systems contain either: a) continuous normal, 
     non-normal, and mixture variables based on the techniques of Headrick and Beasley (2004) 
     <DOI:10.1081/SAC-120028431> or b) continuous (normal, non-normal and mixture), ordinal, 
