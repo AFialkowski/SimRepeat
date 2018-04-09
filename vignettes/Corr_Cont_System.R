@@ -53,12 +53,13 @@ error_type <- "non_mix"
 
 ## ------------------------------------------------------------------------
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
-  Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, corr.e = corr.e)
+  Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, corr.e = corr.e, 
+  quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 Sys1 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, 
-  corr.e = corr.e, seed = seed)
+  corr.e = corr.e, seed = seed, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 knitr::kable(Sys1$betas, booktabs = TRUE, caption = "Beta coefficients")
@@ -209,13 +210,13 @@ error_type = "mix"
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
   Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
   mix_sixths, mix_Six, same.var = same.var, betas.0 = betas.0, corr.x = corr.x, 
-  corr.yx = corr.yx, corr.e = corr.e)
+  corr.yx = corr.yx, corr.e = corr.e, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 Sys2 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts,
   mix_fifths, mix_sixths, mix_Six, same.var, betas.0, corr.x, corr.yx, corr.e,
-  seed, use.nearPD = FALSE)
+  seed, use.nearPD = FALSE, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 knitr::kable(Sys2$betas, booktabs = TRUE, caption = "Beta coefficients")
@@ -380,13 +381,13 @@ error_type = "mix"
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
   Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
   mix_sixths, mix_Six, same.var = same.var, betas.0 = betas.0, corr.x = corr.x, 
-  corr.yx = corr.yx, corr.e = corr.e)
+  corr.yx = corr.yx, corr.e = corr.e, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 Sys3 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts,
   mix_fifths, mix_sixths, mix_Six, same.var, betas.0, corr.x, corr.yx, corr.e,
-  seed, use.nearPD = FALSE)
+  seed, use.nearPD = FALSE, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 knitr::kable(Sys3$betas, booktabs = TRUE, caption = "Beta coefficients")

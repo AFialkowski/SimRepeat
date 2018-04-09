@@ -11,14 +11,18 @@ bibliography: vignettes/Bibliography.bib
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-", 
+  fig.path = "man/figures/README-", 
   message = FALSE
 )
 ```
 
 # SimRepeat
 
-The goal of **SimRepeat** is to generate correlated systems of statistical equations which represent **repeated measurements** or clustered data.  These systems contain either: **a)** continuous normal, non-normal, and mixture variables based on the techniques of Headrick and Beasley (2004, doi:10.1081/SAC-120028431) or *b)* continuous (normal, non-normal and mixture), ordinal, and count (regular or zero-inflated, Poisson and Negative Binomial) variables based on the hierarchical linear models (HLM) approach.  Headrick and Beasley's method for continuous variables calculates the beta (slope) coefficients based on the target correlations between independent variables and between outcomes and independent variables.  The package provides functions to calculate the expected correlations between outcomes, between outcomes and error terms, and between outcomes and independent variables, extending Headrick and Beasley's equations to include mixture variables.  These theoretical values can be compared to the simulated correlations.  The HLM approach requires specification of the beta coefficients, but permits group and subject-level independent variables, interactions among independent variables, and fixed and random effects, providing more flexibility in the system of equations.  Both methods permit simulation of data sets that mimic real-world clinical or genetic data sets (i.e. plasmodes, as in Vaughan et al., 2009, doi:10.1016/j.csda.2008.02.032).  The techniques extend those found in the **SimMultiCorrData** and **SimCorrMix** packages.  Standard normal variables with an imposed intermediate correlation matrix are transformed to generate the desired distributions.  Continuous variables are simulated using either Fleishman's third-order (doi:10.1007/BF02293811) or Headrick's fifth-order (doi:10.1016/S0167-9473(02)00072-5) power method transformation (PMT).  Simulation occurs at the component-level for continuous mixture distributions.  These components are transformed into the desired mixture variables using random multinomial variables based on the mixing probabilities.  The target correlation matrices are specified in terms of correlations with components of continuous mixture variables.  Binary and ordinal variables are simulated using a modification of **GenOrd**'s `ordsample` function.  Count variables are simulated using the inverse CDF method.  There are two simulation pathways for the multi-variable type systems which differ by intermediate correlations involving count variables.  Correlation Method 1 adapts Yahav and Shmueli's 2012 method (doi:10.1002/asmb.901).  Correlation Method 2 adapts Barbiero and Ferrari's 2015 modification of **GenOrd** (doi:10.1002/asmb.2072).  The optional error loop may be used to improve the accuracy of the final correlation matrices.  The package also provides function to check parameter inputs and summarize the generated systems of equations.
+The goal of **SimRepeat** is to generate correlated systems of statistical equations which represent **repeated measurements** or clustered data.  These systems contain either: **a)** continuous normal, non-normal, and mixture variables based on the techniques of Headrick and Beasley [@HeadBeas] or *b)* continuous (normal, non-normal and mixture), ordinal, and count (regular or zero-inflated, Poisson and Negative Binomial) variables based on the hierarchical linear models (HLM) approach.  Headrick and Beasley's method for continuous variables calculates the beta (slope) coefficients based on the target correlations between independent variables and between outcomes and independent variables.  The package provides functions to calculate the expected correlations between outcomes, between outcomes and error terms, and between outcomes and independent variables, extending Headrick and Beasley's equations to include mixture variables.  These theoretical values can be compared to the simulated correlations.  The HLM approach requires specification of the beta coefficients, but permits group and subject-level independent variables, interactions among independent variables, and fixed and random effects, providing more flexibility in the system of equations.  Both methods permit simulation of data sets that mimic real-world clinical or genetic data sets (i.e. plasmodes, as in @Vaughan).  
+
+The techniques extend those found in the **SimMultiCorrData** and **SimCorrMix** packages.  Standard normal variables with an imposed intermediate correlation matrix are transformed to generate the desired distributions.  Continuous variables are simulated using either Fleishman's third-order [@Fleish] or Headrick's fifth-order [@Head2002] power method transformation (PMT).  Simulation occurs at the component-level for continuous mixture distributions.  These components are transformed into the desired mixture variables using random multinomial variables based on the mixing probabilities.  The target correlation matrices are specified in terms of correlations with components of continuous mixture variables.  Binary and ordinal variables are simulated by discretizing the normal variables at quantiles defined by the marginal distributions.  Count variables are simulated using the inverse CDF method.  
+
+There are two simulation pathways for the multi-variable type systems which differ by intermediate correlations involving count variables.  Correlation Method 1 adapts Yahav and Shmueli's 2012 method [@YahShm] and performs best with large count variable means and positive correlations or small means and negative correlations.  Correlation Method 2 adapts Barbiero and Ferrari's 2015 modification of the **GenOrd** package [@GenOrd;@FerrBarb_Ord;@FerrBarb_Pois] and performs best under the opposite scenarios.  There are three methods available for correcting non-positive definite correlation matrices.  The optional error loop may be used to improve the accuracy of the final correlation matrices.  The package also provides function to check parameter inputs and summarize the generated systems of equations.
 
 There are vignettes which accompany this package that may help the user understand the simulation and analysis methods.
 
@@ -69,7 +73,6 @@ There is an interaction between X_ord(1) and X_pois(1) for each Y.  Since they a
 ```{r}
 library("SimRepeat")
 library("printr")
-library("lme4")
 library("reshape2")
 options(scipen = 999)
 ```
@@ -122,9 +125,9 @@ Nstcum <- calc_mixmoments(mix_pis[[1]][[1]], mix_mus[[1]][[1]],
   mix_sigmas[[1]][[1]], mix_skews[[1]][[1]], mix_skurts[[1]][[1]], 
   mix_fifths[[1]][[1]], mix_sixths[[1]][[1]])
 
-means <- list(c(Stcum1[1], Nstcum[1], Stcum4[1]),
-              c(Stcum2[1], Nstcum[1], Stcum4[1]),
-              c(Stcum3[1], Nstcum[1], Stcum4[1]))
+means <- list(c(Stcum1[1], Nstcum[1], 0),
+              c(Stcum2[1], Nstcum[1], 0),
+              c(Stcum3[1], Nstcum[1], 0))
 vars <- list(c(Stcum1[2]^2, Nstcum[2]^2, Stcum4[2]^2),
              c(Stcum2[2]^2, Nstcum[2]^2, Stcum4[2]^2),
              c(Stcum3[2]^2, Nstcum[2]^2, Stcum4[2]^2))
@@ -214,12 +217,12 @@ checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths,
   mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
   size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint)
+  betas.t, betas.tint, quiet = TRUE)
 ```
 
 ### Step 3: Generate system
 
-Note that `use.nearPD = FALSE` so that negative eigen-values will be replaced with 0 instead of using the nearest positive-definite matrix (found with @Matrix's `Matrix::nearPD` function with @Higham's algorithm).    
+Note that `use.nearPD = FALSE` and `adjgrad = FALSE` so that negative eigen-values will be replaced with `eigmin` (default $0$) instead of using the nearest positive-definite matrix (found with @Matrix's `Matrix::nearPD` function by @Higham's algorithm) or the adjusted gradient updating method via `adj_grad` [@YinZhang1;@YinZhang2;@Maree].    
 
 ```{r}
 Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
@@ -227,7 +230,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  seed = seed, use.nearPD = FALSE)
+  seed = seed, use.nearPD = FALSE, quiet = TRUE)
 ```
 ```{r}
 knitr::kable(Sys1$constants[[1]], booktabs = TRUE, 
@@ -275,7 +278,7 @@ knitr::kable(Sum1$mix_sum_x, digits = 3, booktabs = TRUE,
   caption = "Simulated Distributions of Continuous Mixture Variables")
 ```
 
-```{r, fig.width = 6, fig.height = 4.5, fig.path="man/figures/"}
+```{r, fig.width = 6, fig.height = 4.5}
 Nplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 3], ylower = -10, 
   yupper = 10, 
   title = "PDF of X_mix(11): Mixture of Normal Distributions",
@@ -295,7 +298,7 @@ knitr::kable(Sum1$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
 
 Summary of Poisson Variable:    
 
-```{r, fig.width = 6, fig.height = 4.5, fig.path="man/figures/"}
+```{r, fig.width = 6, fig.height = 4.5}
 knitr::kable(Sum1$pois_sum_x, digits = 3, row.names = FALSE,
              booktabs = TRUE, caption = "Simulated Distribution of X_pois(1)")
 Pplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 4], 
@@ -306,7 +309,7 @@ Pplot
 
 Summary of Negative Binomial Variables X_nb(11), X_nb(21), and X_nb(31):    
 
-```{r, fig.width = 6, fig.height = 4.5, fig.path="man/figures/"}
+```{r, fig.width = 6, fig.height = 4.5}
 knitr::kable(Sum1$nb_sum_x, digits = 3, row.names = FALSE,
              booktabs = TRUE, caption = "Simulated Distributions")
 NBplot <- plot_simtheory(sim_y = Sys1$X_all[[1]][, 5], 
@@ -377,35 +380,104 @@ knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
 knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
 ```
 
-All of the slope coefficients are estimated well except for the intercept.  This could result from the non-normal error terms.     
+All of the slope coefficients are estimated well.     
 
-## Example 2: System from Example 1 with random intercept, random slope for time, and random effect for the continuous mixture variables     
+## Example 2: System with 4 equations plus random intercept and random slope for time  
 
 ### Description of Variables
 
-1) **Random intercept:** U_0 has a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75
-2) **Random slope for time:** U_1 has a t(df = 10) distribution   
-3) **Correlation** between random effects is 0.4
+1) Ordinal variable $X_{O1}$, where $\Pr[X_{O1} = 0] = 0.2$, $\Pr[X_{O1} = 1] = 0.35$, and $\Pr[X_{O1} = 2] = 0.45$, is a group-level variable and is static across equations.
+2) Continuous non-mixture variable $X_{C1}$ is a subject-level variable with a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75.
+3) $X$ terms are correlated at 0.1 within an equation and have an AR(1) structure across equations.  The correlations for the static variable are held constant across equations.
+4) Random intercept $U_0$ and time slope $U_1$ with Normal(0, 1) distributions.  Correlation between random effects is 0.3.
+5) The error terms have $t$(10) distributions (mean 0, variance 1) and an AR(1, 0.4) correlation structure.
 
 In this example, the random intercept and time slope have continuous non-mixture distributions for all Y.  However, the functions `corrsys` and `corrsys2` permit a combination of none, non-mixture, and mixture distributions across the Y (i.e., if `rand.int = c("non_mix", "mix", "none")` then the random intercept for Y_1 has a non-mixture, and the random intercept for Y_2 has a mixture distribution; there is no random intercept for Y_3).  In addition, the distributions themselves can vary across outcomes.  This is also true for random effects assigned to independent variables as specified in `rand.var`.
 
-### Step 1: Set up parameter inputs     
+### Step 1: Set up parameter inputs       
 
 ```{r}
-rand.int <- "non_mix"
-rand.tsl <- "non_mix"
-rand.var <- NULL
+seed <- 1
+n <- 10000
+M <- 4
+
+# Binary variable
+marginal <- lapply(seq_len(M), function(x) list(c(0.2, 0.55)))
+support <- lapply(seq_len(M), function(x) list(0:2))
+
+same.var <- 1
+subj.var <- matrix(c(1, 2, 2, 2, 3, 2, 4, 2), 4, 2, byrow = TRUE)
+
+# create list of X correlation matrices
+corr.x <- list()
+
+rho1 <- 0.1
+rho2 <- 0.5
+rho3 <- rho2^2
+rho4 <- rho2^3
+# Y_1
+corr.x[[1]] <- list(matrix(rho1, 2, 2), matrix(rho2, 2, 2), matrix(rho3, 2, 2),
+  matrix(rho4, 2, 2))
+diag(corr.x[[1]][[1]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[1]][[2]][, same.var] <- corr.x[[1]][[3]][, same.var] <-
+  corr.x[[1]][[4]][, same.var] <- corr.x[[1]][[1]][, same.var]
+
+# Y_2
+corr.x[[2]] <- list(t(corr.x[[1]][[2]]), matrix(rho1, 2, 2),
+  matrix(rho2, 2, 2), matrix(rho3, 2, 2))
+diag(corr.x[[2]][[2]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[2]][[2]][same.var, ] <- corr.x[[1]][[2]][same.var, ]
+corr.x[[2]][[2]][, same.var] <- corr.x[[2]][[3]][, same.var] <-
+  corr.x[[2]][[4]][, same.var] <- t(corr.x[[1]][[2]][same.var, ])
+corr.x[[2]][[3]][same.var, ] <- corr.x[[1]][[3]][same.var, ]
+corr.x[[2]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+
+# Y_3
+corr.x[[3]] <- list(t(corr.x[[1]][[3]]), t(corr.x[[2]][[3]]),
+  matrix(rho1, 2, 2), matrix(rho2, 2, 2))
+diag(corr.x[[3]][[3]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[3]][[3]][same.var, ] <- corr.x[[1]][[3]][same.var, ]
+corr.x[[3]][[3]][, same.var] <- t(corr.x[[3]][[3]][same.var, ])
+corr.x[[3]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+corr.x[[3]][[4]][, same.var] <- t(corr.x[[1]][[3]][same.var, ])
+
+# Y_4
+corr.x[[4]] <- list(t(corr.x[[1]][[4]]), t(corr.x[[2]][[4]]),
+  t(corr.x[[3]][[4]]), matrix(rho1, 2, 2))
+diag(corr.x[[4]][[4]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[4]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+corr.x[[4]][[4]][, same.var] <- t(corr.x[[4]][[4]][same.var, ])
+
+# create error term correlation matrix
+corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4^3,
+                   0.4, 1, 0.4, 0.4^2,
+                   0.4^2, 0.4, 1, 0.4,
+                   0.4^3, 0.4^2, 0.4, 1), M, M, byrow = TRUE)
 
 Log <- calc_theory("Logistic", c(0, 1))
 t10 <- calc_theory("t", 10)
 
-rmeans <- c(Log[1], t10[1])
-rvars <- c(Log[2]^2, t10[2]^2)
-rskews <- c(Log[3], t10[3])
-rskurts <- c(Log[4], t10[4])
-rfifths <- c(Log[5], t10[5])
-rsixths <- c(Log[6], t10[6])
-rSix <- list(1.75, NULL)
+# Continuous variables: 1st non-mixture, 2nd error terms
+means <- lapply(seq_len(M), function(x) c(Log[1], 0))
+vars <- lapply(seq_len(M), function(x) c(Log[2]^2, 1))
+skews <- lapply(seq_len(M), function(x) c(Log[3], t10[3]))
+skurts <- lapply(seq_len(M), function(x) c(Log[4], t10[4]))
+fifths <- lapply(seq_len(M), function(x) c(Log[5], t10[5]))
+sixths <- lapply(seq_len(M), function(x) c(Log[6], t10[6]))
+Six <- lapply(seq_len(M), function(x) list(1.75, NULL))
+
+## RANDOM EFFECTS
+rand.int <- "non_mix" # random intercept
+rand.tsl <- "non_mix" # random time slope
+rand.var <- NULL # no additional random effects
+
+rmeans <- rskews <- rskurts <- rfifths <- rsixths <- c(0, 0)
+rvars <- c(1, 1)
+rSix <- list(NULL, NULL)
 
 # append parameters for random effect distributions to parameters for
 # continuous fixed effects and error terms
@@ -417,117 +489,121 @@ fifths <- append(fifths, list(rfifths))
 sixths <- append(sixths, list(rsixths))
 Six <- append(Six, list(rSix))
 
+# use a list of length 1 so that betas are the same across Y
+betas <- list(c(1, 1))
+betas.subj <- list(0.5)
+betas.tint <- list(0.75)
+
 # set up correlation matrix for random effects
-corr.u <- matrix(c(1, 0.4, 0.4, 1), 2, 2)
+corr.u <- matrix(c(1, 0.3, 0.3, 1), 2, 2)
 ```
 
-### Step 2: Check parameter inputs    
+### Step 2: Check parameter inputs         
 
 ```{r}
-checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
-  Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
-  mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
-  size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
-  same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u)
+checkpar(M, "Polynomial", "non_mix", means, vars, skews, skurts, fifths,
+  sixths, Six, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, same.var = same.var, subj.var = subj.var, betas = betas,
+  betas.subj = betas.subj, betas.tint = betas.tint, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, quiet = TRUE)
 ```
 
 ### Step 3: Generate system
 
 ```{r}
-Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
-  skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
-  mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
-  size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
-  tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
+Sys3 <- corrsys(n, M, Time = NULL, "Polynomial", "non_mix", means, vars,
+  skews, skurts, fifths, sixths, Six, marginal = marginal, support = support,
+  corr.x = corr.x, corr.e = corr.e, same.var = same.var, subj.var = subj.var,
+  betas = betas, betas.subj = betas.subj, betas.tint = betas.tint,
+  rand.int = rand.int, rand.tsl = rand.tsl, corr.u = corr.u, seed = seed,
+  use.nearPD = FALSE, quiet = TRUE)
 ```
 
 ### Step 4: Describe results
 
 ```{r}
-Sum2 <- summary_sys(Sys2$Y, Sys2$E, E_mix = NULL, Sys2$X, Sys2$X_all, M, 
-  method, means, vars, skews, skurts, fifths, sixths, mix_pis, mix_mus, 
-  mix_sigmas, mix_skews, mix_skurts, mix_fifths, mix_sixths, marginal, 
-  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e, Sys2$U, 
-  Sys2$U_all, rand.int, rand.tsl, corr.u, Sys2$rmeans2, Sys2$rvars2)
-names(Sum2)
+Sum3 <- summary_sys(Sys3$Y, Sys3$E, E_mix = NULL, Sys3$X,
+  Sys3$X_all, M, "Polynomial", means, vars, skews, skurts, fifths,
+  sixths, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, U = Sys3$U, U_all = Sys3$U_all, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, rmeans2 = Sys3$rmeans2,
+  rvars2 = Sys3$rvars2)
+names(Sum3)
 ```
 ```{r}
-knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
+knitr::kable(Sum3$cont_sum_y, digits = 3, booktabs = TRUE, 
   caption = "Simulated Distributions of Outcomes")
 ```
 ```{r}
-knitr::kable(Sum2$target_sum_u, digits = 3, booktabs = TRUE, 
+knitr::kable(Sum3$target_sum_u, digits = 3, booktabs = TRUE, 
   caption = "Target Distributions of Random Effects")
 ```
 ```{r}
-knitr::kable(Sum2$sum_uall, digits = 3, booktabs = TRUE, 
+knitr::kable(Sum3$sum_uall, digits = 3, booktabs = TRUE, 
   caption = "Simulated Distributions of Random Effects")
 ```
 
 Maximum Correlation Error for Random Effects:
 ```{r}
-Sum2$maxerr_u
+Sum3$maxerr_u
 ```
 
 ### Linear mixed model
 
-A linear mixed model will be fit to the data using `lme4::lmer` in order to see if the random effects are estimated according to the simulation parameters [@Lme4].  The data is again reshaped into long format using `reshape2::melt`.      
+A linear mixed model will be fit to the data using `lme` from package **nlme** in order to see if the random effects are estimated according to the simulation parameters [@Nlme].  The data is again reshaped into long format using `reshape2::melt`.      
 
 ```{r}
-data2 <- as.data.frame(cbind(factor(1:n), Sys2$Y, Sys2$X_all[[1]][, 1:5],
-  Sys2$X_all[[2]][, c(2, 3, 5)], Sys2$X_all[[3]][, c(2, 3, 5)]))
-colnames(data2)[1] <- "Subject"
-data2.a <- melt(data2[, c("Subject", "ord1_1", "pois1_1", "Y1", "Y2", "Y3")], 
-  id.vars = c("Subject", "ord1_1", "pois1_1"),
-  measure.vars = c("Y1", "Y2", "Y3"), variable.name = "Time", value.name = "Y")
-data2.b <- melt(data2[, c("Subject", "cont1_1", "cont2_1", "cont3_1")],
+data3 <- as.data.frame(cbind(factor(1:n), Sys3$Y,
+  Sys3$X_all[[1]][, c(1:2, 5)], Sys3$X_all[[2]][, c(2, 5)],
+  Sys3$X_all[[3]][, c(2, 5)], Sys3$X_all[[4]][, c(2, 5)]))
+colnames(data3)[1] <- "Subject"
+data3.a <- melt(data3[, c("Subject", "ord1_1", "Y1", "Y2", "Y3", "Y4")],
+  id.vars = c("Subject", "ord1_1"),
+  measure.vars = c("Y1", "Y2", "Y3", "Y4"), variable.name = "Time",
+  value.name = "Y")
+data3.b <- melt(data3[, c("Subject", "cont1_1", "cont2_1", "cont3_1",
+                          "cont4_1")],
   id.vars = c("Subject"), variable.name = "Time", value.name = "cont1")
-data2.c <- melt(data2[, c("Subject", "mix1_1", "mix2_1", "mix3_1")],
-  id.vars = c("Subject"), variable.name = "Time", value.name = "mix1")
-data2.d <- melt(data2[, c("Subject", "nb1_1", "nb2_1", "nb3_1")],
-  id.vars = c("Subject"), variable.name = "Time", value.name = "nb1")
-data2.a$Time <- data2.b$Time <- data2.c$Time <- data2.d$Time <- 
-  c(rep(1, n), rep(2, n), rep(3, n))
-data2 <- merge(merge(merge(data2.a, data2.b, by = c("Subject", "Time")), 
-  data2.c, by = c("Subject", "Time")), data2.d, by = c("Subject", "Time"))
+data3.a$Time <- data3.b$Time <- c(rep(1, n), rep(2, n), rep(3, n), rep(4, n))
+data3 <- merge(data3.a, data3.b, by = c("Subject", "Time"))
 ```
 
-Errors E_1, E_2, and E_3 modeled as having Gaussian distributions using **lmerTest** [@LmerTest]:   
+Errors modeled as having Gaussian distributions with an AR(1) correlation structure:   
 
 ```{r}
-library("lmerTest")
-fm2 <- lmer(Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 + 
-  ord1_1:cont1 + pois1_1:cont1 + ord1_1:pois1_1:cont1 + ord1_1:mix1 + 
-    pois1_1:mix1 + ord1_1:pois1_1:mix1 + ord1_1:nb1 + pois1_1:nb1 + 
-    ord1_1:pois1_1:nb1 + Time + ord1_1:Time + pois1_1:Time + 
-    (1 + Time | Subject), data = data2)
-summary(fm2)
+library("nlme")
+fm3 <- lme(Y ~ ord1_1 * Time + ord1_1 * cont1,
+  random = ~ Time | Subject, correlation = corAR1(), data = data3)
+sum_fm3 <- summary(fm3)
 ```
 
-Each effect in the model was again found to be statistically significant at the alpha = 0.001 level.      
+Each effect in the model was again found to be statistically significant at the $\alpha = 0.001$ level.      
 
-The variance and correlation of the random intercept and time slope were well estimated.      
-
-Now, compare betas used in simulation to those returned by `lmer`:   
+Now, compare betas used in simulation to those returned by `lme`:   
 
 ```{r}
-fm2.coef <- summary(fm2)$coefficients[c("(Intercept)", "ord1_1", "cont1",
-  "mix1", "pois1_1", "nb1", "ord1_1:pois1_1", "Time", "ord1_1:cont1",
-   "cont1:pois1_1", "ord1_1:cont1:pois1_1", "ord1_1:mix1", "mix1:pois1_1", 
-  "ord1_1:mix1:pois1_1", "ord1_1:nb1", "pois1_1:nb1", 
-  "ord1_1:pois1_1:nb1", "ord1_1:Time", "pois1_1:Time"), 1]
-coef <- rbind(c(betas.0, betas[[1]], betas.int[[1]], betas.t, 
-  betas.subj[[1]], betas.tint[[1]]), fm2.coef)
-colnames(coef) <- names(fm2.coef)
-rownames(coef) <- c("Simulated", "Estimated")
-knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE, 
+fm3.coef <- as.data.frame(sum_fm3$tTable[c("(Intercept)",
+  "ord1_1", "cont1", "Time", "ord1_1:cont1", "ord1_1:Time"), ])
+coef <- cbind(c(betas.0, betas[[1]], betas.t, betas.subj[[1]], 
+  betas.tint[[1]]), fm3.coef)
+colnames(coef)[1] <- "Simulated"
+knitr::kable(as.data.frame(coef), digits = 3, booktabs = TRUE, 
   caption = "Beta Coefficients for Repeated Measures Model 2")
-knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
-knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
 ```
 
-All of the slope coefficients are estimated well except for the intercept.  This could result from the non-normal error terms.     
+Estimated standard deviation and AR(1) parameter for error terms:
+```{r}
+sum_fm3$sigma
+coef(fm3$modelStruct$corStruct, unconstrained = FALSE)
+```
+
+Summary of estimated random effects:
+```{r}
+varcor <- VarCorr(fm3)
+fm3.ranef <- data.frame(Cor = as.numeric(varcor[2, 3]),
+  SD_int = as.numeric(varcor[1, 2]), SD_Tsl = as.numeric(varcor[2, 2]))
+knitr::kable(fm3.ranef, digits = 3, booktabs = TRUE)
+```
+
 
 ## References

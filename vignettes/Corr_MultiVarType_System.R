@@ -7,7 +7,7 @@ library("bookdown")
 ## ------------------------------------------------------------------------
 library("SimRepeat")
 library("printr")
-library("lme4")
+library("nlme")
 library("reshape2")
 options(scipen = 999)
 
@@ -55,9 +55,9 @@ Nstcum <- calc_mixmoments(mix_pis[[1]][[1]], mix_mus[[1]][[1]],
   mix_sigmas[[1]][[1]], mix_skews[[1]][[1]], mix_skurts[[1]][[1]], 
   mix_fifths[[1]][[1]], mix_sixths[[1]][[1]])
 
-means <- list(c(Stcum1[1], Nstcum[1], Error1[1]),
-  c(Stcum2[1], Nstcum[1], Error2[1]),
-  c(Stcum3[1], Nstcum[1], Error3[1]))
+means <- list(c(Stcum1[1], Nstcum[1], 0),
+  c(Stcum2[1], Nstcum[1], 0),
+  c(Stcum3[1], Nstcum[1], 0))
 vars <- list(c(Stcum1[2]^2, Nstcum[2]^2, Error1[2]^2),
   c(Stcum2[2]^2, Nstcum[2]^2, Error2[2]^2),
   c(Stcum3[2]^2, Nstcum[2]^2, Error3[2]^2))
@@ -144,7 +144,7 @@ checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths,
   mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
   size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint)
+  betas.t, betas.tint, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
@@ -152,7 +152,7 @@ Sys1 <- corrsys(n, M, Time, method, error_type, means, vars,
   mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  seed = seed, use.nearPD = FALSE)
+  seed = seed, use.nearPD = FALSE, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
 knitr::kable(Sys1$constants[[1]], booktabs = TRUE, 
@@ -199,7 +199,7 @@ knitr::kable(Sum1$mix_sum_x, digits = 3, booktabs = TRUE,
 ## ------------------------------------------------------------------------
 Nplot <- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 3], ylower = -10, 
   yupper = 10, 
-  title = "PDF of X_mix(21): Mixture of N(-5, 2) and N(3, 1) Distributions",
+  title = "PDF of X_mix(21): N(-5, 2) and N(3, 1) Mixture",
   fx = function(x) mix_pis[[1]][[1]][1] * dnorm(x, mix_mus[[1]][[1]][1], 
     mix_sigmas[[1]][[1]][1]) + mix_pis[[1]][[1]][2] * 
     dnorm(x, mix_mus[[1]][[1]][2], mix_sigmas[[1]][[1]][2]), 
@@ -274,116 +274,10 @@ knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
 knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
 
 ## ------------------------------------------------------------------------
-rand.int <- "non_mix"
-rand.tsl <- "non_mix"
-rand.var <- NULL
+seed <- 137
+n <- 10000
+M <- 3
 
-Log <- calc_theory("Logistic", c(0, 1))
-t10 <- calc_theory("t", 10)
-
-rmeans <- c(Log[1], t10[1])
-rvars <- c(Log[2]^2, t10[2]^2)
-rskews <- c(Log[3], t10[3])
-rskurts <- c(Log[4], t10[4])
-rfifths <- c(Log[5], t10[5])
-rsixths <- c(Log[6], t10[6])
-rSix <- list(1.75, NULL)
-
-# append parameters for random effect distributions to parameters for
-# continuous fixed effects and error terms
-means <- append(means, list(rmeans))
-vars <- append(vars, list(rvars))
-skews <- append(skews, list(rskews))
-skurts <- append(skurts, list(rskurts))
-fifths <- append(fifths, list(rfifths))
-sixths <- append(sixths, list(rsixths))
-Six <- append(Six, list(rSix))
-
-# set up correlation matrix for random effects
-corr.u <- matrix(c(1, 0.4, 0.4, 1), 2, 2)
-
-## ------------------------------------------------------------------------
-checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
-  Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
-  mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
-  size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
-  same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u)
-
-## ------------------------------------------------------------------------
-Sys2 <- corrsys(n, M, Time, method, error_type, means, vars,
-  skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
-  mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
-  size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
-  tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)
-
-## ------------------------------------------------------------------------
-Sum2 <- summary_sys(Sys2$Y, Sys2$E, E_mix = NULL, Sys2$X, Sys2$X_all, M, 
-  method, means, vars, skews, skurts, fifths, sixths, mix_pis, mix_mus, 
-  mix_sigmas, mix_skews, mix_skurts, mix_fifths, mix_sixths, marginal, 
-  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e, Sys2$U, 
-  Sys2$U_all, rand.int, rand.tsl, corr.u, Sys2$rmeans2, Sys2$rvars2)
-names(Sum2)
-
-## ------------------------------------------------------------------------
-knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
-  caption = "Simulated Distributions of Outcomes")
-
-## ------------------------------------------------------------------------
-knitr::kable(Sum2$target_sum_u, digits = 3, booktabs = TRUE, 
-  caption = "Target Distributions of Random Effects")
-
-## ------------------------------------------------------------------------
-knitr::kable(Sum2$sum_uall, digits = 3, booktabs = TRUE, 
-  caption = "Simulated Distributions of Random Effects")
-
-## ------------------------------------------------------------------------
-Sum2$maxerr_u
-
-## ------------------------------------------------------------------------
-data2 <- as.data.frame(cbind(factor(1:n), Sys2$Y, Sys2$X_all[[1]][, 1:5],
-  Sys2$X_all[[2]][, c(2, 3, 5)], Sys2$X_all[[3]][, c(2, 3, 5)]))
-colnames(data2)[1] <- "Subject"
-data2.a <- melt(data2[, c("Subject", "ord1_1", "pois1_1", "Y1", "Y2", "Y3")], 
-  id.vars = c("Subject", "ord1_1", "pois1_1"),
-  measure.vars = c("Y1", "Y2", "Y3"), variable.name = "Time", value.name = "Y")
-data2.b <- melt(data2[, c("Subject", "cont1_1", "cont2_1", "cont3_1")],
-  id.vars = c("Subject"), variable.name = "Time", value.name = "cont1")
-data2.c <- melt(data2[, c("Subject", "mix1_1", "mix2_1", "mix3_1")],
-  id.vars = c("Subject"), variable.name = "Time", value.name = "mix1")
-data2.d <- melt(data2[, c("Subject", "nb1_1", "nb2_1", "nb3_1")],
-  id.vars = c("Subject"), variable.name = "Time", value.name = "nb1")
-data2.a$Time <- data2.b$Time <- data2.c$Time <- data2.d$Time <- 
-  c(rep(1, n), rep(2, n), rep(3, n))
-data2 <- merge(merge(merge(data2.a, data2.b, by = c("Subject", "Time")), 
-  data2.c, by = c("Subject", "Time")), data2.d, by = c("Subject", "Time"))
-
-## ------------------------------------------------------------------------
-library("lmerTest")
-fm2 <- lmer(Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 + 
-  ord1_1:cont1 + pois1_1:cont1 + ord1_1:pois1_1:cont1 + ord1_1:mix1 + 
-  pois1_1:mix1 + ord1_1:pois1_1:mix1 + ord1_1:nb1 + pois1_1:nb1 + 
-  ord1_1:pois1_1:nb1 + Time + ord1_1:Time + pois1_1:Time + 
-  (1 + Time | Subject), data = data2)
-summary(fm2)
-
-## ------------------------------------------------------------------------
-fm2.coef <- summary(fm2)$coefficients[c("(Intercept)", "ord1_1", "cont1",
-  "mix1", "pois1_1", "nb1", "ord1_1:pois1_1", "Time", "ord1_1:cont1",
-   "cont1:pois1_1", "ord1_1:cont1:pois1_1", "ord1_1:mix1", "mix1:pois1_1", 
-  "ord1_1:mix1:pois1_1", "ord1_1:nb1", "pois1_1:nb1", 
-  "ord1_1:pois1_1:nb1", "ord1_1:Time", "pois1_1:Time"), 1]
-coef <- rbind(c(betas.0, betas[[1]], betas.int[[1]], betas.t, 
-  betas.subj[[1]], betas.tint[[1]]), fm2.coef)
-colnames(coef) <- names(fm2.coef)
-rownames(coef) <- c("Simulated", "Estimated")
-knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE, 
-  caption = "Beta Coefficients for Repeated Measures Model 2")
-knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)
-knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)
-
-## ------------------------------------------------------------------------
 # Ordinal variable
 marginal <- list(list(c(1/3, 2/3)), NULL, list(c(1/3, 2/3)))
 support <- list(list(c(0, 1, 2)), NULL, list(c(0, 1, 2)))
@@ -411,16 +305,6 @@ means <- list(c(Stcum1[1], Nstcum[1], Error1[1]), Error2[1],
   c(Stcum3[1], Nstcum[1], Error3[1]))
 vars <- list(c(Stcum1[2]^2, Nstcum[2]^2, Error1[2]^2), Error2[2]^2,
   c(Stcum3[2]^2, Nstcum[2]^2, Error3[2]^2))
-
-# append parameters for random effect distributions to parameters for 
-# continuous fixed effects and error terms
-means <- append(means, list(rmeans))
-vars <- append(vars, list(rvars))
-skews <- append(skews, list(rskews))
-skurts <- append(skurts, list(rskurts))
-fifths <- append(fifths, list(rfifths))
-sixths <- append(sixths, list(rsixths))
-Six <- append(Six, list(rSix))
 
 # Poisson variable
 lam <- list(15, NULL, 15)
@@ -483,23 +367,194 @@ checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths,
   mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
   size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u)
+  betas.t, betas.tint, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
-Sys3 <- corrsys2(n, M, Time, method, error_type, means, vars,
+Sys2 <- corrsys2(n, M, Time, method, error_type, means, vars,
   skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
   mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
   pois_eps = list(), size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u, seed, 
-  use.nearPD = FALSE)
+  betas.t, betas.tint, seed = seed, use.nearPD = FALSE, quiet = TRUE)
 
 ## ------------------------------------------------------------------------
-Sum3 <- summary_sys(Sys3$Y, Sys3$E, E_mix = NULL, Sys3$X, Sys3$X_all, M, 
+Sum2 <- summary_sys(Sys2$Y, Sys2$E, E_mix = NULL, Sys2$X, Sys2$X_all, M, 
   method, means, vars, skews, skurts, fifths, sixths, mix_pis, mix_mus, 
   mix_sigmas, mix_skews, mix_skurts, mix_fifths, mix_sixths, marginal, 
-  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e, Sys3$U, 
-  Sys3$U_all, rand.int, rand.tsl, corr.u, Sys3$rmeans2, Sys3$rvars2)
+  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e)
+names(Sum2)
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
+  caption = "Simulated Distributions of Outcomes")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$target_sum_e, digits = 3, booktabs = TRUE, 
+  caption = "Target Distributions of Error Terms")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$cont_sum_e, digits = 3, booktabs = TRUE, 
+  caption = "Simulated Distributions of Error Terms")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$target_sum_x, digits = 3, booktabs = TRUE, 
+  caption = "Target Distributions of Continuous Non-Mixture and Components of 
+  Mixture Variables")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$cont_sum_x, digits = 3, booktabs = TRUE, 
+  caption = "Simulated Distributions of Continuous Non-Mixture and Components 
+  of Mixture Variables")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$target_mix_x, digits = 3, booktabs = TRUE, 
+  caption = "Target Distributions of Continuous Mixture Variables")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$mix_sum_x, digits = 3, booktabs = TRUE, 
+  caption = "Simulated Distributions of Continuous Mixture Variables")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
+  booktabs = TRUE, caption = "Simulated Distribution of X_ord(1)")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$pois_sum_x, digits = 3, row.names = FALSE,
+  booktabs = TRUE, caption = "Simulated Distribution of X_pois(1)")
+
+## ------------------------------------------------------------------------
+knitr::kable(Sum2$nb_sum_x, digits = 3, row.names = FALSE,
+  booktabs = TRUE, caption = "Simulated Distributions")
+
+## ------------------------------------------------------------------------
+maxerr <- rbind(Sum2$maxerr[[1]][-2], Sum2$maxerr[[3]][-2])
+rownames(maxerr) <- colnames(maxerr) <- c("Y1", "Y3")
+knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE, 
+  caption = "Maximum Correlation Errors for X Variables")
+
+## ------------------------------------------------------------------------
+seed <- 1
+n <- 10000
+M <- 4
+
+# Binary variable
+marginal <- lapply(seq_len(M), function(x) list(c(0.2, 0.55)))
+support <- lapply(seq_len(M), function(x) list(0:2))
+
+same.var <- 1
+subj.var <- matrix(c(1, 2, 2, 2, 3, 2, 4, 2), 4, 2, byrow = TRUE)
+
+# create list of X correlation matrices
+corr.x <- list()
+
+rho1 <- 0.1
+rho2 <- 0.5
+rho3 <- rho2^2
+rho4 <- rho2^3
+# Y_1
+corr.x[[1]] <- list(matrix(rho1, 2, 2), matrix(rho2, 2, 2), matrix(rho3, 2, 2),
+  matrix(rho4, 2, 2))
+diag(corr.x[[1]][[1]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[1]][[2]][, same.var] <- corr.x[[1]][[3]][, same.var] <-
+  corr.x[[1]][[4]][, same.var] <- corr.x[[1]][[1]][, same.var]
+
+# Y_2
+corr.x[[2]] <- list(t(corr.x[[1]][[2]]), matrix(rho1, 2, 2),
+  matrix(rho2, 2, 2), matrix(rho3, 2, 2))
+diag(corr.x[[2]][[2]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[2]][[2]][same.var, ] <- corr.x[[1]][[2]][same.var, ]
+corr.x[[2]][[2]][, same.var] <- corr.x[[2]][[3]][, same.var] <-
+  corr.x[[2]][[4]][, same.var] <- t(corr.x[[1]][[2]][same.var, ])
+corr.x[[2]][[3]][same.var, ] <- corr.x[[1]][[3]][same.var, ]
+corr.x[[2]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+
+# Y_3
+corr.x[[3]] <- list(t(corr.x[[1]][[3]]), t(corr.x[[2]][[3]]),
+  matrix(rho1, 2, 2), matrix(rho2, 2, 2))
+diag(corr.x[[3]][[3]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[3]][[3]][same.var, ] <- corr.x[[1]][[3]][same.var, ]
+corr.x[[3]][[3]][, same.var] <- t(corr.x[[3]][[3]][same.var, ])
+corr.x[[3]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+corr.x[[3]][[4]][, same.var] <- t(corr.x[[1]][[3]][same.var, ])
+
+# Y_4
+corr.x[[4]] <- list(t(corr.x[[1]][[4]]), t(corr.x[[2]][[4]]),
+  t(corr.x[[3]][[4]]), matrix(rho1, 2, 2))
+diag(corr.x[[4]][[4]]) <- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[4]][[4]][same.var, ] <- corr.x[[1]][[4]][same.var, ]
+corr.x[[4]][[4]][, same.var] <- t(corr.x[[4]][[4]][same.var, ])
+
+# create error term correlation matrix
+corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4^3,
+                   0.4, 1, 0.4, 0.4^2,
+                   0.4^2, 0.4, 1, 0.4,
+                   0.4^3, 0.4^2, 0.4, 1), M, M, byrow = TRUE)
+
+Log <- calc_theory("Logistic", c(0, 1))
+t10 <- calc_theory("t", 10)
+
+# Continuous variables: 1st non-mixture, 2nd error terms
+means <- lapply(seq_len(M), function(x) c(Log[1], 0))
+vars <- lapply(seq_len(M), function(x) c(Log[2]^2, 1))
+skews <- lapply(seq_len(M), function(x) c(Log[3], t10[3]))
+skurts <- lapply(seq_len(M), function(x) c(Log[4], t10[4]))
+fifths <- lapply(seq_len(M), function(x) c(Log[5], t10[5]))
+sixths <- lapply(seq_len(M), function(x) c(Log[6], t10[6]))
+Six <- lapply(seq_len(M), function(x) list(1.75, NULL))
+
+## RANDOM EFFECTS
+rand.int <- "non_mix" # random intercept
+rand.tsl <- "non_mix" # random time slope
+rand.var <- NULL # no additional random effects
+
+rmeans <- rskews <- rskurts <- rfifths <- rsixths <- c(0, 0)
+rvars <- c(1, 1)
+rSix <- list(NULL, NULL)
+
+# append parameters for random effect distributions to parameters for
+# continuous fixed effects and error terms
+means <- append(means, list(rmeans))
+vars <- append(vars, list(rvars))
+skews <- append(skews, list(rskews))
+skurts <- append(skurts, list(rskurts))
+fifths <- append(fifths, list(rfifths))
+sixths <- append(sixths, list(rsixths))
+Six <- append(Six, list(rSix))
+
+# use a list of length 1 so that betas are the same across Y
+betas <- list(c(1, 1))
+betas.subj <- list(0.5)
+betas.tint <- list(0.75)
+
+# set up correlation matrix for random effects
+corr.u <- matrix(c(1, 0.3, 0.3, 1), 2, 2)
+
+## ------------------------------------------------------------------------
+checkpar(M, "Polynomial", "non_mix", means, vars, skews, skurts, fifths,
+  sixths, Six, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, same.var = same.var, subj.var = subj.var, betas = betas,
+  betas.subj = betas.subj, betas.tint = betas.tint, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, quiet = TRUE)
+
+## ------------------------------------------------------------------------
+Sys3 <- corrsys(n, M, Time = NULL, "Polynomial", "non_mix", means, vars,
+  skews, skurts, fifths, sixths, Six, marginal = marginal, support = support,
+  corr.x = corr.x, corr.e = corr.e, same.var = same.var, subj.var = subj.var,
+  betas = betas, betas.subj = betas.subj, betas.tint = betas.tint,
+  rand.int = rand.int, rand.tsl = rand.tsl, corr.u = corr.u, seed = seed,
+  use.nearPD = FALSE, quiet = TRUE)
+
+## ------------------------------------------------------------------------
+Sum3 <- summary_sys(Sys3$Y, Sys3$E, E_mix = NULL, Sys3$X,
+  Sys3$X_all, M, "Polynomial", means, vars, skews, skurts, fifths,
+  sixths, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, U = Sys3$U, U_all = Sys3$U_all, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, rmeans2 = Sys3$rmeans2,
+  rvars2 = Sys3$rvars2)
 names(Sum3)
 
 ## ------------------------------------------------------------------------
@@ -507,46 +562,52 @@ knitr::kable(Sum3$cont_sum_y, digits = 3, booktabs = TRUE,
   caption = "Simulated Distributions of Outcomes")
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$target_sum_e, digits = 3, booktabs = TRUE, 
-  caption = "Target Distributions of Error Terms")
+knitr::kable(Sum3$target_sum_u, digits = 3, booktabs = TRUE, 
+  caption = "Target Distributions of Random Effects")
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$cont_sum_e, digits = 3, booktabs = TRUE, 
-  caption = "Simulated Distributions of Error Terms")
+knitr::kable(Sum3$sum_uall, digits = 3, booktabs = TRUE, 
+  caption = "Simulated Distributions of Random Effects")
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$target_sum_x, digits = 3, booktabs = TRUE, 
-  caption = "Target Distributions of Continuous Non-Mixture and Components of 
-  Mixture Variables")
+Sum3$maxerr_u
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$cont_sum_x, digits = 3, booktabs = TRUE, 
-  caption = "Simulated Distributions of Continuous Non-Mixture and Components 
-  of Mixture Variables")
+data3 <- as.data.frame(cbind(factor(1:n), Sys3$Y,
+  Sys3$X_all[[1]][, c(1:2, 5)], Sys3$X_all[[2]][, c(2, 5)],
+  Sys3$X_all[[3]][, c(2, 5)], Sys3$X_all[[4]][, c(2, 5)]))
+colnames(data3)[1] <- "Subject"
+data3.a <- melt(data3[, c("Subject", "ord1_1", "Y1", "Y2", "Y3", "Y4")],
+  id.vars = c("Subject", "ord1_1"),
+  measure.vars = c("Y1", "Y2", "Y3", "Y4"), variable.name = "Time",
+  value.name = "Y")
+data3.b <- melt(data3[, c("Subject", "cont1_1", "cont2_1", "cont3_1",
+                          "cont4_1")],
+  id.vars = c("Subject"), variable.name = "Time", value.name = "cont1")
+data3.a$Time <- data3.b$Time <- c(rep(1, n), rep(2, n), rep(3, n), rep(4, n))
+data3 <- merge(data3.a, data3.b, by = c("Subject", "Time"))
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$target_mix_x, digits = 3, booktabs = TRUE, 
-  caption = "Target Distributions of Continuous Mixture Variables")
+fm3 <- lme(Y ~ ord1_1 * Time + ord1_1 * cont1,
+  random = ~ Time | Subject, correlation = corAR1(), data = data3)
+sum_fm3 <- summary(fm3)
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$mix_sum_x, digits = 3, booktabs = TRUE, 
-  caption = "Simulated Distributions of Continuous Mixture Variables")
+fm3.coef <- as.data.frame(sum_fm3$tTable[c("(Intercept)",
+  "ord1_1", "cont1", "Time", "ord1_1:cont1", "ord1_1:Time"), ])
+coef <- cbind(c(betas.0, betas[[1]], betas.t, betas.subj[[1]], 
+  betas.tint[[1]]), fm3.coef)
+colnames(coef)[1] <- "Simulated"
+knitr::kable(as.data.frame(coef), digits = 3, booktabs = TRUE, 
+  caption = "Beta Coefficients for Repeated Measures Model 2")
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
-  booktabs = TRUE, caption = "Simulated Distribution of X_ord(1)")
+sum_fm3$sigma
+coef(fm3$modelStruct$corStruct, unconstrained = FALSE)
 
 ## ------------------------------------------------------------------------
-knitr::kable(Sum3$pois_sum_x, digits = 3, row.names = FALSE,
-  booktabs = TRUE, caption = "Simulated Distribution of X_pois(1)")
-
-## ------------------------------------------------------------------------
-knitr::kable(Sum3$nb_sum_x, digits = 3, row.names = FALSE,
-  booktabs = TRUE, caption = "Simulated Distributions")
-
-## ------------------------------------------------------------------------
-maxerr <- rbind(Sum3$maxerr[[1]][-2], Sum3$maxerr[[3]][-2])
-rownames(maxerr) <- colnames(maxerr) <- c("Y1", "Y3")
-knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE, 
-  caption = "Maximum Correlation Errors for X Variables")
+varcor <- VarCorr(fm3)
+fm3.ranef <- data.frame(Cor = as.numeric(varcor[2, 3]),
+  SD_int = as.numeric(varcor[1, 2]), SD_Tsl = as.numeric(varcor[2, 2]))
+knitr::kable(fm3.ranef, digits = 3, booktabs = TRUE)
 

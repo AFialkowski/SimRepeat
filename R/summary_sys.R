@@ -741,7 +741,7 @@ summary_sys <- function(Y = NULL, E = NULL, E_mix = NULL, X = list(),
         sum_xall[[i]] <- cbind(rep(i, ncol(X_all[[i]])),
           1:ncol(X_all[[i]]), rep(n, ncol(X_all[[i]])), mom[1, ], mom[2, ],
           medians, mins, maxs, mom[3, ], mom[4, ], mom[5, ], mom[6, ])
-        rownames(sum_xall[[i]]) <- colnames(X_all[[i]])
+        rownames(sum_xall[[i]]) <- paste(colnames(X_all[[i]]), ":", i, sep = "")
       }
     }
     sum_xall <- as.data.frame(do.call(rbind, sum_xall))

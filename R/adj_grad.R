@@ -1,7 +1,7 @@
 #' @title Convert Non-Positive-Definite Correlation Matrix to Positive-Definite Matrix Using the Adjusted Gradient Updating Method
 #'
 #' @description This function converts a non-positive-definite correlation matrix to a positive-definite matrix using the
-#'     adjust gradient updating method with initial matrix \code{B1}.
+#'     adjusted gradient updating method with initial matrix \code{B1}.
 #'
 #' @param Sigma the non-PD correlation matrix
 #' @param B1 the initial matrix for algorithm; if NULL, uses a scaled initial matrix with diagonal elements \code{sqrt(nrow(Sigma))/2}

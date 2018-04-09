@@ -10,16 +10,21 @@
 #'     simulated correlations.  The HLM approach requires specification of the beta
 #'     coefficients, but permits group and subject-level independent variables, interactions among independent variables, and fixed and random effects,
 #'     providing more flexibility in the system of equations.  Both methods permit simulation of data sets that mimic real-world clinical or genetic data sets (i.e. plasmodes, as in Vaughan et al.,
-#'     2009, \doi{10.1016/j.csda.2008.02.032}).  The techniques extend those found in the \pkg{SimMultiCorrData} and \pkg{SimCorrMix}
+#'     2009, \doi{10.1016/j.csda.2008.02.032}).
+#'
+#'     The techniques extend those found in the \pkg{SimMultiCorrData} and \pkg{SimCorrMix}
 #'     packages.  Standard normal variables with an imposed intermediate correlation matrix are transformed to generate the desired distributions.  Continuous
 #'     variables are simulated using either Fleishman's third-order (\doi{10.1007/BF02293811}) or Headrick's fifth-order (\doi{10.1016/S0167-9473(02)00072-5})
 #'     power method transformation (PMT).  Simulation occurs at the component-level for continuous mixture distributions.  These components are transformed into
 #'     the desired mixture variables using random multinomial variables based on the mixing probabilities.  The target correlation matrices are specified in terms of
-#'     correlations with components of continuous mixture variables.  Binary and ordinal variables are simulated using a modification of
-#'     \code{\link[GenOrd]{GenOrd-package}}'s \code{\link[GenOrd]{ordsample}} function.  Count variables are simulated using the inverse CDF method.  There are
-#'     two simulation pathways for the multi-variable type systems which differ by intermediate correlations involving count variables.  Correlation Method 1
-#'     adapts Yahav and Shmueli's 2012 method (\doi{10.1002/asmb.901}).  Correlation Method 2 adapts Barbiero and Ferrari's 2015 modification of
-#'     \code{\link[GenOrd]{GenOrd-package}} (\doi{10.1002/asmb.2072}).  The optional error loop may be used to improve the accuracy of the final
+#'     correlations with components of continuous mixture variables.  Binary and ordinal variables are simulated by discretizing the normal variables at quantiles
+#'     defined by the marginal distributions.  Count variables are simulated using the inverse CDF method.
+#'
+#'     There are two simulation pathways for the multi-variable type systems which differ by intermediate correlations involving count variables.  Correlation Method 1
+#'     adapts Yahav and Shmueli's 2012 method (\doi{10.1002/asmb.901}) and performs best with large count variable means and positive correlations or small means and
+#'     negative correlations.  Correlation Method 2 adapts Barbiero and Ferrari's 2015 modification of
+#'     \code{\link[GenOrd]{GenOrd-package}} (\doi{10.1002/asmb.2072}) and performs best under the opposite scenarios.
+#'     There are three methods available for correcting non-positive definite correlation matrices.  The optional error loop may be used to improve the accuracy of the final
 #'     correlation matrices.  The package also provides function to check parameter inputs and summarize the generated systems of equations.
 #'
 #' @seealso Useful link: \url{https://github.com/AFialkowski/SimMultiCorrData}, \url{https://github.com/AFialkowski/SimCorrMix},

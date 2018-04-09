@@ -26,7 +26,7 @@ list with \code{Sigma2} the new correlation matrix, \code{dist} the Frobenius no
 }
 \description{
 This function converts a non-positive-definite correlation matrix to a positive-definite matrix using the
-    adjust gradient updating method with initial matrix \code{B1}.
+    adjusted gradient updating method with initial matrix \code{B1}.
 }
 \references{
 S Maree (2012). Correcting Non Positive Definite Correlation Matrices. BSc Thesis Applied Mathematics, TU Delft.

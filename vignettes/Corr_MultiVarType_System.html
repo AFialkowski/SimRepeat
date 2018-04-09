@@ -11,7 +11,7 @@
 
 <meta name="author" content="Allison C Fialkowski" />
 
-<meta name="date" content="2018-02-28" />
+<meta name="date" content="2018-04-09" />
 
 <title>Correlated Systems of Statistical Equations with Multiple Variable Types</title>
 
@@ -121,7 +121,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Correlated Systems of Statistical Equations with Multiple Variable Types</h1>
 <h4 class="author"><em>Allison C Fialkowski</em></h4>
-<h4 class="date"><em>2018-02-28</em></h4>
+<h4 class="date"><em>2018-04-09</em></h4>
 
 </div>
 
@@ -154,9 +154,14 @@ h4.date { /* Header 4 - and the author and data headers use this too  */
 </ol>
 <p>The outcomes <span class="math inline">\(Y\)</span> are generated using a hierarchical linear models (HLM) approach. See <a href="HLM_Approach.html">The Hierarchical Linear Models Approach for a System of Correlated Equations with Multiple Variable Types</a> vignette for a description of the HLM model. The independent variables, error terms, and random effects are generated from multivariate normal variables with intermediate correlations calculated using either <code>SimCorrMix::intercorr</code> and <strong>correlation method 1</strong> for <code>corrsys</code> or <code>SimCorrMix::intercorr2</code> and <strong>correlation method 2</strong> for <code>corrsys2</code>. See the <strong>SimCorrMix</strong> package for a description of the correlation methods and the techniques used to generate each variable type.</p>
 <p>The <code>corrsys</code> and <code>corrsys2</code> functions contain no parameter checks in order to decrease simulation time. That should be done first using <code>checkpar</code>. Summaries of the system can be obtained using <code>summary_sys</code>. More information regarding function inputs can be found by consulting the function documentation. Some code has been adapted from the <strong>SimMultiCorrData</strong> <span class="citation">(Fialkowski 2017)</span> and <strong>SimCorrMix</strong> <span class="citation">(Fialkowski 2018)</span> packages.</p>
-<p><strong>Example 1</strong> demonstrates the <code>corrsys</code> function to generate a system of 3 equations for 5 independent variables with no random effects. <strong>Example 2</strong> adds random effects to this system. <strong>Example 3</strong> uses the <code>corrsys2</code> function to demonstrate how to handle missing variables by removing the independent variables from <span class="math inline">\(Y_2\)</span>.</p>
-<div id="example-1-system-of-3-equations-for-5-independent-variables-with-no-random-effects" class="section level2 unnumbered">
-<h2>Example 1: System of 3 equations for 5 independent variables with no random effects</h2>
+<p><strong>Example 1</strong> demonstrates the <code>corrsys</code> function to generate a system of 3 equations for 5 independent variables with no random effects. <strong>Example 2</strong> uses the <code>corrsys2</code> function to demonstrate how to handle missing variables by removing the independent variables from <span class="math inline">\(Y_2\)</span> in Example 1. <strong>Example 3</strong> generates a system of system of 4 equations with random effects.</p>
+<div id="notes-on-fitting-linear-mixed-models-in-r" class="section level4 unnumbered">
+<h4>Notes on fitting linear mixed models in R:</h4>
+<p>There are two main options for fitting mixed effects models in R. The <strong>nlme</strong> package <span class="citation">(Pinheiro et al. 2017)</span> permits linear and nonlinear mixed models. Linear models are fit using <strong>lme</strong> (see <span class="citation">Laird and Ware (1982)</span>); nonlinear models are fit using <strong>nlme</strong> (see <span class="citation">Lindstrom and Bates (1990)</span>). Both allow nested random effects and the within-group errors can be correlated and/or have unequal variances. The <code>correlation</code> argument permits several different correlation structures, including AR(1) and CS (see that package’s documentation). Setting <code>weights = varIdent(form =</code> <span class="math inline">\(\sim\)</span> <code>1 | time)</code> achieves unequal variances across time.</p>
+<p>The <strong>lme4</strong> package <span class="citation">(Bates, Mächler, et al. 2015)</span> permits linear (<code>lmer</code>), generalized linear (<code>glmer</code>), and nonlinear (<code>nlmer</code>) mixed models. Since there are no specific function arguments, implementing different error term correlation structures is more difficult than in <strong>nlme</strong>. Certain error structures can be achieved through manipulation of the data and models (see <span class="citation">Bates, Mächler, et al. (2015)</span>). However, <strong>lme4</strong> implements crossed random effects more efficiently and contains facilities for likelihood profiling and parametric bootstrapping. The <strong>lmerTest</strong> package <span class="citation">(Kuznetsova, Brockhoff, and Christensen 2017)</span> provides <span class="math inline">\(p\)</span>-values for beta coefficients.</p>
+</div>
+<div id="example-1-system-of-3-equations-for-5-independent-variables" class="section level2 unnumbered">
+<h2>Example 1: System of 3 equations for 5 independent variables</h2>
 <div id="description-of-variables" class="section level3 unnumbered">
 <h3>Description of Variables</h3>
 <ol style="list-style-type: decimal">
@@ -231,7 +236,7 @@ Y_3 &amp;= \beta_0 + \beta_1 * X_{ord(1)} + \beta_2 * X_{cont(31)} + \beta_3 * X
 \end{equation}\]</span>
 <pre class="r"><code>library(&quot;SimRepeat&quot;)
 library(&quot;printr&quot;)
-library(&quot;lme4&quot;)
+library(&quot;nlme&quot;)
 library(&quot;reshape2&quot;)
 options(scipen = 999)</code></pre>
 </div>
@@ -281,9 +286,9 @@ Nstcum &lt;- calc_mixmoments(mix_pis[[1]][[1]], mix_mus[[1]][[1]],
   mix_sigmas[[1]][[1]], mix_skews[[1]][[1]], mix_skurts[[1]][[1]], 
   mix_fifths[[1]][[1]], mix_sixths[[1]][[1]])
 
-means &lt;- list(c(Stcum1[1], Nstcum[1], Error1[1]),
-  c(Stcum2[1], Nstcum[1], Error2[1]),
-  c(Stcum3[1], Nstcum[1], Error3[1]))
+means &lt;- list(c(Stcum1[1], Nstcum[1], 0),
+  c(Stcum2[1], Nstcum[1], 0),
+  c(Stcum3[1], Nstcum[1], 0))
 vars &lt;- list(c(Stcum1[2]^2, Nstcum[2]^2, Error1[2]^2),
   c(Stcum2[2]^2, Nstcum[2]^2, Error2[2]^2),
   c(Stcum3[2]^2, Nstcum[2]^2, Error3[2]^2))
@@ -371,19 +376,19 @@ betas.tint &lt;- list(c(0.25, 0.5))</code></pre>
   mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
   size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint)</code></pre>
+  betas.t, betas.tint, quiet = TRUE)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 </div>
 <div id="step-3-generate-system" class="section level3 unnumbered">
 <h3>Step 3: Generate system</h3>
-<p>Note that <code>use.nearPD = FALSE</code> so that negative eigen-values will be replaced with <span class="math inline">\(0\)</span> instead of using the nearest positive-definite matrix (found with <span class="citation">Bates and Maechler (2017)</span>’s <code>Matrix::nearPD</code> function with <span class="citation">Higham (2002)</span>’s algorithm).</p>
+<p>Note that <code>use.nearPD = FALSE</code> and <code>adjgrad = FALSE</code> so that negative eigen-values will be replaced with <code>eigmin</code> (default <span class="math inline">\(0\)</span>) instead of using the nearest positive-definite matrix (found with <span class="citation">Bates and Maechler (2017)</span>’s <code>Matrix::nearPD</code> function by <span class="citation">Higham (2002)</span>’s algorithm) or the adjusted gradient updating method via <code>adj_grad</code> <span class="citation">(Yin and Zhang 2013; Zhang and Yin Year not provided; Maree 2012)</span>.</p>
 <pre class="r"><code>Sys1 &lt;- corrsys(n, M, Time, method, error_type, means, vars,
   skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
   mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
   size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
   tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  seed = seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.405 minutes</code></pre>
+  seed = seed, use.nearPD = FALSE, quiet = TRUE)</code></pre>
+<pre><code>## Total Simulation time: 0.42 minutes</code></pre>
 <pre class="r"><code>knitr::kable(Sys1$constants[[1]], booktabs = TRUE, 
   caption = &quot;PMT constants for Y_1&quot;)</code></pre>
 <table>
@@ -480,11 +485,11 @@ names(Sum1)</code></pre>
 <td>Y1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">234.218</td>
+<td align="right">233.654</td>
 <td align="right">261.038</td>
-<td align="right">156.792</td>
-<td align="right">-309.834</td>
-<td align="right">1828.782</td>
+<td align="right">156.228</td>
+<td align="right">-310.398</td>
+<td align="right">1828.218</td>
 <td align="right">1.470</td>
 <td align="right">2.717</td>
 <td align="right">5.195</td>
@@ -494,11 +499,11 @@ names(Sum1)</code></pre>
 <td>Y2</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">319.467</td>
+<td align="right">318.684</td>
 <td align="right">316.982</td>
-<td align="right">227.588</td>
-<td align="right">-356.098</td>
-<td align="right">2590.266</td>
+<td align="right">226.806</td>
+<td align="right">-356.880</td>
+<td align="right">2589.484</td>
 <td align="right">1.498</td>
 <td align="right">2.968</td>
 <td align="right">6.973</td>
@@ -508,11 +513,11 @@ names(Sum1)</code></pre>
 <td>Y3</td>
 <td align="right">3</td>
 <td align="right">10000</td>
-<td align="right">485.747</td>
+<td align="right">484.949</td>
 <td align="right">419.921</td>
-<td align="right">369.456</td>
-<td align="right">-182.438</td>
-<td align="right">2835.353</td>
+<td align="right">368.659</td>
+<td align="right">-183.236</td>
+<td align="right">2834.555</td>
 <td align="right">1.210</td>
 <td align="right">1.466</td>
 <td align="right">0.733</td>
@@ -540,7 +545,7 @@ names(Sum1)</code></pre>
 <tr class="odd">
 <td>E1</td>
 <td align="right">1</td>
-<td align="right">0.564</td>
+<td align="right">0</td>
 <td align="right">0.826</td>
 <td align="right">0.137</td>
 <td align="right">0.062</td>
@@ -550,7 +555,7 @@ names(Sum1)</code></pre>
 <tr class="even">
 <td>E2</td>
 <td align="right">2</td>
-<td align="right">0.782</td>
+<td align="right">0</td>
 <td align="right">0.623</td>
 <td align="right">0.851</td>
 <td align="right">0.705</td>
@@ -560,7 +565,7 @@ names(Sum1)</code></pre>
 <tr class="odd">
 <td>E3</td>
 <td align="right">3</td>
-<td align="right">0.797</td>
+<td align="right">0</td>
 <td align="right">0.604</td>
 <td align="right">0.989</td>
 <td align="right">0.862</td>
@@ -594,11 +599,11 @@ names(Sum1)</code></pre>
 <td>E1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">0.564</td>
+<td align="right">0</td>
 <td align="right">0.825</td>
-<td align="right">0.541</td>
-<td align="right">-2.650</td>
-<td align="right">3.473</td>
+<td align="right">-0.023</td>
+<td align="right">-3.214</td>
+<td align="right">2.909</td>
 <td align="right">0.100</td>
 <td align="right">0.012</td>
 <td align="right">-0.217</td>
@@ -608,11 +613,11 @@ names(Sum1)</code></pre>
 <td>E2</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">0.782</td>
+<td align="right">0</td>
 <td align="right">0.628</td>
-<td align="right">0.677</td>
-<td align="right">-0.938</td>
-<td align="right">4.094</td>
+<td align="right">-0.106</td>
+<td align="right">-1.720</td>
+<td align="right">3.311</td>
 <td align="right">0.893</td>
 <td align="right">0.747</td>
 <td align="right">-0.223</td>
@@ -622,11 +627,11 @@ names(Sum1)</code></pre>
 <td>E3</td>
 <td align="right">3</td>
 <td align="right">10000</td>
-<td align="right">0.797</td>
+<td align="right">0</td>
 <td align="right">0.605</td>
-<td align="right">0.673</td>
-<td align="right">-0.205</td>
-<td align="right">5.478</td>
+<td align="right">-0.124</td>
+<td align="right">-1.003</td>
+<td align="right">4.680</td>
 <td align="right">1.011</td>
 <td align="right">1.095</td>
 <td align="right">1.942</td>
@@ -1038,13 +1043,13 @@ names(Sum1)</code></pre>
 </table>
 <pre class="r"><code>Nplot &lt;- plot_simpdf_theory(sim_y = Sys1$X_all[[1]][, 3], ylower = -10, 
   yupper = 10, 
-  title = &quot;PDF of X_mix(21): Mixture of N(-5, 2) and N(3, 1) Distributions&quot;,
+  title = &quot;PDF of X_mix(21): N(-5, 2) and N(3, 1) Mixture&quot;,
   fx = function(x) mix_pis[[1]][[1]][1] * dnorm(x, mix_mus[[1]][[1]][1], 
     mix_sigmas[[1]][[1]][1]) + mix_pis[[1]][[1]][2] * 
     dnorm(x, mix_mus[[1]][[1]][2], mix_sigmas[[1]][[1]][2]), 
   lower = -Inf, upper = Inf)
 Nplot</code></pre>
-<p><img src="data:image/png;base64,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" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="data:image/png;base64,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" width="576" style="display: block; margin: auto;" /></p>
 <p>Summary of Ordinal Variable: (for <span class="math inline">\(Y_1\)</span>)</p>
 <pre class="r"><code>knitr::kable(Sum1$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
              booktabs = TRUE, caption = &quot;Simulated Distribution of X_ord(1)&quot;)</code></pre>
@@ -1307,37 +1312,37 @@ summary(fm1)</code></pre>
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
-## -3.2454  -0.4940  -0.0849   0.4247   4.6261  
+## -3.2143  -0.4958  -0.0895   0.4241   4.6031  
 ## 
 ## Coefficients:
-##                       Estimate Std. Error t value            Pr(&gt;|t|)    
-## (Intercept)          0.5269314  0.0344581   15.29 &lt;0.0000000000000002 ***
-## ord1_1               0.4571113  0.0286699   15.94 &lt;0.0000000000000002 ***
-## cont1                0.7500222  0.0053631  139.85 &lt;0.0000000000000002 ***
-## mix1                 1.0025096  0.0031886  314.40 &lt;0.0000000000000002 ***
-## pois1_1              1.2428228  0.0026664  466.10 &lt;0.0000000000000002 ***
-## nb1                  1.4853644  0.0070038  212.08 &lt;0.0000000000000002 ***
-## Time                 1.1188016  0.0198083   56.48 &lt;0.0000000000000002 ***
-## ord1_1:pois1_1       0.5038860  0.0016969  296.94 &lt;0.0000000000000002 ***
-## ord1_1:cont1         0.4993046  0.0041699  119.74 &lt;0.0000000000000002 ***
-## cont1:pois1_1        0.5994030  0.0003982 1505.31 &lt;0.0000000000000002 ***
-## ord1_1:mix1          0.8008619  0.0033937  235.99 &lt;0.0000000000000002 ***
-## mix1:pois1_1         0.9000092  0.0002556 3520.98 &lt;0.0000000000000002 ***
-## ord1_1:nb1           1.1047577  0.0060709  181.97 &lt;0.0000000000000002 ***
-## pois1_1:nb1          1.2016150  0.0005220 2301.77 &lt;0.0000000000000002 ***
-## ord1_1:Time          0.2594677  0.0107367   24.17 &lt;0.0000000000000002 ***
-## pois1_1:Time         0.5016743  0.0014788  339.25 &lt;0.0000000000000002 ***
-## ord1_1:cont1:pois1_1 0.6999930  0.0002449 2858.73 &lt;0.0000000000000002 ***
-## ord1_1:mix1:pois1_1  0.9999569  0.0002249 4445.92 &lt;0.0000000000000002 ***
-## ord1_1:pois1_1:nb1   1.2993099  0.0003880 3348.61 &lt;0.0000000000000002 ***
+##                       Estimate Std. Error  t value            Pr(&gt;|t|)    
+## (Intercept)          0.0727547  0.0343919    2.115              0.0344 *  
+## ord1_1               0.4579595  0.0286148   16.004 &lt;0.0000000000000002 ***
+## cont1                0.7589358  0.0053528  141.784 &lt;0.0000000000000002 ***
+## mix1                 1.0023232  0.0031825  314.947 &lt;0.0000000000000002 ***
+## pois1_1              1.2429948  0.0026613  467.061 &lt;0.0000000000000002 ***
+## nb1                  1.4845177  0.0069904  212.366 &lt;0.0000000000000002 ***
+## Time                 0.9751990  0.0197703   49.326 &lt;0.0000000000000002 ***
+## ord1_1:pois1_1       0.5039399  0.0016936  297.548 &lt;0.0000000000000002 ***
+## ord1_1:cont1         0.4993920  0.0041619  119.993 &lt;0.0000000000000002 ***
+## cont1:pois1_1        0.5993862  0.0003974 1508.159 &lt;0.0000000000000002 ***
+## ord1_1:mix1          0.8007743  0.0033872  236.415 &lt;0.0000000000000002 ***
+## mix1:pois1_1         0.9000054  0.0002551 3527.743 &lt;0.0000000000000002 ***
+## ord1_1:nb1           1.1045040  0.0060593  182.284 &lt;0.0000000000000002 ***
+## pois1_1:nb1          1.2015590  0.0005210 2306.090 &lt;0.0000000000000002 ***
+## ord1_1:Time          0.2575984  0.0107161   24.038 &lt;0.0000000000000002 ***
+## pois1_1:Time         0.5015038  0.0014760  339.782 &lt;0.0000000000000002 ***
+## ord1_1:cont1:pois1_1 0.6999753  0.0002444 2864.155 &lt;0.0000000000000002 ***
+## ord1_1:mix1:pois1_1  0.9999631  0.0002245 4454.503 &lt;0.0000000000000002 ***
+## ord1_1:pois1_1:nb1   1.2993227  0.0003873 3355.088 &lt;0.0000000000000002 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## (Dispersion parameter for gaussian family taken to be 0.4818881)
+## (Dispersion parameter for gaussian family taken to be 0.4800393)
 ## 
-##     Null deviance: 3776796504  on 29999  degrees of freedom
-## Residual deviance:      14447  on 29981  degrees of freedom
-## AIC: 63256
+##     Null deviance: 3776265562  on 29999  degrees of freedom
+## Residual deviance:      14392  on 29981  degrees of freedom
+## AIC: 63141
 ## 
 ## Number of Fisher Scoring iterations: 2</code></pre>
 <p>Each effect in the model was found to be statistically significant at the <span class="math inline">\(\alpha = 0.001\)</span> level. Now, compare betas used in simulation to those returned by <code>glm</code>:</p>
@@ -1370,17 +1375,17 @@ knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE,
 <td>Simulated</td>
 <td align="right">0.000</td>
 <td align="right">0.500</td>
-<td align="right">0.75</td>
+<td align="right">0.750</td>
 <td align="right">1.000</td>
 <td align="right">1.250</td>
 <td align="right">1.500</td>
 </tr>
 <tr class="even">
 <td>Estimated</td>
-<td align="right">0.527</td>
-<td align="right">0.457</td>
-<td align="right">0.75</td>
-<td align="right">1.003</td>
+<td align="right">0.073</td>
+<td align="right">0.458</td>
+<td align="right">0.759</td>
+<td align="right">1.002</td>
 <td align="right">1.243</td>
 <td align="right">1.485</td>
 </tr>
@@ -1412,7 +1417,7 @@ knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE,
 <tr class="even">
 <td>Estimated</td>
 <td align="right">0.504</td>
-<td align="right">1.119</td>
+<td align="right">0.975</td>
 <td align="right">0.499</td>
 <td align="right">0.599</td>
 <td align="right">0.7</td>
@@ -1452,483 +1457,24 @@ knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE,
 <td align="right">1.105</td>
 <td align="right">1.202</td>
 <td align="right">1.299</td>
-<td align="right">0.259</td>
+<td align="right">0.258</td>
 <td align="right">0.502</td>
 </tr>
 </tbody>
 </table>
-<p>All of the slope coefficients are estimated well except for the intercept. This could result from the non-normal error terms.</p>
+<p>All of the slope coefficients are estimated well.</p>
 </div>
 </div>
-<div id="example-2-system-from-example-1-with-random-intercept-random-slope-for-time-and-random-effect-for-the-continuous-mixture-variables" class="section level2 unnumbered">
-<h2>Example 2: System from Example 1 with random intercept, random slope for time, and random effect for the continuous mixture variables</h2>
-<span class="math display" id="eq:System2">\[\begin{equation}   
-\begin{split}    
-Y_1 &amp;= Y_1 + U_0 + U_1 * Time_1\\ 
-Y_2 &amp;= Y_2 + U_0 + U_1 * Time_2\\ 
-Y_3 &amp;= Y_3 + U_0 + U_1 * Time_3
-\end{split}   
-\tag{2}
-\end{equation}\]</span>
-<div id="description-of-variables-2" class="section level3 unnumbered">
-<h3>Description of Variables</h3>
-<ol style="list-style-type: decimal">
-<li><strong>Random intercept:</strong> <span class="math inline">\(U_0\)</span> has a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75</li>
-<li><strong>Random slope for time:</strong> <span class="math inline">\(U_1\)</span> has a t(df = 10) distribution<br />
-</li>
-<li><strong>Correlation</strong> between random effects is 0.4</li>
-</ol>
-<p>In this example, the random intercept and time slope have continuous non-mixture distributions for all <span class="math inline">\(Y\)</span>. However, the functions <code>corrsys</code> and <code>corrsys2</code> permit a combination of none, non-mixture, and mixture distributions across the <span class="math inline">\(Y\)</span> (i.e., if <code>rand.int = c(&quot;non_mix&quot;, &quot;mix&quot;, &quot;none&quot;)</code> then the random intercept for <span class="math inline">\(Y_1\)</span> has a non-mixture, and the random intercept for <span class="math inline">\(Y_2\)</span> has a mixture distribution; there is no random intercept for <span class="math inline">\(Y_3\)</span>). In addition, the distributions themselves can vary across outcomes. This is also true for random effects assigned to independent variables as specified in <code>rand.var</code>.</p>
-</div>
+<div id="example-2-system-from-example-1-with-no-independent-variables-for-y_2" class="section level2 unnumbered">
+<h2>Example 2: System from Example 1 with no independent variables for <span class="math inline">\(Y_2\)</span></h2>
+<p>This example uses the <code>corrsys2</code> function which employs <strong>correlation method 2</strong>. It requires the additional parameters <code>pois_eps</code> and <code>nb_eps</code>, which default to <span class="math inline">\(0.0001\)</span> for each variable.</p>
 <div id="step-1-set-up-parameter-inputs-1" class="section level3 unnumbered">
 <h3>Step 1: Set up parameter inputs</h3>
-<pre class="r"><code>rand.int &lt;- &quot;non_mix&quot;
-rand.tsl &lt;- &quot;non_mix&quot;
-rand.var &lt;- NULL
+<pre class="r"><code>seed &lt;- 137
+n &lt;- 10000
+M &lt;- 3
 
-Log &lt;- calc_theory(&quot;Logistic&quot;, c(0, 1))
-t10 &lt;- calc_theory(&quot;t&quot;, 10)
-
-rmeans &lt;- c(Log[1], t10[1])
-rvars &lt;- c(Log[2]^2, t10[2]^2)
-rskews &lt;- c(Log[3], t10[3])
-rskurts &lt;- c(Log[4], t10[4])
-rfifths &lt;- c(Log[5], t10[5])
-rsixths &lt;- c(Log[6], t10[6])
-rSix &lt;- list(1.75, NULL)
-
-# append parameters for random effect distributions to parameters for
-# continuous fixed effects and error terms
-means &lt;- append(means, list(rmeans))
-vars &lt;- append(vars, list(rvars))
-skews &lt;- append(skews, list(rskews))
-skurts &lt;- append(skurts, list(rskurts))
-fifths &lt;- append(fifths, list(rfifths))
-sixths &lt;- append(sixths, list(rsixths))
-Six &lt;- append(Six, list(rSix))
-
-# set up correlation matrix for random effects
-corr.u &lt;- matrix(c(1, 0.4, 0.4, 1), 2, 2)</code></pre>
-</div>
-<div id="step-2-check-parameter-inputs-1" class="section level3 unnumbered">
-<h3>Step 2: Check parameter inputs</h3>
-<pre class="r"><code>checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
-  Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
-  mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
-  size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
-  same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
-</div>
-<div id="step-3-generate-system-1" class="section level3 unnumbered">
-<h3>Step 3: Generate system</h3>
-<pre class="r"><code>Sys2 &lt;- corrsys(n, M, Time, method, error_type, means, vars,
-  skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
-  mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
-  size, prob, mu, p_zinb, corr.x, corr.e, same.var, subj.var, int.var,
-  tint.var, betas.0, betas, betas.subj, betas.int, betas.t, betas.tint,
-  rand.int, rand.tsl, rand.var, corr.u, seed, use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.429 minutes</code></pre>
-</div>
-<div id="step-4-describe-results-1" class="section level3 unnumbered">
-<h3>Step 4: Describe results</h3>
-<pre class="r"><code>Sum2 &lt;- summary_sys(Sys2$Y, Sys2$E, E_mix = NULL, Sys2$X, Sys2$X_all, M, 
-  method, means, vars, skews, skurts, fifths, sixths, mix_pis, mix_mus, 
-  mix_sigmas, mix_skews, mix_skurts, mix_fifths, mix_sixths, marginal, 
-  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e, Sys2$U, 
-  Sys2$U_all, rand.int, rand.tsl, corr.u, Sys2$rmeans2, Sys2$rvars2)
-names(Sum2)</code></pre>
-<pre><code>##  [1] &quot;cont_sum_y&quot;   &quot;rho.y&quot;        &quot;cont_sum_e&quot;   &quot;target_sum_e&quot;
-##  [5] &quot;rho.e&quot;        &quot;rho.ye&quot;       &quot;ord_sum_x&quot;    &quot;cont_sum_x&quot;  
-##  [9] &quot;target_sum_x&quot; &quot;sum_xall&quot;     &quot;mix_sum_x&quot;    &quot;target_mix_x&quot;
-## [13] &quot;pois_sum_x&quot;   &quot;nb_sum_x&quot;     &quot;rho.x&quot;        &quot;rho.xall&quot;    
-## [17] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;       &quot;target_sum_u&quot;
-## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;        &quot;maxerr_u&quot;</code></pre>
-<pre class="r"><code>knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
-  caption = &quot;Simulated Distributions of Outcomes&quot;)</code></pre>
-<table>
-<caption><span id="tab:unnamed-chunk-27">Table 14: </span>Simulated Distributions of Outcomes</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Outcome</th>
-<th align="right">N</th>
-<th align="right">Mean</th>
-<th align="right">SD</th>
-<th align="right">Median</th>
-<th align="right">Min</th>
-<th align="right">Max</th>
-<th align="right">Skew</th>
-<th align="right">Skurtosis</th>
-<th align="right">Fifth</th>
-<th align="right">Sixth</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Y1</td>
-<td align="right">1</td>
-<td align="right">10000</td>
-<td align="right">233.535</td>
-<td align="right">258.515</td>
-<td align="right">157.713</td>
-<td align="right">-368.330</td>
-<td align="right">2043.037</td>
-<td align="right">1.404</td>
-<td align="right">2.447</td>
-<td align="right">4.487</td>
-<td align="right">8.313</td>
-</tr>
-<tr class="even">
-<td>Y2</td>
-<td align="right">2</td>
-<td align="right">10000</td>
-<td align="right">320.848</td>
-<td align="right">317.587</td>
-<td align="right">228.755</td>
-<td align="right">-264.573</td>
-<td align="right">2334.957</td>
-<td align="right">1.422</td>
-<td align="right">2.481</td>
-<td align="right">4.708</td>
-<td align="right">8.708</td>
-</tr>
-<tr class="odd">
-<td>Y3</td>
-<td align="right">3</td>
-<td align="right">10000</td>
-<td align="right">486.531</td>
-<td align="right">423.839</td>
-<td align="right">373.616</td>
-<td align="right">-163.574</td>
-<td align="right">2894.810</td>
-<td align="right">1.269</td>
-<td align="right">1.802</td>
-<td align="right">2.046</td>
-<td align="right">-1.864</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(Sum2$target_sum_u, digits = 3, booktabs = TRUE, 
-  caption = &quot;Target Distributions of Random Effects&quot;)</code></pre>
-<table>
-<caption><span id="tab:unnamed-chunk-28">Table 15: </span>Target Distributions of Random Effects</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Outcome</th>
-<th align="right">U</th>
-<th align="right">Mean</th>
-<th align="right">SD</th>
-<th align="right">Skew</th>
-<th align="right">Skurtosis</th>
-<th align="right">Fifth</th>
-<th align="right">Sixth</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>cont1_1</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">1.814</td>
-<td align="right">0</td>
-<td align="right">1.2</td>
-<td align="right">0</td>
-<td align="right">6.857</td>
-</tr>
-<tr class="even">
-<td>cont1_2</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">0</td>
-<td align="right">1.118</td>
-<td align="right">0</td>
-<td align="right">1.0</td>
-<td align="right">0</td>
-<td align="right">10.000</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(Sum2$sum_uall, digits = 3, booktabs = TRUE, 
-  caption = &quot;Simulated Distributions of Random Effects&quot;)</code></pre>
-<table>
-<caption><span id="tab:unnamed-chunk-29">Table 16: </span>Simulated Distributions of Random Effects</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Outcome</th>
-<th align="right">U</th>
-<th align="right">N</th>
-<th align="right">Mean</th>
-<th align="right">SD</th>
-<th align="right">Median</th>
-<th align="right">Min</th>
-<th align="right">Max</th>
-<th align="right">Skew</th>
-<th align="right">Skurtosis</th>
-<th align="right">Fifth</th>
-<th align="right">Sixth</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>U_int</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">10000</td>
-<td align="right">-0.001</td>
-<td align="right">1.814</td>
-<td align="right">-0.005</td>
-<td align="right">-8.467</td>
-<td align="right">11.455</td>
-<td align="right">0.010</td>
-<td align="right">1.254</td>
-<td align="right">1.490</td>
-<td align="right">10.131</td>
-</tr>
-<tr class="even">
-<td>U_T1</td>
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">10000</td>
-<td align="right">0.001</td>
-<td align="right">1.119</td>
-<td align="right">-0.013</td>
-<td align="right">-6.978</td>
-<td align="right">5.839</td>
-<td align="right">0.072</td>
-<td align="right">1.074</td>
-<td align="right">-0.077</td>
-<td align="right">9.073</td>
-</tr>
-</tbody>
-</table>
-<p>Maximum Correlation Error for Random Effects:</p>
-<pre class="r"><code>Sum2$maxerr_u</code></pre>
-<pre><code>## [1] 0.0004425613</code></pre>
-</div>
-<div id="linear-mixed-model" class="section level3 unnumbered">
-<h3>Linear mixed model</h3>
-<p>A linear mixed model will be fit to the data using <code>lme4::lmer</code> in order to see if the random effects are estimated according to the simulation parameters <span class="citation">(Bates et al. 2015)</span>. The data is again reshaped into long format using <code>reshape2::melt</code>.</p>
-<pre class="r"><code>data2 &lt;- as.data.frame(cbind(factor(1:n), Sys2$Y, Sys2$X_all[[1]][, 1:5],
-  Sys2$X_all[[2]][, c(2, 3, 5)], Sys2$X_all[[3]][, c(2, 3, 5)]))
-colnames(data2)[1] &lt;- &quot;Subject&quot;
-data2.a &lt;- melt(data2[, c(&quot;Subject&quot;, &quot;ord1_1&quot;, &quot;pois1_1&quot;, &quot;Y1&quot;, &quot;Y2&quot;, &quot;Y3&quot;)], 
-  id.vars = c(&quot;Subject&quot;, &quot;ord1_1&quot;, &quot;pois1_1&quot;),
-  measure.vars = c(&quot;Y1&quot;, &quot;Y2&quot;, &quot;Y3&quot;), variable.name = &quot;Time&quot;, value.name = &quot;Y&quot;)
-data2.b &lt;- melt(data2[, c(&quot;Subject&quot;, &quot;cont1_1&quot;, &quot;cont2_1&quot;, &quot;cont3_1&quot;)],
-  id.vars = c(&quot;Subject&quot;), variable.name = &quot;Time&quot;, value.name = &quot;cont1&quot;)
-data2.c &lt;- melt(data2[, c(&quot;Subject&quot;, &quot;mix1_1&quot;, &quot;mix2_1&quot;, &quot;mix3_1&quot;)],
-  id.vars = c(&quot;Subject&quot;), variable.name = &quot;Time&quot;, value.name = &quot;mix1&quot;)
-data2.d &lt;- melt(data2[, c(&quot;Subject&quot;, &quot;nb1_1&quot;, &quot;nb2_1&quot;, &quot;nb3_1&quot;)],
-  id.vars = c(&quot;Subject&quot;), variable.name = &quot;Time&quot;, value.name = &quot;nb1&quot;)
-data2.a$Time &lt;- data2.b$Time &lt;- data2.c$Time &lt;- data2.d$Time &lt;- 
-  c(rep(1, n), rep(2, n), rep(3, n))
-data2 &lt;- merge(merge(merge(data2.a, data2.b, by = c(&quot;Subject&quot;, &quot;Time&quot;)), 
-  data2.c, by = c(&quot;Subject&quot;, &quot;Time&quot;)), data2.d, by = c(&quot;Subject&quot;, &quot;Time&quot;))</code></pre>
-<p>Errors <span class="math inline">\(E_1, E_2,\)</span> and <span class="math inline">\(E_3\)</span> modeled as having Gaussian distributions using <strong>lmerTest</strong> <span class="citation">(Kuznetsova, Brockhoff, and Christensen 2017)</span>:</p>
-<pre class="r"><code>library(&quot;lmerTest&quot;)
-fm2 &lt;- lmer(Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 + 
-  ord1_1:cont1 + pois1_1:cont1 + ord1_1:pois1_1:cont1 + ord1_1:mix1 + 
-  pois1_1:mix1 + ord1_1:pois1_1:mix1 + ord1_1:nb1 + pois1_1:nb1 + 
-  ord1_1:pois1_1:nb1 + Time + ord1_1:Time + pois1_1:Time + 
-  (1 + Time | Subject), data = data2)
-summary(fm2)</code></pre>
-<pre><code>## Linear mixed model fit by REML t-tests use Satterthwaite approximations
-##   to degrees of freedom [lmerMod]
-## Formula: Y ~ ord1_1 + cont1 + mix1 + pois1_1 + nb1 + ord1_1:pois1_1 +  
-##     ord1_1:cont1 + pois1_1:cont1 + ord1_1:pois1_1:cont1 + ord1_1:mix1 +  
-##     pois1_1:mix1 + ord1_1:pois1_1:mix1 + ord1_1:nb1 + pois1_1:nb1 +  
-##     ord1_1:pois1_1:nb1 + Time + ord1_1:Time + pois1_1:Time +  
-##     (1 + Time | Subject)
-##    Data: data2
-## 
-## REML criterion at convergence: 107522.3
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -3.0477 -0.3966 -0.0119  0.3725  3.3748 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr
-##  Subject  (Intercept) 4.1669   2.0413       
-##           Time        1.3671   1.1692   0.22
-##  Residual             0.2242   0.4735       
-## Number of obs: 30000, groups:  Subject, 10000
-## 
-## Fixed effects:
-##                           Estimate    Std. Error            df  t value
-## (Intercept)              0.3897787     0.0756342 11838.0000000    5.153
-## ord1_1                   0.5039893     0.0776998 12307.0000000    6.486
-## cont1                    0.7339418     0.0068240 14970.0000000  107.553
-## mix1                     0.9984388     0.0035145 14340.0000000  284.092
-## pois1_1                  1.2523426     0.0059729 12006.0000000  209.672
-## nb1                      1.5147983     0.0090101 15358.0000000  168.123
-## Time                     1.1702280     0.0362185 16136.0000000   32.310
-## ord1_1:pois1_1           0.4983634     0.0051352 12419.0000000   97.048
-## ord1_1:cont1             0.4954660     0.0060810 18165.0000000   81.478
-## cont1:pois1_1            0.5992800     0.0005197 15504.0000000 1153.179
-## ord1_1:mix1              0.8014873     0.0038725 14501.0000000  206.970
-## mix1:pois1_1             0.9001696     0.0002823 14337.0000000 3188.676
-## ord1_1:nb1               1.1008619     0.0080113 15479.0000000  137.414
-## pois1_1:nb1              1.1987528     0.0006661 15451.0000000 1799.755
-## ord1_1:Time              0.2450125     0.0195315 16804.0000000   12.544
-## pois1_1:Time             0.5037256     0.0026856 16446.0000000  187.565
-## ord1_1:cont1:pois1_1     0.7003335     0.0003859 19457.0000000 1814.933
-## ord1_1:mix1:pois1_1      0.9999585     0.0002564 14412.0000000 3899.595
-## ord1_1:pois1_1:nb1       1.3001121     0.0005132 15598.0000000 2533.571
-##                                  Pr(&gt;|t|)    
-## (Intercept)               0.0000002598226 ***
-## ord1_1                    0.0000000000913 ***
-## cont1                &lt; 0.0000000000000002 ***
-## mix1                 &lt; 0.0000000000000002 ***
-## pois1_1              &lt; 0.0000000000000002 ***
-## nb1                  &lt; 0.0000000000000002 ***
-## Time                 &lt; 0.0000000000000002 ***
-## ord1_1:pois1_1       &lt; 0.0000000000000002 ***
-## ord1_1:cont1         &lt; 0.0000000000000002 ***
-## cont1:pois1_1        &lt; 0.0000000000000002 ***
-## ord1_1:mix1          &lt; 0.0000000000000002 ***
-## mix1:pois1_1         &lt; 0.0000000000000002 ***
-## ord1_1:nb1           &lt; 0.0000000000000002 ***
-## pois1_1:nb1          &lt; 0.0000000000000002 ***
-## ord1_1:Time          &lt; 0.0000000000000002 ***
-## pois1_1:Time         &lt; 0.0000000000000002 ***
-## ord1_1:cont1:pois1_1 &lt; 0.0000000000000002 ***
-## ord1_1:mix1:pois1_1  &lt; 0.0000000000000002 ***
-## ord1_1:pois1_1:nb1   &lt; 0.0000000000000002 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<p>Each effect in the model was again found to be statistically significant at the <span class="math inline">\(\alpha = 0.001\)</span> level.</p>
-<p>The variance of the random intercept and time slope were slightly overestimated, and their correlation was underestimated.</p>
-<p>Now, compare betas used in simulation to those returned by <code>lmer</code>:</p>
-<pre class="r"><code>fm2.coef &lt;- summary(fm2)$coefficients[c(&quot;(Intercept)&quot;, &quot;ord1_1&quot;, &quot;cont1&quot;,
-  &quot;mix1&quot;, &quot;pois1_1&quot;, &quot;nb1&quot;, &quot;ord1_1:pois1_1&quot;, &quot;Time&quot;, &quot;ord1_1:cont1&quot;,
-   &quot;cont1:pois1_1&quot;, &quot;ord1_1:cont1:pois1_1&quot;, &quot;ord1_1:mix1&quot;, &quot;mix1:pois1_1&quot;, 
-  &quot;ord1_1:mix1:pois1_1&quot;, &quot;ord1_1:nb1&quot;, &quot;pois1_1:nb1&quot;, 
-  &quot;ord1_1:pois1_1:nb1&quot;, &quot;ord1_1:Time&quot;, &quot;pois1_1:Time&quot;), 1]
-coef &lt;- rbind(c(betas.0, betas[[1]], betas.int[[1]], betas.t, 
-  betas.subj[[1]], betas.tint[[1]]), fm2.coef)
-colnames(coef) &lt;- names(fm2.coef)
-rownames(coef) &lt;- c(&quot;Simulated&quot;, &quot;Estimated&quot;)
-knitr::kable(as.data.frame(coef[, 1:6]), digits = 3, booktabs = TRUE, 
-  caption = &quot;Beta Coefficients for Repeated Measures Model 2&quot;)</code></pre>
-<table>
-<caption><span id="tab:unnamed-chunk-33">Table 17: </span>Beta Coefficients for Repeated Measures Model 2</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">(Intercept)</th>
-<th align="right">ord1_1</th>
-<th align="right">cont1</th>
-<th align="right">mix1</th>
-<th align="right">pois1_1</th>
-<th align="right">nb1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Simulated</td>
-<td align="right">0.00</td>
-<td align="right">0.500</td>
-<td align="right">0.750</td>
-<td align="right">1.000</td>
-<td align="right">1.250</td>
-<td align="right">1.500</td>
-</tr>
-<tr class="even">
-<td>Estimated</td>
-<td align="right">0.39</td>
-<td align="right">0.504</td>
-<td align="right">0.734</td>
-<td align="right">0.998</td>
-<td align="right">1.252</td>
-<td align="right">1.515</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(as.data.frame(coef[, 7:12]), digits = 3, booktabs = TRUE)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">ord1_1:pois1_1</th>
-<th align="right">Time</th>
-<th align="right">ord1_1:cont1</th>
-<th align="right">cont1:pois1_1</th>
-<th align="right">ord1_1:cont1:pois1_1</th>
-<th align="right">ord1_1:mix1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Simulated</td>
-<td align="right">0.500</td>
-<td align="right">1.00</td>
-<td align="right">0.500</td>
-<td align="right">0.600</td>
-<td align="right">0.7</td>
-<td align="right">0.800</td>
-</tr>
-<tr class="even">
-<td>Estimated</td>
-<td align="right">0.498</td>
-<td align="right">1.17</td>
-<td align="right">0.495</td>
-<td align="right">0.599</td>
-<td align="right">0.7</td>
-<td align="right">0.801</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(as.data.frame(coef[, 13:19]), digits = 3, booktabs = TRUE)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">mix1:pois1_1</th>
-<th align="right">ord1_1:mix1:pois1_1</th>
-<th align="right">ord1_1:nb1</th>
-<th align="right">pois1_1:nb1</th>
-<th align="right">ord1_1:pois1_1:nb1</th>
-<th align="right">ord1_1:Time</th>
-<th align="right">pois1_1:Time</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Simulated</td>
-<td align="right">0.9</td>
-<td align="right">1</td>
-<td align="right">1.100</td>
-<td align="right">1.200</td>
-<td align="right">1.3</td>
-<td align="right">0.250</td>
-<td align="right">0.500</td>
-</tr>
-<tr class="even">
-<td>Estimated</td>
-<td align="right">0.9</td>
-<td align="right">1</td>
-<td align="right">1.101</td>
-<td align="right">1.199</td>
-<td align="right">1.3</td>
-<td align="right">0.245</td>
-<td align="right">0.504</td>
-</tr>
-</tbody>
-</table>
-<p>All of the slope coefficients are estimated well except for the intercept. This could result from the non-normal error terms.</p>
-</div>
-</div>
-<div id="example-3-system-from-example-2-with-no-independent-variables-for-y_2" class="section level2 unnumbered">
-<h2>Example 3: System from Example 2 with no independent variables for <span class="math inline">\(Y_2\)</span></h2>
-<p>This example uses the <code>corrsys2</code> function which employs <strong>correlation method 2</strong>. It requires the additional parameters <code>pois_eps</code> and <code>nb_eps</code>, which default to <span class="math inline">\(0.0001\)</span> for each variable.</p>
-<div id="step-1-set-up-parameter-inputs-2" class="section level3 unnumbered">
-<h3>Step 1: Set up parameter inputs</h3>
-<pre class="r"><code># Ordinal variable
+# Ordinal variable
 marginal &lt;- list(list(c(1/3, 2/3)), NULL, list(c(1/3, 2/3)))
 support &lt;- list(list(c(0, 1, 2)), NULL, list(c(0, 1, 2)))
 
@@ -1955,16 +1501,6 @@ means &lt;- list(c(Stcum1[1], Nstcum[1], Error1[1]), Error2[1],
   c(Stcum3[1], Nstcum[1], Error3[1]))
 vars &lt;- list(c(Stcum1[2]^2, Nstcum[2]^2, Error1[2]^2), Error2[2]^2,
   c(Stcum3[2]^2, Nstcum[2]^2, Error3[2]^2))
-
-# append parameters for random effect distributions to parameters for 
-# continuous fixed effects and error terms
-means &lt;- append(means, list(rmeans))
-vars &lt;- append(vars, list(rvars))
-skews &lt;- append(skews, list(rskews))
-skurts &lt;- append(skurts, list(rskurts))
-fifths &lt;- append(fifths, list(rfifths))
-sixths &lt;- append(sixths, list(rsixths))
-Six &lt;- append(Six, list(rSix))
 
 # Poisson variable
 lam &lt;- list(15, NULL, 15)
@@ -2021,45 +1557,42 @@ betas.subj &lt;- list(seq(0.5, 0.5 + (9 - 1) * 0.1, 0.1), NULL,
 tint.var &lt;- matrix(c(1, 1, 1, 4, 3, 1, 3, 4), 4, 2, byrow = TRUE)
 betas.tint &lt;- list(c(0.25, 0.5), NULL, c(0.25, 0.5))</code></pre>
 </div>
-<div id="step-2-check-parameter-inputs-2" class="section level3 unnumbered">
+<div id="step-2-check-parameter-inputs-1" class="section level3 unnumbered">
 <h3>Step 2: Check parameter inputs</h3>
 <pre class="r"><code>checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
   Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
   mix_sixths, mix_Six, marginal, support, lam, p_zip, pois_eps = list(), 
   size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.yx = list(), corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u)</code></pre>
+  betas.t, betas.tint, quiet = TRUE)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 </div>
-<div id="step-3-generate-system-2" class="section level3 unnumbered">
+<div id="step-3-generate-system-1" class="section level3 unnumbered">
 <h3>Step 3: Generate system</h3>
-<pre class="r"><code>Sys3 &lt;- corrsys2(n, M, Time, method, error_type, means, vars,
+<pre class="r"><code>Sys2 &lt;- corrsys2(n, M, Time, method, error_type, means, vars,
   skews, skurts, fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews,
   mix_skurts, mix_fifths, mix_sixths, mix_Six, marginal, support, lam, p_zip,
   pois_eps = list(), size, prob, mu, p_zinb, nb_eps = list(), corr.x, corr.e, 
   same.var, subj.var, int.var, tint.var, betas.0, betas, betas.subj, betas.int, 
-  betas.t, betas.tint, rand.int, rand.tsl, rand.var, corr.u, seed, 
-  use.nearPD = FALSE)</code></pre>
-<pre><code>## Total Simulation time: 0.225 minutes</code></pre>
+  betas.t, betas.tint, seed = seed, use.nearPD = FALSE, quiet = TRUE)</code></pre>
+<pre><code>## Total Simulation time: 0.244 minutes</code></pre>
 </div>
-<div id="step-4-describe-results-2" class="section level3 unnumbered">
+<div id="step-4-describe-results-1" class="section level3 unnumbered">
 <h3>Step 4: Describe results</h3>
-<pre class="r"><code>Sum3 &lt;- summary_sys(Sys3$Y, Sys3$E, E_mix = NULL, Sys3$X, Sys3$X_all, M, 
+<pre class="r"><code>Sum2 &lt;- summary_sys(Sys2$Y, Sys2$E, E_mix = NULL, Sys2$X, Sys2$X_all, M, 
   method, means, vars, skews, skurts, fifths, sixths, mix_pis, mix_mus, 
   mix_sigmas, mix_skews, mix_skurts, mix_fifths, mix_sixths, marginal, 
-  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e, Sys3$U, 
-  Sys3$U_all, rand.int, rand.tsl, corr.u, Sys3$rmeans2, Sys3$rvars2)
-names(Sum3)</code></pre>
+  support, lam, p_zip, size, prob, mu, p_zinb, corr.x, corr.e)
+names(Sum2)</code></pre>
 <pre><code>##  [1] &quot;cont_sum_y&quot;   &quot;rho.y&quot;        &quot;cont_sum_e&quot;   &quot;target_sum_e&quot;
 ##  [5] &quot;rho.e&quot;        &quot;rho.ye&quot;       &quot;ord_sum_x&quot;    &quot;cont_sum_x&quot;  
 ##  [9] &quot;target_sum_x&quot; &quot;sum_xall&quot;     &quot;mix_sum_x&quot;    &quot;target_mix_x&quot;
 ## [13] &quot;pois_sum_x&quot;   &quot;nb_sum_x&quot;     &quot;rho.x&quot;        &quot;rho.xall&quot;    
-## [17] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;       &quot;target_sum_u&quot;
-## [21] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;        &quot;maxerr_u&quot;</code></pre>
-<pre class="r"><code>knitr::kable(Sum3$cont_sum_y, digits = 3, booktabs = TRUE, 
+## [17] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;</code></pre>
+<pre class="r"><code>knitr::kable(Sum2$cont_sum_y, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Outcomes&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-38">Table 18: </span>Simulated Distributions of Outcomes</caption>
+<caption><span id="tab:unnamed-chunk-27">Table 14: </span>Simulated Distributions of Outcomes</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2081,50 +1614,50 @@ names(Sum3)</code></pre>
 <td>Y1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">234.916</td>
-<td align="right">260.619</td>
-<td align="right">153.487</td>
-<td align="right">-251.980</td>
-<td align="right">1776.171</td>
-<td align="right">1.433</td>
-<td align="right">2.527</td>
-<td align="right">4.214</td>
-<td align="right">2.049</td>
+<td align="right">235.280</td>
+<td align="right">262.080</td>
+<td align="right">156.027</td>
+<td align="right">-339.268</td>
+<td align="right">1924.387</td>
+<td align="right">1.474</td>
+<td align="right">2.780</td>
+<td align="right">5.545</td>
+<td align="right">8.919</td>
 </tr>
 <tr class="even">
 <td>Y2</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">2.784</td>
-<td align="right">3.451</td>
-<td align="right">2.776</td>
-<td align="right">-13.124</td>
-<td align="right">21.211</td>
-<td align="right">0.009</td>
-<td align="right">0.624</td>
-<td align="right">0.059</td>
-<td align="right">1.818</td>
+<td align="right">2.782</td>
+<td align="right">0.627</td>
+<td align="right">2.675</td>
+<td align="right">1.298</td>
+<td align="right">6.262</td>
+<td align="right">0.905</td>
+<td align="right">0.905</td>
+<td align="right">0.674</td>
+<td align="right">-0.150</td>
 </tr>
 <tr class="odd">
 <td>Y3</td>
 <td align="right">3</td>
 <td align="right">10000</td>
-<td align="right">489.400</td>
-<td align="right">431.519</td>
-<td align="right">368.481</td>
-<td align="right">-134.720</td>
-<td align="right">3267.346</td>
-<td align="right">1.335</td>
-<td align="right">2.166</td>
-<td align="right">3.952</td>
-<td align="right">7.719</td>
+<td align="right">485.996</td>
+<td align="right">423.620</td>
+<td align="right">374.110</td>
+<td align="right">-213.943</td>
+<td align="right">3284.809</td>
+<td align="right">1.299</td>
+<td align="right">1.918</td>
+<td align="right">2.365</td>
+<td align="right">-0.580</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$target_sum_e, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$target_sum_e, digits = 3, booktabs = TRUE, 
   caption = &quot;Target Distributions of Error Terms&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-39">Table 19: </span>Target Distributions of Error Terms</caption>
+<caption><span id="tab:unnamed-chunk-28">Table 15: </span>Target Distributions of Error Terms</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2170,10 +1703,10 @@ names(Sum3)</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$cont_sum_e, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$cont_sum_e, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Error Terms&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-40">Table 20: </span>Simulated Distributions of Error Terms</caption>
+<caption><span id="tab:unnamed-chunk-29">Table 16: </span>Simulated Distributions of Error Terms</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2196,50 +1729,50 @@ names(Sum3)</code></pre>
 <td align="right">1</td>
 <td align="right">10000</td>
 <td align="right">0.564</td>
-<td align="right">0.826</td>
-<td align="right">0.547</td>
-<td align="right">-2.924</td>
-<td align="right">4.165</td>
-<td align="right">0.152</td>
-<td align="right">0.107</td>
-<td align="right">0.107</td>
-<td align="right">0.518</td>
+<td align="right">0.825</td>
+<td align="right">0.546</td>
+<td align="right">-2.753</td>
+<td align="right">3.830</td>
+<td align="right">0.120</td>
+<td align="right">0.027</td>
+<td align="right">-0.237</td>
+<td align="right">-0.358</td>
 </tr>
 <tr class="even">
 <td>E2</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">0.783</td>
-<td align="right">0.622</td>
-<td align="right">0.681</td>
-<td align="right">-0.508</td>
-<td align="right">4.129</td>
-<td align="right">0.821</td>
-<td align="right">0.571</td>
-<td align="right">-0.335</td>
-<td align="right">-2.792</td>
+<td align="right">0.782</td>
+<td align="right">0.627</td>
+<td align="right">0.675</td>
+<td align="right">-0.702</td>
+<td align="right">4.262</td>
+<td align="right">0.905</td>
+<td align="right">0.905</td>
+<td align="right">0.674</td>
+<td align="right">-0.150</td>
 </tr>
 <tr class="odd">
 <td>E3</td>
 <td align="right">3</td>
 <td align="right">10000</td>
 <td align="right">0.797</td>
-<td align="right">0.607</td>
-<td align="right">0.674</td>
-<td align="right">-0.117</td>
-<td align="right">4.593</td>
-<td align="right">1.035</td>
-<td align="right">1.071</td>
-<td align="right">0.796</td>
-<td align="right">0.515</td>
+<td align="right">0.603</td>
+<td align="right">0.678</td>
+<td align="right">-0.165</td>
+<td align="right">5.674</td>
+<td align="right">1.020</td>
+<td align="right">1.251</td>
+<td align="right">2.965</td>
+<td align="right">17.647</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$target_sum_x, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$target_sum_x, digits = 3, booktabs = TRUE, 
   caption = &quot;Target Distributions of Continuous Non-Mixture and Components of 
   Mixture Variables&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-41">Table 21: </span>Target Distributions of Continuous Non-Mixture and Components of Mixture Variables</caption>
+<caption><span id="tab:unnamed-chunk-30">Table 17: </span>Target Distributions of Continuous Non-Mixture and Components of Mixture Variables</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2322,11 +1855,11 @@ names(Sum3)</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$cont_sum_x, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$cont_sum_x, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Continuous Non-Mixture and Components 
   of Mixture Variables&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-42">Table 22: </span>Simulated Distributions of Continuous Non-Mixture and Components of Mixture Variables</caption>
+<caption><span id="tab:unnamed-chunk-31">Table 18: </span>Simulated Distributions of Continuous Non-Mixture and Components of Mixture Variables</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2350,97 +1883,97 @@ names(Sum3)</code></pre>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">1.33</td>
-<td align="right">0.694</td>
-<td align="right">1.249</td>
-<td align="right">0.022</td>
-<td align="right">4.534</td>
-<td align="right">0.632</td>
-<td align="right">0.232</td>
-<td align="right">-0.397</td>
-<td align="right">-1.287</td>
+<td align="right">1.330</td>
+<td align="right">0.692</td>
+<td align="right">1.252</td>
+<td align="right">0.027</td>
+<td align="right">4.233</td>
+<td align="right">0.616</td>
+<td align="right">0.164</td>
+<td align="right">-0.714</td>
+<td align="right">-2.218</td>
 </tr>
 <tr class="even">
 <td>cont1_2</td>
 <td align="right">1</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">-5.00</td>
+<td align="right">-5.000</td>
 <td align="right">2.000</td>
-<td align="right">-5.008</td>
-<td align="right">-12.576</td>
-<td align="right">2.407</td>
-<td align="right">0.027</td>
-<td align="right">0.006</td>
-<td align="right">-0.012</td>
-<td align="right">-0.301</td>
+<td align="right">-4.984</td>
+<td align="right">-12.661</td>
+<td align="right">3.968</td>
+<td align="right">0.008</td>
+<td align="right">-0.033</td>
+<td align="right">0.077</td>
+<td align="right">0.233</td>
 </tr>
 <tr class="odd">
 <td>cont1_3</td>
 <td align="right">1</td>
 <td align="right">3</td>
 <td align="right">10000</td>
-<td align="right">3.00</td>
+<td align="right">3.000</td>
 <td align="right">1.000</td>
-<td align="right">2.995</td>
-<td align="right">-0.981</td>
-<td align="right">7.096</td>
-<td align="right">-0.010</td>
-<td align="right">-0.057</td>
-<td align="right">-0.130</td>
-<td align="right">0.383</td>
+<td align="right">3.001</td>
+<td align="right">-1.087</td>
+<td align="right">6.647</td>
+<td align="right">-0.017</td>
+<td align="right">0.041</td>
+<td align="right">-0.125</td>
+<td align="right">-0.094</td>
 </tr>
 <tr class="even">
 <td>cont3_1</td>
 <td align="right">3</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">9.09</td>
-<td align="right">3.657</td>
-<td align="right">8.980</td>
-<td align="right">-0.784</td>
-<td align="right">24.013</td>
-<td align="right">0.202</td>
-<td align="right">-0.198</td>
-<td align="right">-0.078</td>
-<td align="right">0.405</td>
+<td align="right">9.089</td>
+<td align="right">3.660</td>
+<td align="right">9.012</td>
+<td align="right">-0.245</td>
+<td align="right">24.184</td>
+<td align="right">0.205</td>
+<td align="right">-0.195</td>
+<td align="right">-0.008</td>
+<td align="right">0.471</td>
 </tr>
 <tr class="odd">
 <td>cont3_2</td>
 <td align="right">3</td>
 <td align="right">2</td>
 <td align="right">10000</td>
-<td align="right">-5.00</td>
+<td align="right">-5.000</td>
 <td align="right">2.000</td>
-<td align="right">-4.980</td>
-<td align="right">-13.736</td>
-<td align="right">3.088</td>
-<td align="right">0.007</td>
-<td align="right">-0.087</td>
-<td align="right">-0.016</td>
-<td align="right">0.287</td>
+<td align="right">-5.011</td>
+<td align="right">-12.762</td>
+<td align="right">2.251</td>
+<td align="right">0.008</td>
+<td align="right">-0.013</td>
+<td align="right">-0.051</td>
+<td align="right">-0.158</td>
 </tr>
 <tr class="even">
 <td>cont3_3</td>
 <td align="right">3</td>
 <td align="right">3</td>
 <td align="right">10000</td>
-<td align="right">3.00</td>
+<td align="right">3.000</td>
 <td align="right">1.000</td>
-<td align="right">2.998</td>
-<td align="right">-0.816</td>
-<td align="right">6.933</td>
-<td align="right">0.009</td>
-<td align="right">-0.011</td>
-<td align="right">0.043</td>
-<td align="right">0.050</td>
+<td align="right">3.008</td>
+<td align="right">-1.150</td>
+<td align="right">6.927</td>
+<td align="right">0.001</td>
+<td align="right">0.053</td>
+<td align="right">-0.008</td>
+<td align="right">-0.163</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$target_mix_x, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$target_mix_x, digits = 3, booktabs = TRUE, 
   caption = &quot;Target Distributions of Continuous Mixture Variables&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-43">Table 23: </span>Target Distributions of Continuous Mixture Variables</caption>
+<caption><span id="tab:unnamed-chunk-32">Table 19: </span>Target Distributions of Continuous Mixture Variables</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2479,10 +2012,10 @@ names(Sum3)</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>knitr::kable(Sum3$mix_sum_x, digits = 3, booktabs = TRUE, 
+<pre class="r"><code>knitr::kable(Sum2$mix_sum_x, digits = 3, booktabs = TRUE, 
   caption = &quot;Simulated Distributions of Continuous Mixture Variables&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-44">Table 24: </span>Simulated Distributions of Continuous Mixture Variables</caption>
+<caption><span id="tab:unnamed-chunk-33">Table 20: </span>Simulated Distributions of Continuous Mixture Variables</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2508,13 +2041,13 @@ names(Sum3)</code></pre>
 <td align="right">10000</td>
 <td align="right">0.6</td>
 <td align="right">3.916</td>
-<td align="right">2.403</td>
-<td align="right">-11.950</td>
-<td align="right">6.264</td>
-<td align="right">-0.979</td>
-<td align="right">-0.482</td>
-<td align="right">5.343</td>
-<td align="right">-7.383</td>
+<td align="right">2.441</td>
+<td align="right">-11.613</td>
+<td align="right">6.645</td>
+<td align="right">-0.969</td>
+<td align="right">-0.527</td>
+<td align="right">5.423</td>
+<td align="right">-7.101</td>
 </tr>
 <tr class="even">
 <td>mix3_1</td>
@@ -2523,21 +2056,21 @@ names(Sum3)</code></pre>
 <td align="right">10000</td>
 <td align="right">0.6</td>
 <td align="right">3.916</td>
-<td align="right">2.414</td>
-<td align="right">-11.074</td>
-<td align="right">6.932</td>
-<td align="right">-0.978</td>
-<td align="right">-0.499</td>
-<td align="right">5.426</td>
-<td align="right">-7.458</td>
+<td align="right">2.425</td>
+<td align="right">-12.392</td>
+<td align="right">6.903</td>
+<td align="right">-0.981</td>
+<td align="right">-0.482</td>
+<td align="right">5.391</td>
+<td align="right">-7.545</td>
 </tr>
 </tbody>
 </table>
 <p>Summary of Ordinal Variable: (for <span class="math inline">\(Y_1\)</span>)</p>
-<pre class="r"><code>knitr::kable(Sum3$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
+<pre class="r"><code>knitr::kable(Sum2$ord_sum_x[[1]][1:2, ], digits = 3, row.names = FALSE,
   booktabs = TRUE, caption = &quot;Simulated Distribution of X_ord(1)&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-45">Table 25: </span>Simulated Distribution of X_ord(1)</caption>
+<caption><span id="tab:unnamed-chunk-34">Table 21: </span>Simulated Distribution of X_ord(1)</caption>
 <thead>
 <tr class="header">
 <th align="right">Outcome</th>
@@ -2557,15 +2090,15 @@ names(Sum3)</code></pre>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">0.667</td>
-<td align="right">0.664</td>
+<td align="right">0.669</td>
 </tr>
 </tbody>
 </table>
 <p>Summary of Poisson Variable:</p>
-<pre class="r"><code>knitr::kable(Sum3$pois_sum_x, digits = 3, row.names = FALSE,
+<pre class="r"><code>knitr::kable(Sum2$pois_sum_x, digits = 3, row.names = FALSE,
   booktabs = TRUE, caption = &quot;Simulated Distribution of X_pois(1)&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-46">Table 26: </span>Simulated Distribution of X_pois(1)</caption>
+<caption><span id="tab:unnamed-chunk-35">Table 22: </span>Simulated Distribution of X_pois(1)</caption>
 <thead>
 <tr class="header">
 <th align="right">Outcome</th>
@@ -2589,41 +2122,41 @@ names(Sum3)</code></pre>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">0.095</td>
+<td align="right">0.096</td>
 <td align="right">0.1</td>
-<td align="right">13.521</td>
+<td align="right">13.525</td>
 <td align="right">13.5</td>
-<td align="right">33.322</td>
+<td align="right">33.205</td>
 <td align="right">40</td>
 <td align="right">14</td>
 <td align="right">0</td>
-<td align="right">32</td>
-<td align="right">-0.801</td>
-<td align="right">0.742</td>
+<td align="right">30</td>
+<td align="right">-0.839</td>
+<td align="right">0.748</td>
 </tr>
 <tr class="even">
 <td align="right">3</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">0.095</td>
+<td align="right">0.096</td>
 <td align="right">0.1</td>
-<td align="right">13.521</td>
+<td align="right">13.525</td>
 <td align="right">13.5</td>
-<td align="right">33.322</td>
+<td align="right">33.205</td>
 <td align="right">40</td>
 <td align="right">14</td>
 <td align="right">0</td>
-<td align="right">32</td>
-<td align="right">-0.801</td>
-<td align="right">0.742</td>
+<td align="right">30</td>
+<td align="right">-0.839</td>
+<td align="right">0.748</td>
 </tr>
 </tbody>
 </table>
 <p>Summary of Negative Binomial Variables <span class="math inline">\(X_{nb(11)}, X_{nb(21)},\)</span> and <span class="math inline">\(X_{nb(31)}\)</span>:</p>
-<pre class="r"><code>knitr::kable(Sum3$nb_sum_x, digits = 3, row.names = FALSE,
+<pre class="r"><code>knitr::kable(Sum2$nb_sum_x, digits = 3, row.names = FALSE,
   booktabs = TRUE, caption = &quot;Simulated Distributions&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-47">Table 27: </span>Simulated Distributions</caption>
+<caption><span id="tab:unnamed-chunk-36">Table 23: </span>Simulated Distributions</caption>
 <thead>
 <tr class="header">
 <th align="right">Outcome</th>
@@ -2648,18 +2181,18 @@ names(Sum3)</code></pre>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">10000</td>
-<td align="right">0.073</td>
+<td align="right">0.072</td>
 <td align="right">0.073</td>
 <td align="right">0.769</td>
-<td align="right">2.995</td>
+<td align="right">3.009</td>
 <td align="right">3</td>
-<td align="right">3.906</td>
+<td align="right">3.966</td>
 <td align="right">3.9</td>
 <td align="right">3</td>
 <td align="right">0</td>
-<td align="right">13</td>
-<td align="right">0.787</td>
-<td align="right">0.684</td>
+<td align="right">14</td>
+<td align="right">0.848</td>
+<td align="right">0.984</td>
 </tr>
 <tr class="even">
 <td align="right">3</td>
@@ -2668,25 +2201,25 @@ names(Sum3)</code></pre>
 <td align="right">0.018</td>
 <td align="right">0.017</td>
 <td align="right">0.667</td>
-<td align="right">5.005</td>
+<td align="right">5.003</td>
 <td align="right">5</td>
-<td align="right">7.588</td>
+<td align="right">7.601</td>
 <td align="right">7.5</td>
 <td align="right">5</td>
 <td align="right">0</td>
-<td align="right">20</td>
-<td align="right">0.812</td>
-<td align="right">1.090</td>
+<td align="right">21</td>
+<td align="right">0.797</td>
+<td align="right">0.984</td>
 </tr>
 </tbody>
 </table>
 <p>Maximum Correlation Errors for X Variables by Outcome:</p>
-<pre class="r"><code>maxerr &lt;- rbind(Sum3$maxerr[[1]][-2], Sum3$maxerr[[3]][-2])
+<pre class="r"><code>maxerr &lt;- rbind(Sum2$maxerr[[1]][-2], Sum2$maxerr[[3]][-2])
 rownames(maxerr) &lt;- colnames(maxerr) &lt;- c(&quot;Y1&quot;, &quot;Y3&quot;)
 knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE, 
   caption = &quot;Maximum Correlation Errors for X Variables&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-48">Table 28: </span>Maximum Correlation Errors for X Variables</caption>
+<caption><span id="tab:unnamed-chunk-37">Table 24: </span>Maximum Correlation Errors for X Variables</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -2697,13 +2230,477 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 <tbody>
 <tr class="odd">
 <td>Y1</td>
-<td align="right">0.01135</td>
-<td align="right">0.01456</td>
+<td align="right">0.00636</td>
+<td align="right">0.00614</td>
 </tr>
 <tr class="even">
 <td>Y3</td>
-<td align="right">0.01456</td>
-<td align="right">0.01456</td>
+<td align="right">0.00614</td>
+<td align="right">0.00614</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="example-3-system-of-4-equations-with-random-intercept-and-random-slope-for-time" class="section level2 unnumbered">
+<h2>Example 3: System of 4 equations with random intercept and random slope for time</h2>
+<span class="math display" id="eq:System2">\[\begin{equation}   
+\begin{split}    
+Y_1 &amp;= \beta_0 + \beta_1 * X_{O1} + \beta_2 * X_{C11} +\beta_{\rm{subj1}} * X_{O1} * X_{C11} + \beta_{\rm{tint1}} * X_{O1} * Time_1 + \beta_{\rm{t}} * Time_1 + U_0 + U_1 * Time_1 + E_1 \\
+Y_2 &amp;= \beta_0 + \beta_1 * X_{O1} + \beta_2 * X_{C21} +\beta_{\rm{subj1}} * X_{O1} * X_{C21} + \beta_{\rm{tint1}} * X_{O1} * Time_2 + \beta_{\rm{t}} * Time_2 + U_0 + U_1 * Time_2 + E_2 \\
+Y_3 &amp;= \beta_0 + \beta_1 * X_{O1} + \beta_2 * X_{C31} +\beta_{\rm{subj1}} * X_{O1} * X_{C31} + \beta_{\rm{tint1}} * X_{O1} * Time_3 + \beta_{\rm{t}} * Time_3 + U_0 + U_1 * Time_3 + E_3 \\
+Y_4 &amp;= \beta_0 + \beta_1 * X_{O1} + \beta_2 * X_{C41} +\beta_{\rm{subj1}} * X_{O1} * X_{C41} + \beta_{\rm{tint1}} * X_{O1} * Time_4 + \beta_{\rm{t}} * Time_4 + U_0 + U_1 * Time_4 + E_4
+\end{split}   
+\tag{2}
+\end{equation}\]</span>
+<div id="description-of-variables-2" class="section level3 unnumbered">
+<h3>Description of Variables</h3>
+<ol style="list-style-type: decimal">
+<li>Ordinal variable <span class="math inline">\(X_{O1}\)</span>, where <span class="math inline">\(\Pr[X_{O1} = 0] = 0.2\)</span>, <span class="math inline">\(\Pr[X_{O1} = 1] = 0.35\)</span>, and <span class="math inline">\(\Pr[X_{O1} = 2] = 0.45\)</span>, is a group-level variable and is static across equations.</li>
+<li>Continuous non-mixture variable <span class="math inline">\(X_{C1}\)</span> is a subject-level variable with a Logistic(0, 1) distribution, which requires a sixth cumulant correction of 1.75.</li>
+<li><span class="math inline">\(X\)</span> terms are correlated at 0.1 within an equation and have an AR(1) structure across equations. The correlations for the static variable are held constant across equations.</li>
+<li>Random intercept <span class="math inline">\(U_0\)</span> and time slope <span class="math inline">\(U_1\)</span> with Normal(0, 1) distributions. Correlation between random effects is 0.3.</li>
+<li>The error terms have <span class="math inline">\(t\)</span>(10) distributions (mean 0, variance 1) and an AR(1, 0.4) correlation structure.</li>
+</ol>
+<p>In this example, the random intercept and time slope have continuous non-mixture distributions for all <span class="math inline">\(Y\)</span>. However, the functions <code>corrsys</code> and <code>corrsys2</code> permit a combination of none, non-mixture, and mixture distributions across the <span class="math inline">\(Y\)</span> (i.e., if <code>rand.int = c(&quot;non_mix&quot;, &quot;mix&quot;, &quot;none&quot;)</code> then the random intercept for <span class="math inline">\(Y_1\)</span> has a non-mixture, and the random intercept for <span class="math inline">\(Y_2\)</span> has a mixture distribution; there is no random intercept for <span class="math inline">\(Y_3\)</span>). In addition, the distributions themselves can vary across outcomes. This is also true for random effects assigned to independent variables as specified in <code>rand.var</code>.</p>
+</div>
+<div id="step-1-set-up-parameter-inputs-2" class="section level3 unnumbered">
+<h3>Step 1: Set up parameter inputs</h3>
+<pre class="r"><code>seed &lt;- 1
+n &lt;- 10000
+M &lt;- 4
+
+# Binary variable
+marginal &lt;- lapply(seq_len(M), function(x) list(c(0.2, 0.55)))
+support &lt;- lapply(seq_len(M), function(x) list(0:2))
+
+same.var &lt;- 1
+subj.var &lt;- matrix(c(1, 2, 2, 2, 3, 2, 4, 2), 4, 2, byrow = TRUE)
+
+# create list of X correlation matrices
+corr.x &lt;- list()
+
+rho1 &lt;- 0.1
+rho2 &lt;- 0.5
+rho3 &lt;- rho2^2
+rho4 &lt;- rho2^3
+# Y_1
+corr.x[[1]] &lt;- list(matrix(rho1, 2, 2), matrix(rho2, 2, 2), matrix(rho3, 2, 2),
+  matrix(rho4, 2, 2))
+diag(corr.x[[1]][[1]]) &lt;- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[1]][[2]][, same.var] &lt;- corr.x[[1]][[3]][, same.var] &lt;-
+  corr.x[[1]][[4]][, same.var] &lt;- corr.x[[1]][[1]][, same.var]
+
+# Y_2
+corr.x[[2]] &lt;- list(t(corr.x[[1]][[2]]), matrix(rho1, 2, 2),
+  matrix(rho2, 2, 2), matrix(rho3, 2, 2))
+diag(corr.x[[2]][[2]]) &lt;- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[2]][[2]][same.var, ] &lt;- corr.x[[1]][[2]][same.var, ]
+corr.x[[2]][[2]][, same.var] &lt;- corr.x[[2]][[3]][, same.var] &lt;-
+  corr.x[[2]][[4]][, same.var] &lt;- t(corr.x[[1]][[2]][same.var, ])
+corr.x[[2]][[3]][same.var, ] &lt;- corr.x[[1]][[3]][same.var, ]
+corr.x[[2]][[4]][same.var, ] &lt;- corr.x[[1]][[4]][same.var, ]
+
+# Y_3
+corr.x[[3]] &lt;- list(t(corr.x[[1]][[3]]), t(corr.x[[2]][[3]]),
+  matrix(rho1, 2, 2), matrix(rho2, 2, 2))
+diag(corr.x[[3]][[3]]) &lt;- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[3]][[3]][same.var, ] &lt;- corr.x[[1]][[3]][same.var, ]
+corr.x[[3]][[3]][, same.var] &lt;- t(corr.x[[3]][[3]][same.var, ])
+corr.x[[3]][[4]][same.var, ] &lt;- corr.x[[1]][[4]][same.var, ]
+corr.x[[3]][[4]][, same.var] &lt;- t(corr.x[[1]][[3]][same.var, ])
+
+# Y_4
+corr.x[[4]] &lt;- list(t(corr.x[[1]][[4]]), t(corr.x[[2]][[4]]),
+  t(corr.x[[3]][[4]]), matrix(rho1, 2, 2))
+diag(corr.x[[4]][[4]]) &lt;- 1
+# set correlations for the same variables equal across outcomes
+corr.x[[4]][[4]][same.var, ] &lt;- corr.x[[1]][[4]][same.var, ]
+corr.x[[4]][[4]][, same.var] &lt;- t(corr.x[[4]][[4]][same.var, ])
+
+# create error term correlation matrix
+corr.e &lt;- matrix(c(1, 0.4, 0.4^2, 0.4^3,
+                   0.4, 1, 0.4, 0.4^2,
+                   0.4^2, 0.4, 1, 0.4,
+                   0.4^3, 0.4^2, 0.4, 1), M, M, byrow = TRUE)
+
+Log &lt;- calc_theory(&quot;Logistic&quot;, c(0, 1))
+t10 &lt;- calc_theory(&quot;t&quot;, 10)
+
+# Continuous variables: 1st non-mixture, 2nd error terms
+means &lt;- lapply(seq_len(M), function(x) c(Log[1], 0))
+vars &lt;- lapply(seq_len(M), function(x) c(Log[2]^2, 1))
+skews &lt;- lapply(seq_len(M), function(x) c(Log[3], t10[3]))
+skurts &lt;- lapply(seq_len(M), function(x) c(Log[4], t10[4]))
+fifths &lt;- lapply(seq_len(M), function(x) c(Log[5], t10[5]))
+sixths &lt;- lapply(seq_len(M), function(x) c(Log[6], t10[6]))
+Six &lt;- lapply(seq_len(M), function(x) list(1.75, NULL))
+
+## RANDOM EFFECTS
+rand.int &lt;- &quot;non_mix&quot; # random intercept
+rand.tsl &lt;- &quot;non_mix&quot; # random time slope
+rand.var &lt;- NULL # no additional random effects
+
+rmeans &lt;- rskews &lt;- rskurts &lt;- rfifths &lt;- rsixths &lt;- c(0, 0)
+rvars &lt;- c(1, 1)
+rSix &lt;- list(NULL, NULL)
+
+# append parameters for random effect distributions to parameters for
+# continuous fixed effects and error terms
+means &lt;- append(means, list(rmeans))
+vars &lt;- append(vars, list(rvars))
+skews &lt;- append(skews, list(rskews))
+skurts &lt;- append(skurts, list(rskurts))
+fifths &lt;- append(fifths, list(rfifths))
+sixths &lt;- append(sixths, list(rsixths))
+Six &lt;- append(Six, list(rSix))
+
+# use a list of length 1 so that betas are the same across Y
+betas &lt;- list(c(1, 1))
+betas.subj &lt;- list(0.5)
+betas.tint &lt;- list(0.75)
+
+# set up correlation matrix for random effects
+corr.u &lt;- matrix(c(1, 0.3, 0.3, 1), 2, 2)</code></pre>
+</div>
+<div id="step-2-check-parameter-inputs-2" class="section level3 unnumbered">
+<h3>Step 2: Check parameter inputs</h3>
+<pre class="r"><code>checkpar(M, &quot;Polynomial&quot;, &quot;non_mix&quot;, means, vars, skews, skurts, fifths,
+  sixths, Six, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, same.var = same.var, subj.var = subj.var, betas = betas,
+  betas.subj = betas.subj, betas.tint = betas.tint, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, quiet = TRUE)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="step-3-generate-system-2" class="section level3 unnumbered">
+<h3>Step 3: Generate system</h3>
+<pre class="r"><code>Sys3 &lt;- corrsys(n, M, Time = NULL, &quot;Polynomial&quot;, &quot;non_mix&quot;, means, vars,
+  skews, skurts, fifths, sixths, Six, marginal = marginal, support = support,
+  corr.x = corr.x, corr.e = corr.e, same.var = same.var, subj.var = subj.var,
+  betas = betas, betas.subj = betas.subj, betas.tint = betas.tint,
+  rand.int = rand.int, rand.tsl = rand.tsl, corr.u = corr.u, seed = seed,
+  use.nearPD = FALSE, quiet = TRUE)</code></pre>
+<pre><code>## Total Simulation time: 0.008 minutes</code></pre>
+</div>
+<div id="step-4-describe-results-2" class="section level3 unnumbered">
+<h3>Step 4: Describe results</h3>
+<pre class="r"><code>Sum3 &lt;- summary_sys(Sys3$Y, Sys3$E, E_mix = NULL, Sys3$X,
+  Sys3$X_all, M, &quot;Polynomial&quot;, means, vars, skews, skurts, fifths,
+  sixths, marginal = marginal, support = support, corr.x = corr.x,
+  corr.e = corr.e, U = Sys3$U, U_all = Sys3$U_all, rand.int = rand.int,
+  rand.tsl = rand.tsl, corr.u = corr.u, rmeans2 = Sys3$rmeans2,
+  rvars2 = Sys3$rvars2)
+names(Sum3)</code></pre>
+<pre><code>##  [1] &quot;cont_sum_y&quot;   &quot;rho.y&quot;        &quot;cont_sum_e&quot;   &quot;target_sum_e&quot;
+##  [5] &quot;rho.e&quot;        &quot;rho.ye&quot;       &quot;ord_sum_x&quot;    &quot;cont_sum_x&quot;  
+##  [9] &quot;target_sum_x&quot; &quot;sum_xall&quot;     &quot;rho.x&quot;        &quot;rho.xall&quot;    
+## [13] &quot;rho.yx&quot;       &quot;rho.yxall&quot;    &quot;maxerr&quot;       &quot;target_sum_u&quot;
+## [17] &quot;cont_sum_u&quot;   &quot;sum_uall&quot;     &quot;rho.u&quot;        &quot;maxerr_u&quot;</code></pre>
+<pre class="r"><code>knitr::kable(Sum3$cont_sum_y, digits = 3, booktabs = TRUE, 
+  caption = &quot;Simulated Distributions of Outcomes&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-42">Table 25: </span>Simulated Distributions of Outcomes</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Outcome</th>
+<th align="right">N</th>
+<th align="right">Mean</th>
+<th align="right">SD</th>
+<th align="right">Median</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
+<th align="right">Skew</th>
+<th align="right">Skurtosis</th>
+<th align="right">Fifth</th>
+<th align="right">Sixth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Y1</td>
+<td align="right">1</td>
+<td align="right">10000</td>
+<td align="right">3.269</td>
+<td align="right">3.926</td>
+<td align="right">3.047</td>
+<td align="right">-14.527</td>
+<td align="right">25.868</td>
+<td align="right">0.374</td>
+<td align="right">0.829</td>
+<td align="right">1.476</td>
+<td align="right">5.402</td>
+</tr>
+<tr class="even">
+<td>Y2</td>
+<td align="right">2</td>
+<td align="right">10000</td>
+<td align="right">5.475</td>
+<td align="right">4.969</td>
+<td align="right">5.266</td>
+<td align="right">-10.926</td>
+<td align="right">29.478</td>
+<td align="right">0.254</td>
+<td align="right">-0.026</td>
+<td align="right">-0.052</td>
+<td align="right">0.751</td>
+</tr>
+<tr class="odd">
+<td>Y3</td>
+<td align="right">3</td>
+<td align="right">10000</td>
+<td align="right">7.238</td>
+<td align="right">5.585</td>
+<td align="right">7.056</td>
+<td align="right">-13.822</td>
+<td align="right">31.864</td>
+<td align="right">0.151</td>
+<td align="right">-0.029</td>
+<td align="right">0.003</td>
+<td align="right">0.585</td>
+</tr>
+<tr class="even">
+<td>Y4</td>
+<td align="right">4</td>
+<td align="right">10000</td>
+<td align="right">9.099</td>
+<td align="right">6.403</td>
+<td align="right">8.950</td>
+<td align="right">-12.072</td>
+<td align="right">38.790</td>
+<td align="right">0.132</td>
+<td align="right">0.027</td>
+<td align="right">0.177</td>
+<td align="right">0.609</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(Sum3$target_sum_u, digits = 3, booktabs = TRUE, 
+  caption = &quot;Target Distributions of Random Effects&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-43">Table 26: </span>Target Distributions of Random Effects</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Outcome</th>
+<th align="right">U</th>
+<th align="right">Mean</th>
+<th align="right">SD</th>
+<th align="right">Skew</th>
+<th align="right">Skurtosis</th>
+<th align="right">Fifth</th>
+<th align="right">Sixth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>cont1_1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>cont1_2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(Sum3$sum_uall, digits = 3, booktabs = TRUE, 
+  caption = &quot;Simulated Distributions of Random Effects&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-44">Table 27: </span>Simulated Distributions of Random Effects</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Outcome</th>
+<th align="right">U</th>
+<th align="right">N</th>
+<th align="right">Mean</th>
+<th align="right">SD</th>
+<th align="right">Median</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
+<th align="right">Skew</th>
+<th align="right">Skurtosis</th>
+<th align="right">Fifth</th>
+<th align="right">Sixth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U_int</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">10000</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-0.004</td>
+<td align="right">-3.834</td>
+<td align="right">3.564</td>
+<td align="right">-0.016</td>
+<td align="right">0.040</td>
+<td align="right">-0.096</td>
+<td align="right">-0.343</td>
+</tr>
+<tr class="even">
+<td>U_T1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">10000</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.014</td>
+<td align="right">-3.415</td>
+<td align="right">3.933</td>
+<td align="right">-0.003</td>
+<td align="right">-0.044</td>
+<td align="right">0.239</td>
+<td align="right">-0.171</td>
+</tr>
+</tbody>
+</table>
+<p>Maximum Correlation Error for Random Effects:</p>
+<pre class="r"><code>Sum3$maxerr_u</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="linear-mixed-model" class="section level3 unnumbered">
+<h3>Linear mixed model</h3>
+<p>A linear mixed model will be fit to the data using <code>lme</code> from package <strong>nlme</strong> in order to see if the random effects are estimated according to the simulation parameters <span class="citation">(Pinheiro et al. 2017)</span>. The data is again reshaped into long format using <code>reshape2::melt</code>.</p>
+<pre class="r"><code>data3 &lt;- as.data.frame(cbind(factor(1:n), Sys3$Y,
+  Sys3$X_all[[1]][, c(1:2, 5)], Sys3$X_all[[2]][, c(2, 5)],
+  Sys3$X_all[[3]][, c(2, 5)], Sys3$X_all[[4]][, c(2, 5)]))
+colnames(data3)[1] &lt;- &quot;Subject&quot;
+data3.a &lt;- melt(data3[, c(&quot;Subject&quot;, &quot;ord1_1&quot;, &quot;Y1&quot;, &quot;Y2&quot;, &quot;Y3&quot;, &quot;Y4&quot;)],
+  id.vars = c(&quot;Subject&quot;, &quot;ord1_1&quot;),
+  measure.vars = c(&quot;Y1&quot;, &quot;Y2&quot;, &quot;Y3&quot;, &quot;Y4&quot;), variable.name = &quot;Time&quot;,
+  value.name = &quot;Y&quot;)
+data3.b &lt;- melt(data3[, c(&quot;Subject&quot;, &quot;cont1_1&quot;, &quot;cont2_1&quot;, &quot;cont3_1&quot;,
+                          &quot;cont4_1&quot;)],
+  id.vars = c(&quot;Subject&quot;), variable.name = &quot;Time&quot;, value.name = &quot;cont1&quot;)
+data3.a$Time &lt;- data3.b$Time &lt;- c(rep(1, n), rep(2, n), rep(3, n), rep(4, n))
+data3 &lt;- merge(data3.a, data3.b, by = c(&quot;Subject&quot;, &quot;Time&quot;))</code></pre>
+<p>Errors modeled as having Gaussian distributions with an AR(1) correlation structure:</p>
+<pre class="r"><code>fm3 &lt;- lme(Y ~ ord1_1 * Time + ord1_1 * cont1,
+  random = ~ Time | Subject, correlation = corAR1(), data = data3)
+sum_fm3 &lt;- summary(fm3)</code></pre>
+<p>Each effect in the model was again found to be statistically significant at the <span class="math inline">\(\alpha = 0.001\)</span> level.</p>
+<p>Now, compare betas used in simulation to those returned by <code>lme</code>:</p>
+<pre class="r"><code>fm3.coef &lt;- as.data.frame(sum_fm3$tTable[c(&quot;(Intercept)&quot;,
+  &quot;ord1_1&quot;, &quot;cont1&quot;, &quot;Time&quot;, &quot;ord1_1:cont1&quot;, &quot;ord1_1:Time&quot;), ])
+coef &lt;- cbind(c(betas.0, betas[[1]], betas.t, betas.subj[[1]], 
+  betas.tint[[1]]), fm3.coef)
+colnames(coef)[1] &lt;- &quot;Simulated&quot;
+knitr::kable(as.data.frame(coef), digits = 3, booktabs = TRUE, 
+  caption = &quot;Beta Coefficients for Repeated Measures Model 2&quot;)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-48">Table 28: </span>Beta Coefficients for Repeated Measures Model 2</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Simulated</th>
+<th align="right">Value</th>
+<th align="right">Std.Error</th>
+<th align="right">DF</th>
+<th align="right">t-value</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">0.00</td>
+<td align="right">-0.003</td>
+<td align="right">0.032</td>
+<td align="right">29996</td>
+<td align="right">-0.108</td>
+<td align="right">0.914</td>
+</tr>
+<tr class="even">
+<td>ord1_1</td>
+<td align="right">1.00</td>
+<td align="right">1.001</td>
+<td align="right">0.022</td>
+<td align="right">9998</td>
+<td align="right">46.435</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>cont1</td>
+<td align="right">1.00</td>
+<td align="right">0.997</td>
+<td align="right">0.007</td>
+<td align="right">29996</td>
+<td align="right">151.820</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td>Time</td>
+<td align="right">1.00</td>
+<td align="right">1.012</td>
+<td align="right">0.021</td>
+<td align="right">29996</td>
+<td align="right">48.222</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>ord1_1:cont1</td>
+<td align="right">0.50</td>
+<td align="right">0.502</td>
+<td align="right">0.004</td>
+<td align="right">29996</td>
+<td align="right">111.984</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td>ord1_1:Time</td>
+<td align="right">0.75</td>
+<td align="right">0.741</td>
+<td align="right">0.014</td>
+<td align="right">29996</td>
+<td align="right">51.844</td>
+<td align="right">0.000</td>
+</tr>
+</tbody>
+</table>
+<p>Estimated standard deviation and AR(1) parameter for error terms:</p>
+<pre class="r"><code>sum_fm3$sigma</code></pre>
+<pre><code>## [1] 1.00218</code></pre>
+<pre class="r"><code>coef(fm3$modelStruct$corStruct, unconstrained = FALSE)</code></pre>
+<pre><code>##       Phi 
+## 0.4010826</code></pre>
+<p>Summary of estimated random effects:</p>
+<pre class="r"><code>varcor &lt;- VarCorr(fm3)
+fm3.ranef &lt;- data.frame(Cor = as.numeric(varcor[2, 3]),
+  SD_int = as.numeric(varcor[1, 2]), SD_Tsl = as.numeric(varcor[2, 2]))
+knitr::kable(fm3.ranef, digits = 3, booktabs = TRUE)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Cor</th>
+<th align="right">SD_int</th>
+<th align="right">SD_Tsl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.309</td>
+<td align="right">0.991</td>
+<td align="right">0.999</td>
 </tr>
 </tbody>
 </table>
@@ -2721,6 +2718,9 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 <div id="ref-Lme4">
 <p>Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. “Fitting Linear Mixed-Effects Models Using lme4.” <em>Journal of Statistical Software</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01" class="uri">https://doi.org/10.18637/jss.v067.i01</a>.</p>
 </div>
+<div id="ref-Bates">
+<p>Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. “Fitting Linear Mixed-Effects Models Using Lme4.” <em>Journal of Statistical Software, Articles</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01" class="uri">https://doi.org/10.18637/jss.v067.i01</a>.</p>
+</div>
 <div id="ref-SMCD">
 <p>Fialkowski, A C. 2017. <em>SimMultiCorrData: Simulation of Correlated Data with Multiple Variable Types</em>. <a href="https://CRAN.R-project.org/package=SimMultiCorrData" class="uri">https://CRAN.R-project.org/package=SimMultiCorrData</a>.</p>
 </div>
@@ -2733,11 +2733,29 @@ knitr::kable(as.data.frame(maxerr), digits = 5, booktabs = TRUE,
 <div id="ref-LmerTest">
 <p>Kuznetsova, Alexandra, Per B. Brockhoff, and Rune H. B. Christensen. 2017. “lmerTest Package: Tests in Linear Mixed Effects Models.” <em>Journal of Statistical Software</em> 82 (13): 1–26. <a href="https://doi.org/10.18637/jss.v082.i13" class="uri">https://doi.org/10.18637/jss.v082.i13</a>.</p>
 </div>
+<div id="ref-Laird">
+<p>Laird, NM, and JH Ware. 1982. “Random-Effects Models for Longitudinal Data.” <em>Biometrics</em> 38: 963–74.</p>
+</div>
+<div id="ref-Lind">
+<p>Lindstrom, MJ, and DM Bates. 1990. “Nonlinear Mixed Effects Models for Repeated Measures Data.” <em>Biometrics</em> 46: 673–87.</p>
+</div>
+<div id="ref-Maree">
+<p>Maree, S. 2012. “Correcting Non Positive Definite Correlation Matrices.” BSc Thesis Applied Mathematics, Delft University of Technology. <a href="https://repository.tudelft.nl/islandora/object/uuid:2175c274-ab03-4fd5.../download" class="uri">https://repository.tudelft.nl/islandora/object/uuid:2175c274-ab03-4fd5.../download</a>.</p>
+</div>
+<div id="ref-Nlme">
+<p>Pinheiro, Jose, Douglas Bates, Saikat DebRoy, Deepayan Sarkar, and R Core Team. 2017. <em>nlme: Linear and Nonlinear Mixed Effects Models</em>. <a href="https://CRAN.R-project.org/package=nlme" class="uri">https://CRAN.R-project.org/package=nlme</a>.</p>
+</div>
 <div id="ref-Stats">
 <p>R Core Team. 2017. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
 </div>
 <div id="ref-Reshape2">
 <p>Wickham, H. 2007. “Reshaping Data with the reshape Package.” <em>Journal of Statistical Software</em> 21 (12): 1–20. <a href="http://www.jstatsoft.org/v21/i12/" class="uri">http://www.jstatsoft.org/v21/i12/</a>.</p>
+</div>
+<div id="ref-YinZhang1">
+<p>Yin, JF, and Y Zhang. 2013. “Alternative Gradient Algorithms for Computing the Nearest Correlation Matrix.” <em>Applied Mathematics and Computation</em> 219 (14): 7591–9. <a href="https://doi.org/10.1016/j.amc.2013.01.045" class="uri">https://doi.org/10.1016/j.amc.2013.01.045</a>.</p>
+</div>
+<div id="ref-YinZhang2">
+<p>Zhang, Y, and JF Yin. Year not provided. “Modified Alternative Gradients Algorithm for Computing the Nearest Correlation Matrix.” Internal paper. Shanghai: Tongji University.</p>
 </div>
 </div>
 </div>

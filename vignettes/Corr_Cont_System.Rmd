@@ -128,7 +128,8 @@ error_type <- "non_mix"
 
 ```{r}
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
-  Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, corr.e = corr.e)
+  Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, corr.e = corr.e, 
+  quiet = TRUE)
 ```
 
 ### Step 3: Generate system {-}
@@ -136,7 +137,7 @@ checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths,
 ```{r}
 Sys1 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, betas.0 = betas.0, corr.x = corr.x, corr.yx = corr.yx, 
-  corr.e = corr.e, seed = seed)
+  corr.e = corr.e, seed = seed, quiet = TRUE)
 ```
 ```{r}
 knitr::kable(Sys1$betas, booktabs = TRUE, caption = "Beta coefficients")
@@ -323,16 +324,18 @@ error_type = "mix"
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
   Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
   mix_sixths, mix_Six, same.var = same.var, betas.0 = betas.0, corr.x = corr.x, 
-  corr.yx = corr.yx, corr.e = corr.e)
+  corr.yx = corr.yx, corr.e = corr.e, quiet = TRUE)
 ```
 
-### Step 3: Generate system {-}
+### Step 3: Generate system {-}        
+
+Note that `use.nearPD = FALSE` and `adjgrad = FALSE` so that negative eigen-values will be replaced with `eigmin` (default $0$) instead of using the nearest positive-definite matrix (found with @Matrix's `Matrix::nearPD` function by @Higham's algorithm) or the adjusted gradient updating method via `adj_grad` [@YinZhang1;@YinZhang2;@Maree].    
 
 ```{r}
 Sys2 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts,
   mix_fifths, mix_sixths, mix_Six, same.var, betas.0, corr.x, corr.yx, corr.e,
-  seed, use.nearPD = FALSE)
+  seed, use.nearPD = FALSE, quiet = TRUE)
 ```
 ```{r}
 knitr::kable(Sys2$betas, booktabs = TRUE, caption = "Beta coefficients")
@@ -538,7 +541,7 @@ error_type = "mix"
 checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths, 
   Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts, mix_fifths, 
   mix_sixths, mix_Six, same.var = same.var, betas.0 = betas.0, corr.x = corr.x, 
-  corr.yx = corr.yx, corr.e = corr.e)
+  corr.yx = corr.yx, corr.e = corr.e, quiet = TRUE)
 ```
 
 ### Step 3: Generate system {-}
@@ -547,7 +550,7 @@ checkpar(M, method, error_type, means, vars, skews, skurts, fifths, sixths,
 Sys3 <- nonnormsys(n, M, method, error_type, means, vars, skews, skurts,
   fifths, sixths, Six, mix_pis, mix_mus, mix_sigmas, mix_skews, mix_skurts,
   mix_fifths, mix_sixths, mix_Six, same.var, betas.0, corr.x, corr.yx, corr.e,
-  seed, use.nearPD = FALSE)
+  seed, use.nearPD = FALSE, quiet = TRUE)
 ```
 ```{r}
 knitr::kable(Sys3$betas, booktabs = TRUE, caption = "Beta coefficients")
