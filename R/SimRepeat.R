@@ -1,6 +1,6 @@
 #' @title Simulation of Correlated Systems of Statistical Equations with Multiple Variable Types
 #'
-#' @description \pkg{SimRepeat} generates correlated systems of statistical equations which represent \strong{repeated measurements} or clustered data.
+#' @description Generate correlated systems of statistical equations which represent \strong{repeated measurements} or clustered data.
 #'     These systems contain either: \emph{a)} continuous normal, non-normal, and mixture variables based on the techniques of Headrick and Beasley (2004,
 #'     \doi{10.1081/SAC-120028431}) or \emph{b)} continuous (normal, non-normal and mixture), ordinal, and count (regular or zero-inflated, Poisson and
 #'     Negative Binomial) variables based on the hierarchical linear models (HLM) approach.  Headrick and Beasley's method for continuous variables calculates
@@ -80,9 +80,6 @@
 #'
 #' Berend H (2017). nleqslv: Solve Systems of Nonlinear Equations. R package version 3.2.
 #'     \url{https://CRAN.R-project.org/package=nleqslv}
-#'
-#' Carnell R (2017). triangle: Provides the Standard Distribution Functions for the Triangle Distribution. R package version 0.11.
-#'     \url{https://CRAN.R-project.org/package=triangle}.
 #'
 #' Davenport JW, Bezder JC, & Hathaway RJ (1988). Parameter Estimation for Finite Mixture Distributions.
 #'     Computers & Mathematics with Applications, 15(10):819-28.
