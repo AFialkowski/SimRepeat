@@ -1,3 +1,6 @@
+## Resubmission
+This is a resubmission. In this version I have fixed the comment characters in the \dontrun{} example code.
+
 ## Test environments
 * local OS 'Windows 10' install, 'R 3.4.4'
 * 'win-builder' (devel and release)

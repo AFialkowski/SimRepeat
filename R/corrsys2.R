@@ -434,7 +434,7 @@
 #' Time <- 1:M
 #'
 #' # Error terms have a beta(4, 1.5) distribution with an AR(1, p = 0.4)
-#' correlation structure
+#' # correlation structure
 #' B <- calc_theory("Beta", c(4, 1.5))
 #' skews <- lapply(seq_len(M), function(x) B[3])
 #' skurts <- lapply(seq_len(M), function(x) B[4])
@@ -445,7 +445,7 @@
 #' corr.e <- matrix(c(1, 0.4, 0.4^2, 0.4, 1, 0.4, 0.4^2, 0.4, 1), M, M,
 #'   byrow = TRUE)
 #'
-#' 1 continuous mixture of Normal(-2, 1) and Normal(2, 1) for each Y
+#' # 1 continuous mixture of Normal(-2, 1) and Normal(2, 1) for each Y
 #' mix_pis <- lapply(seq_len(M), function(x) list(c(0.4, 0.6)))
 #' mix_mus <- lapply(seq_len(M), function(x) list(c(-2, 2)))
 #' mix_sigmas <- lapply(seq_len(M), function(x) list(c(1, 1)))
@@ -467,7 +467,7 @@
 #'
 #' # 1 Poisson variable for each Y
 #' lam <- list(1, 5, 10)
-#' # Y2 and Y3 have zero-inflated Poisson variables
+#' # Y2 and Y3 are zero-inflated Poisson variables
 #' p_zip <- list(NULL, 0.05, 0.1)
 #'
 #' # 1 NB variable for each Y
@@ -475,7 +475,7 @@
 #' prob <- list(0.3, 0.4, 0.5)
 #' # either prob or mu is required (not both)
 #' mu <- mapply(function(x, y) x * (1 - y)/y, size, prob, SIMPLIFY = FALSE)
-#' # Y2 and Y3 have zero-inflated NB variables
+#' # Y2 and Y3 are zero-inflated NB variables
 #' p_zinb <- list(NULL, 0.05, 0.1)
 #' pois_eps <- nb_eps <- list()
 #'

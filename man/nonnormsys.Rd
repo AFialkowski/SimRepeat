@@ -314,9 +314,7 @@ fifths <- lapply(seq_len(M), function(x) c(Stcum1[5], Stcum2[5], Stcum3[5]))
 sixths <- lapply(seq_len(M), function(x) c(Stcum1[6], Stcum2[6], Stcum3[6]))
 
 # No sixth cumulant corrections will be used in order to match the results
-# from the paper.  Otherwise, the following should be used in order to
-# produce variables with valid PDF's:
-# Six <- lapply(seq_len(M), function(x) list(NULL, 25.14, NULL))
+# from the paper.
 
 corr.yx <- list(matrix(c(0.4, 0.4), 1), matrix(c(0.5, 0.5), 1),
   matrix(c(0.6, 0.6), 1))
