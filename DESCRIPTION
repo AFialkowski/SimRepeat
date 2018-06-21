@@ -1,7 +1,7 @@
 Package: SimRepeat
 Type: Package
 Title: Simulation of Correlated Systems of Equations with Multiple Variable Types
-Version: 0.1.0
+Version: 0.1.1
 Author: Allison Cynthia Fialkowski
 Maintainer: Allison Cynthia Fialkowski <allijazz@uab.edu>
 Description: Generate correlated systems of statistical equations which represent 
